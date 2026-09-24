@@ -15,6 +15,9 @@ public enum AuditAction {
     REJECTED,
     ARCHIVED,
     WITHDRAWN,
+    // Batch 1 citizen draft lifecycle
+    DRAFT_CREATED,
+    DRAFT_UPDATED,
     // Phase 2 evaluation engine
     EVALUATION_STARTED,
     EVALUATION_ANALYZED,

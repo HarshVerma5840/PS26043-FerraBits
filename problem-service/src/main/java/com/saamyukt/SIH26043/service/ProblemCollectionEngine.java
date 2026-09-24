@@ -52,6 +52,8 @@ public class ProblemCollectionEngine {
     private final DomainRepository domainRepository;
     private final EvidenceRepository evidenceRepository;
     private final AuditService auditService;
+    private final NotificationService notificationService;
+    private final com.saamyukt.SIH26043.service.analysis.Batch2OrchestrationWorkflowService fingerprintService;
 
     public ProblemCollectionEngine(ProblemRepository problemRepository,
                                    SourceAccountGateway sourceAccountGateway,
@@ -59,7 +61,9 @@ public class ProblemCollectionEngine {
                                    ProblemDomainRepository problemDomainRepository,
                                    DomainRepository domainRepository,
                                    EvidenceRepository evidenceRepository,
-                                   AuditService auditService) {
+                                   AuditService auditService,
+                                   NotificationService notificationService,
+                                   com.saamyukt.SIH26043.service.analysis.Batch2OrchestrationWorkflowService fingerprintService) {
         this.problemRepository = problemRepository;
         this.sourceAccountGateway = sourceAccountGateway;
         this.locationRepository = locationRepository;
@@ -67,6 +71,8 @@ public class ProblemCollectionEngine {
         this.domainRepository = domainRepository;
         this.evidenceRepository = evidenceRepository;
         this.auditService = auditService;
+        this.notificationService = notificationService;
+        this.fingerprintService = fingerprintService;
     }
 
     /**
@@ -116,6 +122,15 @@ public class ProblemCollectionEngine {
 
         auditService.record(problem.getProblemId(), AuditAction.CREATED,
                 submitter.getUserId(), null, problem, ip);
+                
+        String dedupKey = "PROBLEM_SUBMITTED_" + problem.getProblemId();
+        notificationService.notifyUser(submitter.getUserId(), problem.getProblemId(), 
+                "PROBLEM_SUBMITTED", "Problem Submitted Successfully", 
+                "Your problem '" + problem.getTitle() + "' has been submitted.",
+                "DRAFT", "SUBMITTED", dedupKey, com.saamyukt.SIH26043.enums.DeliveryChannel.IN_APP);
+
+        fingerprintService.processProblemAsync(problem.getProblemId());
+
         return problem;
     }
 
@@ -209,6 +224,9 @@ public class ProblemCollectionEngine {
         loc.setLongitude(BigDecimal.valueOf(l.longitude()));
         loc.setLandmark(l.landmark());
         loc.setLgdCode(l.lgdCode());
+        if (l.accuracyMeters() != null) loc.setAccuracyMeters(BigDecimal.valueOf(l.accuracyMeters()));
+        loc.setCapturedAt(l.capturedAt());
+        loc.setSourceType(l.sourceType());
         return loc;
     }
 

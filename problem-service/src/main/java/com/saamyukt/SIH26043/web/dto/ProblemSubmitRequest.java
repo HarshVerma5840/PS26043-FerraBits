@@ -42,7 +42,8 @@ public record ProblemSubmitRequest(
         List<UUID> domainIds,
         List<EvidenceRequest> evidence,
         ProblemAccessRule accessRule,
-        List<String> accessUniversities
+        List<String> accessUniversities,
+        String idempotencyKey
 ) {
 
     public record LocationRequest(
@@ -51,10 +52,13 @@ public record ProblemSubmitRequest(
             String blockTehsil,
             String villageWard,
             String pincode,
-            @NotNull Double latitude,
-            @NotNull Double longitude,
+            @NotNull @jakarta.validation.constraints.DecimalMin("-90.0") @jakarta.validation.constraints.DecimalMax("90.0") Double latitude,
+            @NotNull @jakarta.validation.constraints.DecimalMin("-180.0") @jakarta.validation.constraints.DecimalMax("180.0") Double longitude,
             String landmark,
-            String lgdCode
+            String lgdCode,
+            @jakarta.validation.constraints.DecimalMin("0.0") Double accuracyMeters,
+            java.time.Instant capturedAt,
+            com.saamyukt.SIH26043.enums.LocationSource sourceType
     ) {
     }
 

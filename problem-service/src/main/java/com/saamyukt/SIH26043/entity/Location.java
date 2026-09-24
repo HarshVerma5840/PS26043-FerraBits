@@ -62,6 +62,16 @@ public class Location {
     @Column(name = "lgd_code", length = 20)
     private String lgdCode;
 
+    @Column(name = "accuracy_meters", precision = 10, scale = 2)
+    private BigDecimal accuracyMeters;
+
+    @Column(name = "captured_at")
+    private java.time.Instant capturedAt;
+
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.NAMED_ENUM)
+    @Column(name = "source_type", columnDefinition = "location_source")
+    private com.saamyukt.SIH26043.enums.LocationSource sourceType;
+
     @PrePersist
     void onCreate() {
         if (locationId == null) {

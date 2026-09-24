@@ -35,21 +35,44 @@ public class EvidenceUploadService {
     private final ProblemRepository problemRepository;
     private final AuditService auditService;
     private final Path storageRoot;
+    private final long maxSizeBytes;
+    private final java.util.Set<String> allowedMimeTypes;
 
     public EvidenceUploadService(EvidenceRepository evidenceRepository,
                                  ProblemRepository problemRepository,
                                  AuditService auditService,
-                                 @Value("${app.evidence.storage-dir}") String storageDir) {
+                                 @Value("${app.evidence.storage-dir:data/evidence}") String storageDir,
+                                 @Value("${app.evidence.max-size-bytes:52428800}") long maxSizeBytes,
+                                 @Value("${app.evidence.allowed-mime-types:image/jpeg,image/png,video/mp4,application/pdf,audio/mpeg}") String[] allowedMimeTypes) {
         this.evidenceRepository = evidenceRepository;
         this.problemRepository = problemRepository;
         this.auditService = auditService;
         this.storageRoot = Path.of(storageDir).toAbsolutePath().normalize();
+        this.maxSizeBytes = maxSizeBytes;
+        this.allowedMimeTypes = java.util.Set.of(allowedMimeTypes);
     }
 
     @Transactional
-    public Evidence upload(UUID problemId, MultipartFile file, EvidenceType type, AuthUser uploader, String ip) {
+    public Evidence upload(UUID problemId, MultipartFile file, EvidenceType type, String clientUploadId, AuthUser uploader, String ip) {
+        if (file.isEmpty()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "File is empty");
+        }
+        if (file.getSize() > maxSizeBytes) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "File size exceeds the maximum limit of " + maxSizeBytes + " bytes");
+        }
+        if (file.getContentType() == null || !allowedMimeTypes.contains(file.getContentType())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Unsupported MIME type: " + file.getContentType());
+        }
+
         Problem problem = problemRepository.findById(problemId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Problem not found"));
+
+        if (clientUploadId != null && !clientUploadId.isBlank()) {
+            var existing = evidenceRepository.findByProblemIdAndClientUploadId(problemId, clientUploadId);
+            if (existing.isPresent()) {
+                return existing.get();
+            }
+        }
 
         String sha256 = digest(file);
         if (evidenceRepository.existsByFileHash(sha256)) {
@@ -77,13 +100,15 @@ public class EvidenceUploadService {
         evidence.setEvidenceType(type);
         evidence.setFileUrl(target.toString());
         evidence.setFileHash(sha256);
+        evidence.setClientUploadId(clientUploadId);
         evidence.setMetadata(Map.of(
-                "fileName", file.getOriginalFilename(),
+                "fileName", file.getOriginalFilename() != null ? file.getOriginalFilename() : "file",
                 "mimeType", file.getContentType(),
                 "fileSize", file.getSize()));
         evidence.setCapturedAt(Instant.now());
         evidence.setUploadedByUserId(uploader.getUserId());
         evidenceRepository.save(evidence);
+        auditService.record(problemId, com.saamyukt.SIH26043.enums.AuditAction.EVIDENCE_ADDED, uploader.getUserId(), null, Map.of("evidenceId", evidence.getEvidenceId(), "type", evidence.getEvidenceType()), ip);
         return evidence;
     }
 

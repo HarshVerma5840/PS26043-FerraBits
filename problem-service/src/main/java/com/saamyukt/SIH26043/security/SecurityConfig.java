@@ -43,8 +43,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // CORS preflight (OPTIONS) is always public.
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // Public: domain taxonomy
-                        .requestMatchers(HttpMethod.GET, "/domains").permitAll()
+                        // Public: domain taxonomy and nearby problems lookup
+                        .requestMatchers(HttpMethod.GET, "/domains", "/problems/nearby").permitAll()
                         // Public: Swagger/OpenAPI docs and UI
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html",
                                 "/v3/api-docs/**", "/v3/api-docs.yaml").permitAll()

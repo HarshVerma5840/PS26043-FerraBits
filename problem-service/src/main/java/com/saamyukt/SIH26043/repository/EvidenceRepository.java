@@ -11,4 +11,8 @@ public interface EvidenceRepository extends JpaRepository<Evidence, UUID> {
     List<Evidence> findByProblemId(UUID problemId);
 
     boolean existsByFileHash(String fileHash);
+    
+    java.util.Optional<Evidence> findByProblemIdAndClientUploadId(UUID problemId, String clientUploadId);
+
+    long countByProblemId(UUID problemId);
 }

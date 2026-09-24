@@ -5,6 +5,8 @@ package com.saamyukt.SIH26043.enums;
  * Refs: 05-data-dictionary-common.md, 11-api-and-indexes.md (transition rules).
  */
 public enum ProblemStatus {
+    /** Citizen draft: not yet formally submitted; editable by the owner. */
+    DRAFT,
     SUBMITTED,
     SOURCE_VERIFYING,
     SOURCE_VERIFIED,

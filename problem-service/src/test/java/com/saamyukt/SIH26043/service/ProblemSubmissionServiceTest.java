@@ -151,8 +151,8 @@ class ProblemSubmissionServiceTest {
                 Urgency.IMMEDIATE, null, null, null, null,
                 sourceAccountId,
                 new ProblemSubmitRequest.LocationRequest("Rajasthan", "Jaipur", null, null,
-                        "302001", 26.9124, 75.7873, null, null),
+                        "302001", 26.9124, 75.7873, null, null, null, null, null),
                 domainIds, null,
-                rule, universities);
+                rule, universities, null);
     }
 }

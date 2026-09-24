@@ -555,6 +555,35 @@ sequenceDiagram
 | `GET /domains` | **public** (`permitAll`) | 200 `List<Domain>` | The 12 root domains, each with its `children` tree built in memory. Cached by the client. |
 | `GET /audit/{problemId}` | `REVIEWER` or `ADMIN` | 200 `List<AuditLog>` | Ordered `performedAt` ascending. |
 
+### Citizen Intake & Drafts (Batch 1)
+
+| Method & path | Auth | Success | Notes |
+|---|---|---|---|
+| `POST /problems/drafts` | `SUBMITTER` | **201** `ProblemResponse` | Initialize a new problem in DRAFT state. |
+| `PATCH /problems/{id}/draft` | `SUBMITTER` | 200 `ProblemResponse` | Edit an existing draft. Fails if not a DRAFT or not owned. |
+| `POST /problems/{id}/submit` | `SUBMITTER` | 200 `ProblemResponse` | Lock draft and transition to SUBMITTED state. |
+| `GET /problems/my` | `SUBMITTER` | 200 `Page<CitizenProblemResponse>` | List own problems (DRAFTs and submitted). |
+| `GET /problems/my/{id}` | `SUBMITTER` | 200 `CitizenProblemResponse` | Detailed view of a single owned problem. |
+| `GET /problems/my/{id}/status-history` | `SUBMITTER` | 200 `List<CitizenStatusHistoryEntry>` | Citizen-friendly status timeline. |
+| `GET /problems/{id}/status` | `SUBMITTER` | 200 `Map<String,Object>` | Polling endpoint for current status. |
+| `GET /problems/nearby` | **public** | 200 `List<PublicProblemSummary>` | Find nearby problems via lat/lng + radius. |
+| `GET /problems/{id}/evidence` | authenticated | 200 `List<EvidenceResponse>` | View metadata of evidence attached to a problem. |
+| `GET /problems/{id}/evidence/{evidenceId}/download` | authenticated | 200 Binary Stream | Securely download the raw evidence file. |
+| `DELETE /problems/{id}/evidence/{evidenceId}` | authenticated | 204 | Delete an evidence item (only for DRAFT if Submitter, or for Admin/Evaluators). |
+| `GET /notifications/my` | authenticated | 200 `Page<NotificationResponse>` | List all notification events for current user. |
+| `GET /notifications/unread-count` | authenticated | 200 `Map<String,Long>` | Unread notification count. |
+| `PATCH /notifications/{eventId}/read` | authenticated | 204 | Mark specific notification as read. |
+| `PATCH /notifications/read-all` | authenticated | 204 | Mark all notifications as read. |
+
+### Multilingual AI & Fingerprinting (Batch 2)
+
+| Method & path | Auth | Success | Notes |
+|---|---|---|---|
+| `GET /problems/{id}/fingerprint` | `SUBMITTER` (own) or Admin | 200 `ProblemFingerprintPayload` | Retrieve the latest validated structured fingerprint for this problem. 404 if not found. |
+| `GET /problems/{id}/fingerprint/history` | `ADMIN`/`EVALUATOR` | 200 `List<ProblemFingerprintPayload>` | Retrieve historical fingerprint versions. |
+| `POST /problems/{id}/process-ai` | `SUBMITTER` (own) or Admin | 202 `AiProcessingSummaryResponse` | Trigger the asynchronous E2E AI extraction pipeline (Audio -> Translate -> Fingerprint). |
+| `GET /problems/{id}/ai-status` | `SUBMITTER` (own) or Admin | 200 `AiProcessingSummaryResponse` | Poll the current execution stage and failure status of the AI pipeline. |
+
 ### Internal (not gateway-routed)
 
 | Method & path | Auth | Returns |

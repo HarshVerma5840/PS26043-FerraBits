@@ -93,6 +93,7 @@
   <button data-tab="rev">Reviewer</button>
   <button data-tab="acc">Accounts</button>
   <button data-tab="prob">Problems</button>
+  <button data-tab="cit">Citizen</button>
   <button data-tab="admin">Admin</button>
   <button data-tab="raw">Raw</button>
 </nav>
@@ -287,6 +288,41 @@
           </select>
           <button class="btn" onclick="uploadEvidence()">Upload evidence</button>
         </div>
+      </div>
+    </section>
+
+    <!-- ============ CITIZEN (BATCH 1) ============ -->
+    <section class="tab" id="tab-cit">
+      <div class="card">
+        <h3>Drafts & My Problems</h3>
+        <div class="row">
+          <button class="btn" onclick="citProblems()">List Submitted Problems & Drafts</button>
+        </div>
+        <div class="hint">Citizen dashboard. Response me UUID aayega.</div>
+        <div class="row"><label>draftId</label><input id="citDraftId" class="fill"></div>
+        <div class="row">
+          <button class="btn" onclick="citSaveDraft()">Save new Draft</button>
+          <button class="btn" onclick="citUpdateDraft()">Update Draft</button>
+          <button class="btn ok" onclick="citSubmitDraft()">Submit Draft</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Notifications & Timeline</h3>
+        <div class="row">
+          <button class="btn" onclick="citNotifs()">My Notifications</button>
+          <button class="btn" onclick="citMarkAllRead()">Mark All Read</button>
+        </div>
+        <div class="row"><label>problemId</label><input id="citProbId" class="fill"></div>
+        <div class="row"><button class="btn" onclick="citTimeline()">Problem Status History</button></div>
+      </div>
+      <div class="card">
+        <h3>Nearby Problems (Public)</h3>
+        <div class="row">
+          <label>Lat</label><input id="citLat" class="fill" value="23.2599" type="number" step="any">
+          <label>Lng</label><input id="citLng" class="fill" value="77.4126" type="number" step="any">
+          <label>Radius (km)</label><input id="citRad" class="fill" value="10.0" type="number" step="any">
+        </div>
+        <div class="row"><button class="btn" onclick="citNearby()">Find Nearby</button></div>
       </div>
     </section>
 
@@ -612,6 +648,35 @@ async function admGetUser() { show('GET /users/' + $('admUserId').value.trim(), 
 async function admChangeRole() {
   const id = $('admRoleUserId').value.trim();
   show('PATCH /users/' + id + '/role', await api('PATCH', '/users/' + id + '/role', { body: { role: $('admRole').value } }));
+}
+
+/* ---------------- citizen (batch 1) ---------------- */
+async function citProblems() { show('GET /problems/my', await api('GET', '/problems/my')); }
+async function citSaveDraft() {
+  const loc = { state: 'MP', district: 'Bhopal', latitude: 23.0, longitude: 77.0, accuracyMeters: 5.0 };
+  const body = { title: "Draft Problem", description: "I will finish this later", urgency: "LOW", sourceAccountId: $('pAccount').value.trim(), location: loc };
+  const res = await api('POST', '/problems/drafts', { body });
+  show('POST /problems/drafts', res);
+  if (res.ok) $('citDraftId').value = res.data.problemId;
+}
+async function citUpdateDraft() {
+  const id = $('citDraftId').value.trim();
+  const loc = { state: 'MP', district: 'Bhopal', latitude: 23.0, longitude: 77.0, accuracyMeters: 5.0 };
+  const body = { title: "Draft Problem Updated", description: "More details", urgency: "LOW", sourceAccountId: $('pAccount').value.trim(), location: loc };
+  show('PATCH /problems/' + id + '/draft', await api('PATCH', '/problems/' + id + '/draft', { body }));
+}
+async function citSubmitDraft() {
+  const id = $('citDraftId').value.trim();
+  const loc = { state: 'MP', district: 'Bhopal', latitude: 23.0, longitude: 77.0, accuracyMeters: 5.0 };
+  const body = { title: "Draft Problem", description: "Ready to submit", urgency: "LOW", sourceAccountId: $('pAccount').value.trim(), location: loc };
+  show('POST /problems/' + id + '/submit', await api('POST', '/problems/' + id + '/submit', { body }));
+}
+async function citNotifs() { show('GET /notifications/my', await api('GET', '/notifications/my')); }
+async function citMarkAllRead() { show('PATCH /notifications/read-all', await api('PATCH', '/notifications/read-all')); }
+async function citTimeline() { show('GET /problems/my/' + $('citProbId').value.trim() + '/status-history', await api('GET', '/problems/my/' + $('citProbId').value.trim() + '/status-history')); }
+async function citNearby() {
+  const lat = $('citLat').value, lng = $('citLng').value, rad = $('citRad').value;
+  show('GET /problems/nearby?latitude=' + lat + '&longitude=' + lng + '&radiusKm=' + rad, await api('GET', '/problems/nearby?latitude=' + lat + '&longitude=' + lng + '&radiusKm=' + rad, { auth: false }));
 }
 
 /* ---------------- raw ---------------- */

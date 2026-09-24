@@ -53,10 +53,12 @@ class ProblemCollectionEngineTest {
     private final DomainRepository domainRepository = mock(DomainRepository.class);
     private final EvidenceRepository evidenceRepository = mock(EvidenceRepository.class);
     private final AuditService auditService = mock(AuditService.class);
+    private final NotificationService notificationService = mock(NotificationService.class);
+    private final com.saamyukt.SIH26043.service.analysis.Batch2OrchestrationWorkflowService fingerprintService = mock(com.saamyukt.SIH26043.service.analysis.Batch2OrchestrationWorkflowService.class);
 
     private final ProblemCollectionEngine engine = new ProblemCollectionEngine(
             problemRepository, sourceAccountGateway, locationRepository,
-            problemDomainRepository, domainRepository, evidenceRepository, auditService);
+            problemDomainRepository, domainRepository, evidenceRepository, auditService, notificationService, fingerprintService);
 
     @Test
     void unknownAccountIsNotFound() {
@@ -288,9 +290,9 @@ class ProblemCollectionEngineTest {
                 Urgency.IMMEDIATE, null, null, null, null,
                 sourceAccountId,
                 new ProblemSubmitRequest.LocationRequest("Rajasthan", "Jaipur", null, null,
-                        "302001", 26.9124, 75.7873, null, null),
+                        "302001", 26.9124, 75.7873, null, null, null, null, null),
                 null, null,
-                accessRule, accessUniversities);
+                accessRule, accessUniversities, null);
     }
 
     private ProblemSubmitRequest requestWithDomains(UUID sourceAccountId, List<UUID> domainIds) {
@@ -300,8 +302,8 @@ class ProblemCollectionEngineTest {
                 Urgency.IMMEDIATE, null, null, null, null,
                 sourceAccountId,
                 new ProblemSubmitRequest.LocationRequest("Rajasthan", "Jaipur", null, null,
-                        "302001", 26.9124, 75.7873, null, null),
-                domainIds, null, null, null);
+                        "302001", 26.9124, 75.7873, null, null, null, null, null),
+                domainIds, null, null, null, null);
     }
 
     private static Domain domain(UUID domainId) {

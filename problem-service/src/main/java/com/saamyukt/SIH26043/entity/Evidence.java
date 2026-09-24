@@ -54,6 +54,9 @@ public class Evidence {
     @Column(name = "uploaded_by_user_id")
     private UUID uploadedByUserId;
 
+    @Column(name = "client_upload_id", length = 100)
+    private String clientUploadId;
+
     @PrePersist
     void onCreate() {
         if (evidenceId == null) {

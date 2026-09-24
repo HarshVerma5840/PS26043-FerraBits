@@ -22,13 +22,18 @@ public class ProblemStatusService {
 
     private final ProblemRepository problemRepository;
     private final AuditService auditService;
+    private final NotificationService notificationService;
+    private final com.saamyukt.SIH26043.service.analysis.Batch2OrchestrationWorkflowService fingerprintService;
 
-    public ProblemStatusService(ProblemRepository problemRepository, AuditService auditService) {
+    public ProblemStatusService(ProblemRepository problemRepository, AuditService auditService, NotificationService notificationService, com.saamyukt.SIH26043.service.analysis.Batch2OrchestrationWorkflowService fingerprintService) {
         this.problemRepository = problemRepository;
         this.auditService = auditService;
+        this.notificationService = notificationService;
+        this.fingerprintService = fingerprintService;
     }
 
     private static final Map<ProblemStatus, EnumSet<ProblemStatus>> ALLOWED = Map.ofEntries(
+            Map.entry(ProblemStatus.DRAFT, EnumSet.of(ProblemStatus.SUBMITTED)),
             Map.entry(ProblemStatus.SUBMITTED, EnumSet.of(
                     ProblemStatus.SOURCE_VERIFYING, ProblemStatus.REJECTED, ProblemStatus.ARCHIVED)),
             Map.entry(ProblemStatus.SOURCE_VERIFYING, EnumSet.of(
@@ -77,6 +82,16 @@ public class ProblemStatusService {
             default -> AuditAction.STATUS_CHANGED;
         };
         auditService.record(problemId, action, actor, before, problem, ip);
+        
+        String dedupKey = "STATUS_CHANGE_" + problemId + "_V" + before.getVersion() + "_" + target.name();
+        notificationService.notifyUser(problem.getSubmittedByUserId(), problem.getProblemId(), 
+                "STATUS_CHANGED", "Problem Status Updated", "Your problem is now " + target,
+                current.name(), target.name(), dedupKey, com.saamyukt.SIH26043.enums.DeliveryChannel.IN_APP);
+
+        if (target == ProblemStatus.SUBMITTED && current == ProblemStatus.DRAFT) {
+            fingerprintService.processProblemAsync(problemId);
+        }
+
         return problem;
     }
 

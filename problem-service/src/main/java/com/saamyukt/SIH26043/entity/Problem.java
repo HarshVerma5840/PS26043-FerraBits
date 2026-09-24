@@ -114,6 +114,9 @@ public class Problem {
     @Column(name = "access_universities", nullable = false)
     private List<String> accessUniversities = new ArrayList<>();
 
+    @Column(name = "idempotency_key", length = 100)
+    private String idempotencyKey;
+
     @Version
     @Column(name = "version", nullable = false)
     private Integer version = 1;
