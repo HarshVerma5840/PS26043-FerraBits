@@ -1,0 +1,104 @@
+# ==============================================================================
+# SAAMYUKT (SIH PS26043) — Root .gitignore
+# ==============================================================================
+
+# Compiled binaries and build output
+target/
+build/
+bin/
+dist/
+out/
+*.class
+*.jar
+*.war
+*.ear
+!**/src/main/**/target/
+!**/src/test/**/target/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Maven wrapper jar (re-downloaded automatically via maven-wrapper.properties)
+.mvn/wrapper/maven-wrapper.jar
+
+# Python bytecode and virtual environments (codejudge-service)
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+venv/
+.venv/
+env/
+
+# Runtime uploads, persistent volumes, and evaluation scratch workspaces
+/data/
+/evidence/
+/portal-files/
+/codejudge-workspaces/
+pgdata/
+
+# Environment configurations & local secrets
+.env
+.env.local
+.env.*.local
+*.env
+!.env.example
+
+# Logs and crash dumps
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+hs_err_pid*
+replay_pid*
+
+# IDEs and Editors
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+
+### Visual Studio Code ###
+.vscode/
+
+### Eclipse / STS ###
+.apt_generated/
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/nbdist/
+/.nb-gradle/
+
+### AI / Assistant scratch dirs ###
+.claude/
+.gemini/
+
+# Operating System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Temporary files and scratch notes
+HELP.md
+*.tmp
+*.bak
+*.swp
+*~

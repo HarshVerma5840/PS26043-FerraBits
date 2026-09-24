@@ -1,0 +1,231 @@
+<mxfile host="app.diagrams.net" agent="drawio" version="24.7.17" type="device">
+  <diagram id="reviewer-workflow" name="Reviewer Workflow">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="2300" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ===== background bands ===== -->
+        <mxCell id="band1" value="" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;fillColor=#F6EFF9;strokeColor=#CDB6DB;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="1320" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="band2" value="" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;fillColor=#FDF6EE;strokeColor=#E0C9A6;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="350" width="1320" height="790" as="geometry" />
+        </mxCell>
+        <mxCell id="band3" value="" style="rounded=1;arcSize=3;whiteSpace=wrap;html=1;fillColor=#EEF7EF;strokeColor=#B6D7B9;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1190" width="1320" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="band4" value="" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;fillColor=#EFF2F4;strokeColor=#BFC8CE;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1640" width="1320" height="470" as="geometry" />
+        </mxCell>
+
+        <!-- ===== title + band labels ===== -->
+        <mxCell id="t1" value="SIH26043 &#183; Reviewer Workflow &#8212; sirf submitter ki profile/source verify karna" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#1A2B45;" vertex="1" parent="1">
+          <mxGeometry x="40" y="14" width="1320" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="t2" value="Code-verified 2026-09-13 &#183; poori tarah source-service me &#183; 2026-09-13 se evaluation pipeline + problem status REVIEWER ke paas NAHI hain" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=11;fontColor=#5B6B7C;" vertex="1" parent="1">
+          <mxGeometry x="40" y="50" width="1320" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="bl1" value="1 &#183; Reviewer banta kaise &#8212; ye ADMIN ka kaam hai, reviewer ka nahi" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#5B3A73;" vertex="1" parent="1">
+          <mxGeometry x="60" y="90" width="1100" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="bl2" value="2 &#183; Registration review loop &#8212; source-service (YAHI reviewer ka asli kaam hai)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#8A5A1B;" vertex="1" parent="1">
+          <mxGeometry x="60" y="360" width="1100" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="bl3" value="3 &#183; Source identity verify &#8212; alag surface (approve ke baad, source_account pe nahi problem_source pe)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#2E6B33;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1200" width="1200" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="bl4" value="4 &#183; Reviewer kya padh sakta hai &#8212; aur kya ab uske paas NAHI hai" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#41505C;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1650" width="1100" height="26" as="geometry" />
+        </mxCell>
+
+        <!-- ===== band 1 : how a reviewer exists ===== -->
+        <mxCell id="r1" value="user SUBMITTER ha" style="whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="150" width="240" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="r2" value="ADMIN: &lt;b&gt;PATCH /users/{id}/role&lt;/b&gt;&lt;br&gt;&#8594; role = &lt;b&gt;REVIEWER&lt;/b&gt;" style="whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="340" y="150" width="340" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="r3" value="POST /auth/login + /auth/verify-otp&lt;br&gt;&#8594; &lt;b&gt;JWT&lt;/b&gt; (role=REVIEWER)" style="whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="720" y="150" width="340" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="rn1" value="reviewer khud register nahi karta&lt;br&gt;koi self-promote nahi &#183; sirf ADMIN" style="whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#999999;dashed=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="150" width="240" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ===== band 2 : registration review loop ===== -->
+        <mxCell id="q1" value="&lt;b&gt;GET /reviewer/registrations&lt;/b&gt; &#8212; queue&lt;br&gt;SUBMITTED + UNDER_REVIEW + ACTION_REQUIRED&lt;br&gt;&lt;i&gt;FIFO oldest-first &#183; ?status= se ek bucket&lt;/i&gt;" style="whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="410" width="420" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="q2" value="&lt;b&gt;POST /reviewer/registrations/{id}/assign&lt;/b&gt;&lt;br&gt;&#8594; UNDER_REVIEW + assignedReviewerId&lt;br&gt;&lt;i&gt;sirf SUBMITTED / UNDER_REVIEW &#183; warna 409&lt;/i&gt;" style="whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="520" y="410" width="380" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="q3" value="assign &lt;b&gt;optional&lt;/b&gt; hai &#8212; queue (SUBMITTED) se bhi&lt;br&gt;seedha decide kar sakta hai" style="whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#999999;dashed=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="940" y="410" width="400" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="q4" value="requireDecidable?&lt;br&gt;SUBMITTED / UNDER_REVIEW" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="550" width="300" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="q5" value="&lt;b&gt;POST .../{id}/approve&lt;/b&gt;&lt;br&gt;&lt;i&gt;queue se ya assigned se&lt;/i&gt;" style="whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="730" width="280" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="q6" value="&lt;b&gt;POST .../{id}/request-action&lt;/b&gt;&lt;br&gt;&lt;i&gt;comment mandatory&lt;/i&gt;" style="whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="400" y="730" width="280" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="q7" value="&lt;b&gt;POST .../{id}/reject&lt;/b&gt;&lt;br&gt;&lt;i&gt;reason mandatory&lt;/i&gt;" style="whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="740" y="730" width="280" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="q8" value="blank comment / reason &#8594; &lt;b&gt;400&lt;/b&gt;&lt;br&gt;dono decisions ke liye" style="whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#999999;dashed=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="730" width="280" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="p1" value="&lt;b&gt;APPROVE ka asar &#8212; yahi EK jagah hai:&lt;/b&gt;&lt;br&gt;1. ProblemSource materialize (verifiedSource=true)&lt;br&gt;2. SourceAccount open &#8212; &lt;b&gt;ACTIVE + VERIFIED&lt;/b&gt;&lt;br&gt;3. owner kyc=VERIFIED + linked_source_id" style="whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="880" width="420" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="p2" value="&#8594; &lt;b&gt;ACTION_REQUIRED&lt;/b&gt;&lt;br&gt;submitter edit karke resubmit&lt;br&gt;&#8594; wapas queue me" style="whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="520" y="880" width="360" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="p3" value="&#8594; &lt;b&gt;REJECTED&lt;/b&gt;&lt;br&gt;registration permanently band&lt;br&gt;&lt;i&gt;submitter ko /status pe reason dikhta hai&lt;/i&gt;" style="whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="940" y="880" width="400" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="p4" value="har decision ek &lt;b&gt;registration_status_history&lt;/b&gt; row likhta hai&lt;br&gt;from_status &#183; to_status &#183; changed_by &#183; comment" style="whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#999999;dashed=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1020" width="420" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="p5" value="&#9888; approve se pehle: sourcePayload me required field missing &#8594; &lt;b&gt;422&lt;/b&gt; &#160;&lt;i&gt;&quot;send it back as ACTION_REQUIRED&quot;&lt;/i&gt;&lt;br&gt;isliye queue me pada purana/incomplete payload crash nahi karta &#8212; clean, actionable error deta hai" style="whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="520" y="1020" width="820" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ===== band 3 : source identity verification ===== -->
+        <mxCell id="v2" value="method: OFFICIAL_EMAIL &#183; AUTHORIZATION_DOC &#183; OTP&lt;br&gt;REGISTRATION_API &#183; INSTITUTIONAL_EMAIL &#183; MANUAL_REVIEW" style="whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#999999;dashed=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1250" width="480" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="v1" value="&lt;b&gt;POST /sources/{id}/verify&lt;/b&gt;&#160;&lt;i&gt;(REVIEWER / ADMIN &#183; 201)&lt;/i&gt;&lt;br&gt;sourceId = approved &lt;b&gt;ProblemSource&lt;/b&gt; (source_account nahi)&lt;br&gt;body: method &#183; result &#183; notes? &#183; evidenceUrl?" style="whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="600" y="1250" width="740" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="v3" value="PASS &#8594; problem_source.&lt;b&gt;verified_source = true&lt;/b&gt;&lt;br&gt;FAIL / NEEDS_REVIEW &#8594; sirf record, koi state change nahi" style="whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1400" width="480" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="v4" value="result: PASS &#183; FAIL &#183; NEEDS_REVIEW &#183; client IP audit trail me store hota hai&lt;br&gt;&#9888; &lt;b&gt;koi problem-status side-effect nahi&lt;/b&gt; &#8212; SOURCE_VERIFYING &#8594; SOURCE_VERIFIED yahan nahi hota;&lt;br&gt;wo ab ADMIN / EVALUATOR ke PATCH /problems/{id}/status se hota hai (2026-09-13 change)" style="whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#999999;dashed=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="600" y="1400" width="740" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- ===== band 4 : reads + what is gone ===== -->
+        <mxCell id="w1" value="&lt;b&gt;GET /registration/{id}&lt;/b&gt; &#183; &lt;b&gt;/{id}/history&lt;/b&gt;&lt;br&gt;requireVisibleTo: owner &lt;i&gt;ya&lt;/i&gt; REVIEWER / ADMIN" style="whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1700" width="420" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="w2" value="&lt;b&gt;GET /source/accounts/{id}&lt;/b&gt;&lt;br&gt;staff (REVIEWER / ADMIN) koi bhi account dekh sakta hai" style="whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="520" y="1700" width="420" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="w3" value="&lt;b&gt;GET /registration/{id}/status&lt;/b&gt;&lt;br&gt;public &#8212; reviewer ke liye bhi" style="whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="980" y="1700" width="360" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="w4" value="&lt;b&gt;REVIEWER ke paas ab NAHI hai (2026-09-13 se)&lt;/b&gt;&lt;br&gt;POST /evaluation/problems/{id}/start &#183; /cycles/{id}/analyze&lt;br&gt;/route &#183; /route-pools &#183; /aggregate &#183; /prioritize&#160;&#183; /publish-to-portal&lt;br&gt;GET /cycles/{id} &#183; /history &#183; /queue&lt;br&gt;&lt;b&gt;PATCH /problems/{id}/status&lt;/b&gt;" style="whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1840" width="700" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="w5" value="kisne liya: &lt;b&gt;hasAnyRole('ADMIN','EVALUATOR')&lt;/b&gt;&lt;br&gt;cycle start &#183; AI analysis &#183; routing &#183; aggregation&lt;br&gt;prioritization &#183; publish &#183; problem status walk&lt;br&gt;&lt;i&gt;evaluation-service EvaluationAdminController + problem-service ProblemController&lt;/i&gt;" style="whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="800" y="1840" width="540" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="w6" value="&lt;b&gt;&#9888; Ab bhi REVIEWER ke paas (jaan-boojh kar chhoda &#8212; drift, owner ko flag kiya gaya):&lt;/b&gt;&lt;br&gt;problem-service &lt;b&gt;GET /audit/{problemId}&lt;/b&gt; (REVIEWER/ADMIN)&#160;&#183;&#160;portal &lt;b&gt;submission file download&lt;/b&gt; (REVIEWER/ADMIN)&lt;br&gt;codejudge &lt;b&gt;run reads&lt;/b&gt; (isStaff me REVIEWER shaamil)&#160;&#183;&#160; &lt;b&gt;actor-ui/reviewer.html&lt;/b&gt; ka PATCH /problems/{id}/status panel abhi bhi hai &#8594; ab 403 deta hai" style="whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#999999;dashed=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1990" width="1280" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- ===== legend ===== -->
+        <mxCell id="lg1" value="REVIEWER action" style="whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="2170" width="190" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="lg2" value="submitter / ADMIN" style="whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="270" y="2170" width="190" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="lg3" value="state theek ho gayi" style="whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="480" y="2170" width="190" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="lg4" value="ADMIN / EVALUATOR" style="whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="690" y="2170" width="190" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="lg5" value="&#10060; error / band" style="whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="900" y="2170" width="190" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="lg6" value="note" style="whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#999999;dashed=1;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="2170" width="190" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- ===== edges ===== -->
+        <mxCell id="ed1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="r1" target="r2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="r2" target="r3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed3" value="JWT mil gaya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="r3" target="q1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="270" y="330" />
+            </Array>
+            <mxPoint as="offset" x="80" y="0" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ed4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="q1" target="q2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="q2" target="q3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="q1" target="q4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="q2" target="q4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="q4" target="q5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="q4" target="q6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="q4" target="q7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="q5" target="p1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="q6" target="p2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#B85450;fontSize=10;" edge="1" parent="1" source="q7" target="p3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="p1" target="p4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="p2" target="p5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="q7" target="q8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="v2" target="v1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="v1" target="v3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="v1" target="v4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="w1" target="w2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="w2" target="w3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed22" value="ab unke paas" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#9673A6;fontSize=10;" edge="1" parent="1" source="w4" target="w5">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" x="0" y="-12" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ed23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="q3" target="q2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

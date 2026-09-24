@@ -1,0 +1,13 @@
+package com.saamyukt.SIH26043.enums;
+
+/**
+ * System user role.
+ * Refs: 05-data-dictionary-common.md (sec 9).
+ */
+public enum UserRole {
+    SUBMITTER,
+    REVIEWER,
+    ADMIN,
+    /** Phase 2: real-user evaluator who scores problems via the dashboard. */
+    EVALUATOR
+}

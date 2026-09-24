@@ -1,0 +1,276 @@
+# SIH26043 demo stack — microservices only; there is no application monolith.
+# Each service owns its own database and talks to peers over HTTP.
+#
+# Topology:
+#   gateway (:8080, Caddy)  ──►  source-service (:8081, db sih_source)
+#                             ──►  problem-service (:8082, db sih_problem)
+#                             ──►  evaluation-service (:8083, db sih_eval)
+#                             ──►  portal-service (:8084, db sih_portal)
+#                             ──►  codejudge-service (:8085, db sih_codejudge)
+#
+# Cross-service internal calls (not routed by the gateway):
+#   problem-service    → GET source-service:8081/internal/source-accounts/{id}
+#                        (submission authz)
+#   evaluation-service → GET problem-service:8082/internal/problems/{id}
+#                        (intake status + analysis context)
+#   portal-service     → GET source-service:8081/internal/users/{userId}/source-accounts
+#                        (first-contact participant auto-bind)
+#   portal-service     → POST evaluation-service:8083/internal/project-reviews
+#                        (open a same-evaluator review when a project is submitted)
+#   evaluation-service → POST portal-service:8084/internal/published-problems
+#                        (auto-publish at EVALUATION_COMPLETED; best effort)
+#   evaluation-service → POST portal-service:8084/internal/submissions/{id}/review-result
+#                        (land an ACCEPT/RETURN decision back on the submission)
+#   portal-service     → POST codejudge-service:8085/internal/codejudge/evaluations
+#                        (queue an automated repo evaluation for a pinned submission;
+#                         best effort — a codejudge outage never rolls back a submit)
+#   codejudge-service  → GET  problem-service:8082/internal/problems/{id}
+#                        (problem-statement snapshot at intake; tolerant, optional)
+#
+# Service images are THIN wrappers over the pre-built fat jars, so you must
+# (re)package before building:
+#     ./mvnw -DskipTests package
+#     docker compose up -d --build
+#
+# codejudge-service is the one exception: it builds from Dockerfile.codejudge,
+# which adds git + python3 and copies in the Python agentic-legibility analyzer.
+#
+# The per-service databases (sih_source / sih_problem / sih_eval / sih_portal /
+# sih_codejudge) are created on a FRESH db volume via db/init. On an existing
+# volume, create them manually:
+#     docker compose up -d db
+#     docker exec sih26043-pg psql -U sih -d postgres -c "CREATE DATABASE sih_codejudge"
+#
+# Secrets default to the local-dev values for a SIH demo; override via a
+# sibling `.env` file (see compose env substitution below).
+
+name: sih26043
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: sih26043-pg
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-sih}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-sih}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      # `postgres` maintenance DB always exists (fresh or existing volume),
+      # unlike any per-service DB that may or may not have been created yet.
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-sih} -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+
+  # Service registry (Spring Cloud Netflix Eureka). Clients register here and the
+  # two discovery-based internal calls (problem→source, evaluation→problem) resolve
+  # peers through it. Self-preservation is off so stopped instances disappear fast.
+  eureka-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        JAR_FILE: eureka-server/target/eureka-server-0.0.1-SNAPSHOT.jar
+    image: sih26043-eureka-server:local
+    ports:
+      - "8761:8761"
+
+  source-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        JAR_FILE: source-service/target/source-service-0.0.1-SNAPSHOT.jar
+    image: sih26043-source-service:local
+    depends_on:
+      db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    environment:
+      SERVER_PORT: "8081"
+      DB_URL: jdbc:postgresql://db:5432/sih_source
+      DB_USERNAME: ${DB_USERNAME:-sih}
+      DB_PASSWORD: ${DB_PASSWORD:-sih}
+      JWT_SECRET: ${JWT_SECRET:-local-dev-only-secret-key-min-32-bytes-change-me!!}
+      MOCK_OTP_CODE: ${MOCK_OTP_CODE:-123456}
+      IDENTITY_PEPPER: ${IDENTITY_PEPPER:-local-dev-only-identity-pepper-change-me}
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
+    ports:
+      - "8081:8081"
+
+  problem-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        JAR_FILE: problem-service/target/problem-service-0.0.1-SNAPSHOT.jar
+    image: sih26043-problem-service:local
+    depends_on:
+      db:
+        condition: service_healthy
+      source-service:
+        condition: service_started
+      eureka-server:
+        condition: service_started
+    environment:
+      SERVER_PORT: "8082"
+      DB_URL: jdbc:postgresql://db:5432/sih_problem
+      DB_USERNAME: ${DB_USERNAME:-sih}
+      DB_PASSWORD: ${DB_PASSWORD:-sih}
+      JWT_SECRET: ${JWT_SECRET:-local-dev-only-secret-key-min-32-bytes-change-me!!}
+      EVIDENCE_STORAGE_DIR: /data/evidence
+      # Local OpenAI-compatible LLM, used only to resolve a problem's domains for
+      # the AUTO_SELECTED_UNIVERSITIES access rule. host.docker.internal reaches the
+      # host from inside the container; a bare localhost would target the container.
+      # The key is a real credential, so it is NOT defaulted here — put it in .env
+      # (gitignored, auto-loaded by compose) as OPENAI_API_KEY=sk-…
+      # Unlike evaluation-service, an empty key is NOT a safe fallback here: that
+      # access rule then fails closed with 400 rather than widening the audience.
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-http://host.docker.internal:20128/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-agentrouter/deepseek-v4-flash}
+      # source-service is resolved through eureka by its service id (load-balanced).
+      SOURCE_SERVICE_URL: http://source-service
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
+    ports:
+      - "8082:8082"
+    volumes:
+      - evidence:/data/evidence
+
+  evaluation-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        JAR_FILE: evaluation-service/target/evaluation-service-0.0.1-SNAPSHOT.jar
+    image: sih26043-evaluation-service:local
+    depends_on:
+      db:
+        condition: service_healthy
+      problem-service:
+        condition: service_started
+      eureka-server:
+        condition: service_started
+    environment:
+      SERVER_PORT: "8083"
+      DB_URL: jdbc:postgresql://db:5432/sih_eval
+      DB_USERNAME: ${DB_USERNAME:-sih}
+      DB_PASSWORD: ${DB_PASSWORD:-sih}
+      JWT_SECRET: ${JWT_SECRET:-local-dev-only-secret-key-min-32-bytes-change-me!!}
+      # Local OpenAI-compatible LLM (agentrouter on the host). host.docker.internal
+      # reaches the host from inside the container; a bare localhost would target
+      # the container itself and fail.
+      # The API key is a real credential, so it is NOT defaulted here — put it in
+      # .env (gitignored, auto-loaded by compose) as OPENAI_API_KEY=sk-…
+      # An empty key is safe: analysis falls back to the deterministic heuristic.
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-http://host.docker.internal:20128/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-agentrouter/deepseek-v4-flash}
+      # Hard kill switch for AI scoring. When false, every AUTO pool degrades to a
+      # human exactly like an unreachable model — the cycle still moves forward.
+      EVALUATION_AUTO_ENABLED: ${EVALUATION_AUTO_ENABLED:-true}
+      # problem-service is resolved through eureka by its service id (load-balanced).
+      PROBLEM_SERVICE_URL: http://problem-service
+      # portal-service is resolved through eureka by its service id (load-balanced)
+      # for the EVALUATION_COMPLETED publish + project-review decision push.
+      PORTAL_SERVICE_URL: http://portal-service
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
+    ports:
+      - "8083:8083"
+
+  portal-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        JAR_FILE: portal-service/target/portal-service-0.0.1-SNAPSHOT.jar
+    image: sih26043-portal-service:local
+    depends_on:
+      db:
+        condition: service_healthy
+      source-service:
+        condition: service_started
+      evaluation-service:
+        condition: service_started
+      eureka-server:
+        condition: service_started
+    environment:
+      SERVER_PORT: "8084"
+      DB_URL: jdbc:postgresql://db:5432/sih_portal
+      DB_USERNAME: ${DB_USERNAME:-sih}
+      DB_PASSWORD: ${DB_PASSWORD:-sih}
+      JWT_SECRET: ${JWT_SECRET:-local-dev-only-secret-key-min-32-bytes-change-me!!}
+      PORTAL_FILE_STORAGE_DIR: /data/portal-files
+      # Peers are resolved through eureka by their service ids (load-balanced).
+      SOURCE_SERVICE_URL: http://source-service
+      EVALUATION_SERVICE_URL: http://evaluation-service
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
+    ports:
+      - "8084:8084"
+    volumes:
+      - portal-files:/data/portal-files
+
+  codejudge-service:
+    # Bespoke image: CodeJudge shells out to git (clone at the pinned commit) and
+    # python3 (the agentic-legibility analyzer), neither of which is in the plain
+    # JRE base used by Dockerfile.service.
+    build:
+      context: .
+      dockerfile: Dockerfile.codejudge
+      args:
+        JAR_FILE: codejudge-service/target/codejudge-service-0.0.1-SNAPSHOT.jar
+    image: sih26043-codejudge-service:local
+    depends_on:
+      db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    environment:
+      SERVER_PORT: "8085"
+      DB_URL: jdbc:postgresql://db:5432/sih_codejudge
+      DB_USERNAME: ${DB_USERNAME:-sih}
+      DB_PASSWORD: ${DB_PASSWORD:-sih}
+      JWT_SECRET: ${JWT_SECRET:-local-dev-only-secret-key-min-32-bytes-change-me!!}
+      # Where Dockerfile.codejudge put the Python analyzer, and the scratch volume
+      # each evaluation is cloned into.
+      CODEJUDGE_ANALYZER_DIR: /opt/codejudge-analyzer
+      CODEJUDGE_WORKSPACES_DIR: /data/codejudge-workspaces
+      # Untrusted build/run/test execution stays OFF: no student code is executed.
+      # Enable only with a real sandbox runner (codejudgeservice.md §23).
+      CODEJUDGE_SANDBOX_ENABLED: "false"
+      # Advisory AI only — the deterministic engine owns the score. Empty key is
+      # safe: the ai_evaluation row is recorded UNAVAILABLE and the run completes.
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-http://host.docker.internal:20128/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-agentrouter/deepseek-v4-flash}
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
+    ports:
+      - "8085:8085"
+    volumes:
+      - codejudge-workspaces:/data/codejudge-workspaces
+
+  gateway:
+    image: caddy:2
+    container_name: sih26043-gateway
+    depends_on:
+      - source-service
+      - problem-service
+      - evaluation-service
+      - portal-service
+      - codejudge-service
+      - eureka-server
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./gateway/Caddyfile:/etc/caddy/Caddyfile:ro
+
+volumes:
+  pgdata:
+  evidence:
+  portal-files:
+  codejudge-workspaces:

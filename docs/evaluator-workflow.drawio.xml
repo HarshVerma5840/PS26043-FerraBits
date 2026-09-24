@@ -1,0 +1,278 @@
+<mxfile host="app.diagrams.net" modified="2026-09-13T00:00:00.000Z" agent="saamyukt" version="24.7.17" type="device">
+  <diagram id="evaluator-workflow" name="Evaluator workflow">
+    <mxGraphModel dx="1200" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="2900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="band1" value="1 &#183; Evaluator banta kaise &#8212; ADMIN ke do kadam (user source-service me, profile evaluation-service me)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EDF3FB;strokeColor=#B9C6D6;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="1320" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="band2" value="2 &#183; Problem ko pipeline se guzaro &#8212; /evaluation/** (hasAnyRole('ADMIN','EVALUATOR'))" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F6EFF9;strokeColor=#C7B3D4;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="400" width="1320" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="band3" value="3 &#183; Evaluator ka apna dashboard &#8212; /evaluation/me/* (hasRole('EVALUATOR') only)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F6EFF9;strokeColor=#C7B3D4;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1220" width="1320" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="band4" value="4 &#183; Pool ka MANUAL/AUTO switch &#8212; /evaluation/pool-modes (EVALUATOR ya ADMIN)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EEF7EF;strokeColor=#B6D2B8;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="2040" width="1320" height="360" as="geometry" />
+        </mxCell>
+        <mxCell id="band5" value="5 &#183; Publish ke baad &#8212; student ka project ACCEPT/RETURN (Phase 3)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDF6EE;strokeColor=#DEC29A;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="2420" width="1320" height="340" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n1" value="ADMIN decide karta hai ki kis user ko evaluator banana hai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="160" width="190" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n2" value="&lt;b&gt;POST /users/evaluators&lt;/b&gt; &lt;i&gt;(ADMIN &#183; source-service)&lt;/i&gt;&lt;br&gt;201 &#183; user role = &lt;b&gt;EVALUATOR&lt;/b&gt; &#183; pehli login ke liye OTP mint hota hai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="300" y="160" width="320" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n3" value="Evaluator khud register &lt;b&gt;nahi&lt;/b&gt; karta &#8212; sirf &lt;b&gt;POST /auth/login&lt;/b&gt; + &lt;b&gt;POST /auth/verify-otp&lt;/b&gt; se JWT (role=EVALUATOR) leta hai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="660" y="160" width="320" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n6" value="permission yahin milti hai &#8212; role source-service ke DB me, profile evaluation-service ke DB me. Dono chahiye." style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="160" width="310" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n4" value="&lt;b&gt;POST /evaluation/evaluator-profiles&lt;/b&gt; &lt;i&gt;(ADMIN only)&lt;/i&gt;&lt;br&gt;evaluatorType (pool) + maxWorkload (default 5) + experienceYears (0) + active (true) &#183; ek user = ek profile" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="300" y="262" width="320" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n5" value="&#9888; Profile ke bina kuch bhi route nahi hota: &lt;b&gt;GET /evaluation/me/profile&lt;/b&gt; &#8594; &lt;b&gt;404&lt;/b&gt; (message me fix likha hota hai) aur pool switch bhi 403 deta hai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="660" y="262" width="640" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="f1" value="Precondition: problem &lt;b&gt;REGISTERED&lt;/b&gt; aur kisi cycle me claim nahi hua &#8212; warna 400/409" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="470" width="760" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="f2" value="&lt;b&gt;POST /evaluation/problems/{problemId}/start&lt;/b&gt; &#8594; ek cycle &lt;b&gt;RECEIVED&lt;/b&gt; me khulta hai (+ history + audit row)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="556" width="760" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="f3" value="&lt;b&gt;POST /evaluation/cycles/{id}/analyze&lt;/b&gt; &#8594; problem context + LLM se structured profile&lt;br&gt;model down / JSON unusable &#8594; deterministic heuristic profile store hota hai, pipeline block nahi hota &#183; profile &lt;b&gt;advisory&lt;/b&gt; hai (score me contribute nahi karti) &#183; idempotent&#183; cycle &#8594; ROUTING aur turant auto routeAllPools" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="642" width="760" height="86" as="geometry" />
+        </mxCell>
+        <mxCell id="f4" value="&lt;b&gt;routeAllPools&lt;/b&gt; &#8212; har pool ko ek assignment:&lt;br&gt;&#183; &lt;b&gt;AUTO&lt;/b&gt; pool &#8594; us pool ka system AI evaluator criteria khud score karke submit kar deta hai&lt;br&gt;&#183; &lt;b&gt;MANUAL&lt;/b&gt; pool &#8594; least-loaded active human evaluator&lt;br&gt;&#183; koi candidate nahi &#8594; pool skip (baad me retry)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="748" width="760" height="86" as="geometry" />
+        </mxCell>
+        <mxCell id="f6" value="saare pool AUTO &#8594; cycle yahin &lt;b&gt;EVALUATION_COMPLETED&lt;/b&gt; ho jata hai; portal publish + aggregation commit ke baad best-effort chalta hai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="854" width="760" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="f7" value="&lt;b&gt;POST /cycles/{id}/aggregate&lt;/b&gt; &#8594; har pool 0-100 pe normalise (apne criteria maxima ke against), weight_config se weight, phir final_score + impact_level &#8594; &lt;b&gt;SCORES_AGGREGATED&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="940" width="760" height="76" as="geometry" />
+        </mxCell>
+        <mxCell id="f8" value="&lt;b&gt;POST /cycles/{id}/prioritize&lt;/b&gt; &#8594; priority_score = final_score (aur kuch score ko influence nahi karta) &#183; band P1/P2/P3/P4 &#8594; &lt;b&gt;PRIORITIZED&lt;/b&gt; &#8594; &lt;b&gt;PHASE_3_READY&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1036" width="760" height="76" as="geometry" />
+        </mxCell>
+        <mxCell id="f9" value="padho: &lt;b&gt;GET /cycles/{id}&lt;/b&gt; &#183; &lt;b&gt;GET /cycles/{id}/history&lt;/b&gt; &#183; &lt;b&gt;GET /cycles/{id}/aggregation&lt;/b&gt; (stored, recompute nahi) &#183; &lt;b&gt;GET /queue?status=&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1132" width="760" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s1" value="&#9888; AUTO pool par model unreachable / kill switch off &#8594; &lt;b&gt;wahi run&lt;/b&gt; us pool ko human pe degrade karta hai aur reason audit karta hai. Hard kill switch: app.evaluation.auto-scoring-enabled" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="470" width="460" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" value="&lt;b&gt;Retry endpoints&lt;/b&gt;&lt;br&gt;&#183; &lt;b&gt;POST /cycles/{id}/route&lt;/b&gt; &#8212; bucket ka ek pool (GOVT&#8594;GOVERNMENT, INDUSTRY&#8594;INDUSTRY, &#8230;), ROUTING &#8594; EVALUATION_IN_PROGRESS; ROUTING me na ho to idempotent no-op&lt;br&gt;&#183; &lt;b&gt;POST /cycles/{id}/route-pools&lt;/b&gt; &#8212; paanch pool ka repair pass, ROUTING ya IN_PROGRESS accept karta hai, pehle se assigned pool skip" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="642" width="460" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" value="aggregate/prioritize normally khud chalta hai jab aakhri scorecard submit hota hai &#8212; ye endpoints retry ya badla hua config re-apply karne ke liye hai (idempotent).&lt;br&gt;Weights missing / sum != 1 &#8594; equal weights. Jo pool scorecard nahi de paya wo exclude hota hai aur weights baaki pools par renormalise.&lt;br&gt;Disagreement flag (spread &gt; threshold) &#8594; REVIEW_REQUIRED, par pipeline rukta nahi." style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="814" width="460" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" value="&lt;b&gt;POST /cycles/{id}/publish-to-portal&lt;/b&gt; &#8212; manual retry jab automatic publish fail hua ho (portal down). Idempotent: portal problem id pe upsert karta hai." style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="1132" width="460" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="g1" value="&lt;b&gt;GET /evaluation/me/profile&lt;/b&gt; &#8212; mera pool + max concurrent workload (404 = ADMIN ne onboard nahi kiya)&lt;br&gt;&lt;b&gt;GET /evaluation/me/criteria&lt;/b&gt; &#8212; mere pool ke active criteria display order me + maxScore: yahi blank scorecard hai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1290" width="760" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="g2" value="&lt;b&gt;GET /evaluation/me/assignments?status=&lt;/b&gt; &#8212; earliest deadline first. Queue poori isi service ke DB se aati hai, isliye problem-service down ho to bhi list chalti hai." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1376" width="760" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="g3" value="&lt;b&gt;GET /evaluation/me/assignments/{assignmentId}&lt;/b&gt;&lt;br&gt;problem (problem-service se) + criteria + advisory AI profile &#8212; &lt;b&gt;context only, score ko kabhi influence nahi karti&lt;/b&gt;. problem-service unreachable &#8594; criteria form phir bhi milta hai, problem = null" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1462" width="760" height="86" as="geometry" />
+        </mxCell>
+        <mxCell id="g4" value="&lt;b&gt;POST /evaluation/me/assignments/{id}/accept&lt;/b&gt; &#8594; ASSIGNED &#8594; &lt;b&gt;IN_PROGRESS&lt;/b&gt; (idempotent)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1558" width="760" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="g5" value="&lt;b&gt;POST /evaluation/me/assignments/{id}/decline&lt;/b&gt; &#8594; &lt;b&gt;DECLINED&lt;/b&gt; (+ optional reason)&lt;br&gt;Cycle me koi open assignment nahi bacha &#8594; cycle wapas &lt;b&gt;ROUTING&lt;/b&gt; pe, ADMIN re-route karta hai aur ye evaluator candidate se skip ho jata hai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1644" width="760" height="76" as="geometry" />
+        </mxCell>
+        <mxCell id="g6" value="&lt;b&gt;POST /evaluation/me/assignments/{id}/submit&lt;/b&gt; &#8212; scorecard &lt;b&gt;all-or-nothing&lt;/b&gt;: har active criterion exactly ek baar (criterionId ya criterionKey), koi score apne maxScore se zyada nahi&lt;br&gt;Ye cycle ka aakhri open assignment tha &#8594; cycle EVALUATION_COMPLETED, portal publish + paanch pool ka aggregation/band &#8212; submit ke commit ke baad, best-effort" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1730" width="760" height="86" as="geometry" />
+        </mxCell>
+        <mxCell id="g7" value="&#9888; deadline &lt;b&gt;lazy&lt;/b&gt; hai, koi scheduler nahi: deadline ke baad accept ya submit karne par assignment &lt;b&gt;EXPIRED&lt;/b&gt; + &lt;b&gt;409&lt;/b&gt; &#8212; late work chupke se accept nahi hota, wo cycle se hat jata hai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1826" width="760" height="76" as="geometry" />
+        </mxCell>
+        <mxCell id="g8" value="Har endpoint caller ke &lt;b&gt;evaluator_profile&lt;/b&gt; pe scoped hai: path ka assignmentId profile ke against authorize hota hai (doosre ka &#8594; 403), aur koi bhi endpoint evaluator id leta hi nahi" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1912" width="760" height="76" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s5" value="Ye surface sirf &lt;b&gt;EVALUATOR&lt;/b&gt; role ke liye hai (hasRole). ADMIN ka yahan koi entry nahi &#8212; pipeline control uske paas band 2 ke /evaluation/** pe hai, aur wahan EVALUATOR bhi allowed hai." style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="1290" width="460" height="152" as="geometry" />
+        </mxCell>
+        <mxCell id="s6" value="Assignment status palette: &lt;b&gt;ASSIGNED&lt;/b&gt; &#183; &lt;b&gt;IN_PROGRESS&lt;/b&gt; &#183; &lt;b&gt;SUBMITTED&lt;/b&gt; &#183; &lt;b&gt;DECLINED&lt;/b&gt; &#183; &lt;b&gt;EXPIRED&lt;/b&gt; &#183; &lt;b&gt;REVIEWED&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="1462" width="460" height="152" as="geometry" />
+        </mxCell>
+        <mxCell id="s7" value="Criteria pool-wise hote hain &#8212; ek pool ka evaluator doosre pool ke criteria nahi bharta, isliye aggregation pool-wise normalise karta hai." style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="1912" width="460" height="76" as="geometry" />
+        </mxCell>
+
+        <mxCell id="h1" value="&lt;b&gt;GET /evaluation/pool-modes&lt;/b&gt; &#8212; paanch switch fixed order me (GOVERNMENT &#183; INDUSTRY &#183; HEI &#183; CITIZEN &#183; COMMUNITY) + do hints: aiScoringAvailable aur activeHumanEvaluators, plus ek note jo current combination ka matlab batata hai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="2110" width="760" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="h2" value="&lt;b&gt;PUT /evaluation/pool-modes/{pool}&lt;/b&gt; body {mode: MANUAL | AUTO}&lt;br&gt;AUTO hone par agla analyze/routing pass us pool ke criteria system AI evaluator se score karwa ke khud submit karwa deta hai &#8212; koi human loop me nahi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="2200" width="760" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="h3" value="&#9888; Permission: &lt;b&gt;apne pool ka switch khud evaluator&lt;/b&gt;, ADMIN override. Doosre pool ka &#8594; 403; EVALUATOR role hai par profile nahi &#8594; 403 (wahi onboarding gap). Change audited: EVALUATION_MODE_CHANGED" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="2290" width="760" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s8" value="AUTO pool par model unavailable &#8594; wahi run us pool ko MANUAL ki tarah human pe degrade karta hai aur reason audit hota hai (AUTO pool chup-chaap fail nahi hota)." style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="2110" width="460" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="s9" value="Paanch switch &lt;b&gt;independent&lt;/b&gt; hain &#8212; har department khud decide karta hai ki uska pool khud score karega ya AI. Stored row na ho to pool MANUAL padhta hai, isliye default behaviour tab tak wahi rehta hai jab tak koi switch flip na kare." style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="2260" width="460" height="110" as="geometry" />
+        </mxCell>
+
+        <mxCell id="i1" value="&lt;b&gt;GET /evaluation/me/project-reviews?status=&lt;/b&gt; (ASSIGNED &#183; ACCEPTED &#183; RETURNED)&lt;br&gt;Student portal pe project submit karta hai; wo &lt;b&gt;usi evaluator&lt;/b&gt; ko assign hota hai jisne us problem ke cycle ke scorecards liye the" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FDF6EE;strokeColor=#D79B00;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="2490" width="760" height="76" as="geometry" />
+        </mxCell>
+        <mxCell id="i2" value="&lt;b&gt;GET /evaluation/me/project-reviews/{projectReviewId}&lt;/b&gt; &#8212; submitted solution + problem/summary + file metadata&lt;br&gt;file bytes evaluation-service store &lt;b&gt;nahi&lt;/b&gt; karti: contentUrl gateway-relative /portal/files/{fileId}/download hai aur caller ke JWT se stream hota hai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FDF6EE;strokeColor=#D79B00;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="2576" width="760" height="76" as="geometry" />
+        </mxCell>
+        <mxCell id="i3" value="&lt;b&gt;POST /evaluation/me/project-reviews/{id}/decision&lt;/b&gt; body &lt;b&gt;ACCEPTED&lt;/b&gt; ya &lt;b&gt;RETURNED&lt;/b&gt; (ASSIGNED se hi)&lt;br&gt;Decision yahan store hota hai aur portal-service ko push hota hai, jo student ki submission ko matching terminal state pe le jata hai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FDF6EE;strokeColor=#D79B00;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="2662" width="760" height="86" as="geometry" />
+        </mxCell>
+
+        <mxCell id="i4" value="RETURNED submission student edit karke resubmit kar sakta hai &#8594; usi evaluator ke liye naya round khulta hai" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="2490" width="460" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="i5" value="Ye Phase-3 surface hai &#8212; portal publish ke baad ka. Phase-2 scoring (band 3) se alag hai, dono ka apna queue aur apna decision hai." style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="2630" width="460" height="118" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lg1" value="ADMIN / EVALUATOR gate" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="70" y="2800" width="210" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="lg2" value="sirf EVALUATOR (apna dashboard)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="290" y="2800" width="210" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="lg3" value="automatic / AI" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="510" y="2800" width="210" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="lg4" value="warning / terminal" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="730" y="2800" width="210" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="lg5" value="note / caveat" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="950" y="2800" width="210" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="lg6" value="Phase 3 (portal ke baad)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDF6EE;strokeColor=#D79B00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1170" y="2800" width="190" height="46" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ed1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="n1" target="n2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed2" value="evaluator: login + verify-otp" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="n2" target="n3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed3" value="ADMIN step 2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="n2" target="n4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed4" value="profile na ho to" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="n4" target="n5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="n3" target="n6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ed6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="f1" target="f2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="f2" target="f3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed8" value="phir turant routing" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="f3" target="f4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed9" value="sab AUTO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="f4" target="f6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="f6" target="f7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="f7" target="f8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="f8" target="f9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="f3" target="s1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="f4" target="s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="f7" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="f9" target="s4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ed17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="g1" target="g2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="g2" target="g3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="g3" target="g4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="g4" target="g5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="g5" target="g6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="g6" target="g7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="g7" target="g8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="g1" target="s5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="g3" target="s6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="g8" target="s7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ed27" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="h1" target="h2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="h2" target="h3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="h2" target="s8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="h1" target="s9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ed31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="i1" target="i2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="i2" target="i3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed33" value="RETURNED" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="i3" target="i4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="i2" target="i5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

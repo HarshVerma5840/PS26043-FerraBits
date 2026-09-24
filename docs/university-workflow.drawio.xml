@@ -1,0 +1,225 @@
+<mxfile host="app.diagrams.net" modified="2026-09-13T00:00:00.000Z" agent="saamyukt" version="24.7.17" type="device">
+  <diagram id="university-workflow" name="University workflow">
+    <mxGraphModel dx="1200" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="2720" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="band1" value="1 &#183; HEI source banao &#8212; university ka account yahin banta hai" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EDF3FB;strokeColor=#B9C6D6;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="1320" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="band2" value="2 &#183; UNIVERSITY participant auto-bind &#8212; koi dusra registration nahi" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EEF7EF;strokeColor=#B6D2B8;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="500" width="1320" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="band3" value="3 &#183; Kaunsi problems dikhti hain &#8212; university ko student se zyada dikhta hai" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EEF7EF;strokeColor=#B6D2B8;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="840" width="1320" height="420" as="geometry" />
+        </mxCell>
+        <mxCell id="band4" value="4 &#183; Project submit karo &#8212; student wala hi lifecycle" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDF6EE;strokeColor=#DEC29A;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1280" width="1320" height="440" as="geometry" />
+        </mxCell>
+        <mxCell id="band5" value="5 &#183; HEI ke roop me problem file karo &#8212; wahi account, doosra kaam" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F6EFF9;strokeColor=#C7B3D4;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1740" width="1320" height="440" as="geometry" />
+        </mxCell>
+        <mxCell id="band6" value="6 &#183; Caveats &#8212; kahan phans sakta hai" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EFF2F4;strokeColor=#C2CAD2;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="2200" width="1320" height="340" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a1" value="&lt;b&gt;POST /auth/register&lt;/b&gt; + &lt;b&gt;POST /auth/verify-otp&lt;/b&gt; &#8594; JWT&lt;br&gt;HEI ka owner bhi ek normal user hi hai &#8212; role SUBMITTER" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="160" width="360" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" value="&lt;b&gt;GET /registration/source-types&lt;/b&gt; (public) &#8594; HEI bucket ke do type: &lt;b&gt;UNIVERSITY&lt;/b&gt; aur &lt;b&gt;RESEARCH_LAB&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="470" y="160" width="360" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="a3" value="&lt;b&gt;POST /registration&lt;/b&gt; {sourceType: UNIVERSITY} &#8594; DRAFT&lt;br&gt;HEI ka required payload field sirf &lt;b&gt;institutionName&lt;/b&gt;; optional: heiSubtype &#183; institutionType (CENTRAL_UNIV / STATE_UNIV / DEEMED / PRIVATE / AUTONOMOUS_COLLEGE / RESEARCH_INSTITUTE) &#183; naacGrade &#183; nirfRank &#183; ugcAicteAffiliation &#183; departmentCentreName" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="262" width="760" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="a4" value="&lt;b&gt;PATCH /registration/{id}&lt;/b&gt; (sirf DRAFT / ACTION_REQUIRED) &#8594; &lt;b&gt;POST /registration/{id}/submit&lt;/b&gt; &#8594; SUBMITTED&lt;br&gt;phir REVIEWER approve karta hai (reviewer-workflow diagram) &#8212; approve ke waqt &lt;b&gt;HEISource materialize&lt;/b&gt; hota hai institution_name ke saath" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="362" width="760" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sn1" value="Approve ek hi transaction me teen cheezein karta hai: HEI source materialize + &lt;b&gt;source_account ACTIVE+VERIFIED&lt;/b&gt; (canSubmit() sach) + owner kyc VERIFIED.&lt;br&gt;&lt;br&gt;Yahi ek account row aage &lt;b&gt;do&lt;/b&gt; kaam karti hai &#8212; HEI ke roop me problem file karna (band 5) aur UNIVERSITY participant ban jaana (band 2). Isliye dono ka source of truth ek hi hai." style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="160" width="460" height="282" as="geometry" />
+        </mxCell>
+
+        <mxCell id="b1" value="&lt;b&gt;GET /portal/me&lt;/b&gt; &#8212; pehli hi call par: agar caller ke paas ACTIVE + VERIFIED HEI source account hai (sourceBucket = HEI) to &lt;b&gt;UNIVERSITY participant automatically ban jaata hai&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="570" width="760" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="b2" value="snapshot liya jaata hai: &lt;b&gt;institution_name&lt;/b&gt; (HEISource se) + sourceAccountId + displayName/phone. Koi form nahi, koi dusra registration nahi." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="656" width="760" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="b3" value="&lt;b&gt;POST /portal/participants&lt;/b&gt; yahan &lt;b&gt;409&lt;/b&gt; deta hai (HEI_ACCOUNT_REGISTERED_AS_UNIVERSITY) &#8212; HEI owner kabhi STUDENT nahi ban sakta" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="740" width="460" height="68" as="geometry" />
+        </mxCell>
+        <mxCell id="sn2" value="&lt;b&gt;Participant type dobara change nahi hota.&lt;/b&gt;&lt;br&gt;Ulti baat: agar user ne pehle STUDENT ke roop me register kar liya aur uski HEI source baad me approve hui, to me() existing STUDENT profile hi lautata hai &#8212; us user ko university visibility kabhi nahi milti. Koi upgrade path nahi hai." style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="570" width="460" height="150" as="geometry" />
+        </mxCell>
+
+        <mxCell id="c1" value="&lt;b&gt;GET /portal/problems&lt;/b&gt; &#8212; published + visible, newest first" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="910" width="760" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="c2" value="&lt;b&gt;GET /portal/problems/{problemId}&lt;/b&gt; &#8212; visible na ho to &lt;b&gt;404&lt;/b&gt; (403 nahi): restricted problem ka existence bhi leak nahi hota" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="996" width="760" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="c3" value="&lt;b&gt;UNIVERSITY ke liye teen raste&lt;/b&gt;: OPEN_TO_ALL &#183; UNIVERSITY_ONLY (saari universities) &#183; named snapshot (SELECTED_UNIVERSITIES / AUTO_SELECTED_UNIVERSITIES) jisme iski institution_name ho" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1082" width="760" height="86" as="geometry" />
+        </mxCell>
+        <mxCell id="c4" value="jo problem dikh rahi hai, usi pe submission ban sakti hai &#8594; band 4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1188" width="760" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sn3" value="&#9888; &lt;b&gt;Match exact-normalized hai&lt;/b&gt;: trim + lowercase + whitespace collapse. Catalog ka naam (problem-service V5 seed &#8212; 16 institutions, jaise &quot;Indian Institute of Technology Madras&quot;) aur participant ka institution_name ek hona chahiye.&lt;br&gt;Fuzzy ya alias matching nahi hai." style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="910" width="460" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="sn4" value="&lt;b&gt;AUTO_SELECTED_UNIVERSITIES kaise bharti hai&lt;/b&gt;&lt;br&gt;submitter ne rule chuna &#8594; AI ne problem text se domains nikaale (level-1 roots) &#8594; Java ne university_domain se set-intersection karke snapshot bhara. Model ne koi university ka naam nahi liya.&lt;br&gt;Snapshot usi access_universities column me padta hai, isliye &quot;AI ne chuna&quot; aur &quot;submitter ne chuna&quot; me visibility drift nahi hoti." style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="1100" width="460" height="148" as="geometry" />
+        </mxCell>
+
+        <mxCell id="d1" value="&lt;b&gt;POST /portal/submissions&lt;/b&gt; {problemId, title, summary, githubUrl, links, teamName?, memberUserIds?} &#8594; &lt;b&gt;DRAFT&lt;/b&gt; (problem visible hona zaroori)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1350" width="760" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="d2" value="&lt;b&gt;team mode me ek extra shart&lt;/b&gt;: har member ko bhi problem dikhni chahiye &#8212; warna 403. Matlab cross-institution team sirf OPEN_TO_ALL problems pe banegi." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1436" width="760" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="d3" value="&lt;b&gt;PATCH /submissions/{id}&lt;/b&gt; meta edit + &lt;b&gt;POST /submissions/{id}/files&lt;/b&gt; upload / &lt;b&gt;DELETE .../files/{fileId}&lt;/b&gt; &#8212; 50 MB cap, sirf DRAFT ya RETURNED me" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1536" width="760" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="d4" value="&lt;b&gt;POST /submissions/{id}/submit&lt;/b&gt; &#8594; &lt;b&gt;UNDER_REVIEW&lt;/b&gt;; project review &lt;b&gt;usi evaluator&lt;/b&gt; ko jaata hai jisne problem ke cycle ke scorecards liye the" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1622" width="760" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sn5" value="Submission ka poora lifecycle student wale diagram jaisa hi hai: DRAFT &#8594; UNDER_REVIEW &#8594; ACCEPTED / RETURNED &#8594; resubmit (naya reviewRound, wapas usi evaluator ke paas).&lt;br&gt;&lt;br&gt;Farq do hi hain: UNIVERSITY ko zyada problems dikhti hain (band 3), aur team banate waqt har member ki visibility check hoti hai." style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="1350" width="460" height="352" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e1" value="Wahi source account &lt;b&gt;SUBMITTER&lt;/b&gt; ki tarah bhi kaam karta hai: &lt;b&gt;POST /problems&lt;/b&gt; {sourceAccountId, title, description, domainIds, accessRule, location, &#8230;}" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1810" width="760" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="gate: account mera hai + canSubmit() (ACTIVE + VERIFIED) &#8212; warna &lt;b&gt;403&lt;/b&gt; SOURCE_NOT_OWNED / SOURCE_NOT_VERIFIED" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1896" width="760" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="&lt;b&gt;source_bucket = HEI&lt;/b&gt; aur &lt;b&gt;sub_entity_type = UNIVERSITY / RESEARCH_LAB&lt;/b&gt; server khud source account se copy karta hai &#8212; client inhe bhej hi nahi sakta" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1996" width="760" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="accessRule chuno: OPEN_TO_ALL &#183; UNIVERSITY_ONLY &#183; SELECTED_UNIVERSITIES &#183; AUTO_SELECTED_UNIVERSITIES" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="2096" width="760" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sn6" value="Ye problem phir poori evaluation pipeline se guzarti hai (submitter diagram band 4-5): ADMIN/EVALUATOR status walk karke problem ko REGISTERED tak le jaate hain, cycle chalti hai, aggregate/prioritize hota hai, tab portal pe publish hoti hai.&lt;br&gt;&lt;br&gt;HEI ko apni file ki hui problem ka score, evaluator ya cycle status kahin dikhta nahi." style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="1810" width="460" height="346" as="geometry" />
+        </mxCell>
+
+        <mxCell id="f1" value="&#9888; &lt;b&gt;Naam match&lt;/b&gt;: agar is university ka institution_name catalog ke naam se match nahi karta, to AUTO_ / SELECTED_UNIVERSITIES snapshot wali problem isse dikhegi hi nahi &#8212; na list me, na detail me." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="2270" width="760" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="f2" value="&lt;b&gt;POST /sources/{id}/verify&lt;/b&gt; (reviewer ka source-identity check) se problem ka status nahi badalta &#8212; SOURCE_VERIFYING &#8594; SOURCE_VERIFIED wala walk ADMIN/EVALUATOR ke &lt;b&gt;PATCH /problems/{id}/status&lt;/b&gt; se hota hai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="70" y="2370" width="760" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sn7" value="University apna participant type, apni visibility (access rule), aur apni file ki hui problem ka status khud nahi badal sakta.&lt;br&gt;&lt;br&gt;Apna record dekhne ke liye: &lt;b&gt;GET /portal/me&lt;/b&gt; aur &lt;b&gt;GET /registration/mine&lt;/b&gt;." style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;align=left;verticalAlign=middle;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="860" y="2270" width="460" height="180" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lg1" value="university ka apna action" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="70" y="2580" width="210" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="lg2" value="platform / system call" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="290" y="2580" width="210" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="lg3" value="automatic / granted" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="510" y="2580" width="210" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="lg4" value="error / allowed nahi" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="730" y="2580" width="210" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="lg5" value="submit / hand-off" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="950" y="2580" width="210" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="lg6" value="note / caveat" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#F5F5F5;strokeColor=#999999;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1170" y="2580" width="190" height="46" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ed1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="a1" target="a2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="a2" target="a3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="a3" target="a4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="a4" target="sn1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ed5" value="HEI account approved" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="a4" target="b1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="b1" target="b2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="b1" target="b3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="b2" target="sn2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ed9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="b2" target="c1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="c1" target="c2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="c2" target="c3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="c3" target="c4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="c3" target="sn3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="c3" target="sn4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ed15" value="problem mil gayi" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="c4" target="d1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="d1" target="d2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="d2" target="d3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="d3" target="d4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="d2" target="sn5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ed20" value="doosra kaam: HEI ke roop me problem file karna" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="d4" target="e1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="e1" target="e2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="e2" target="e3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#4A6785;fontSize=10;" edge="1" parent="1" source="e3" target="e4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="e3" target="sn6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ed25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;dashed=1;dashPattern=1 3;strokeColor=#9E9E9E;fontSize=10;" edge="1" parent="1" source="f1" target="sn7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

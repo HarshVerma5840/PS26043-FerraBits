@@ -1,0 +1,70 @@
+# SIH26043 gateway (Caddy 2, static L7 reverse proxy).
+#
+# The frontends call a configurable baseUrl (default http://localhost:8080) with
+# RELATIVE API paths — so the gateway contract is "same paths, one port":
+# path prefixes below are forwarded verbatim, only the upstream host changes.
+#
+# Five standalone services, each on its own database:
+#   source-service (:8081)   — auth/identity, source registration & accounts
+#   problem-service (:8082)  — problems, domains, problem-scoped audit
+#   evaluation-service (:8083) — evaluation pipeline
+#   portal-service (:8084)   — published problem portal + project submissions
+#   codejudge-service (:8085) — automated repository evaluation
+# There is no application monolith — every route below lands on one of the five.
+#
+# Every public endpoint must be listed as BOTH the bare prefix and the `/*` glob:
+# Caddy's `path` matcher treats `/x/*` as "under /x/" and does NOT match the bare
+# `/x`, and several endpoints ARE bare (POST /registration, GET /reviewer/registrations,
+# GET /source/accounts, GET /audit, GET /domains, GET /problems).
+#
+# /internal/** endpoints are NOT routed here — services call each other directly
+# on their own ports.
+
+:8080 {
+	encode gzip
+
+	# --- source-service route set (auth, users, source registration & accounts).
+	#     Explicit even though the fallback below is also source-service, so the
+	#     intent is documented and the routing is robust to a future default change. ---
+	@source path /auth /auth/* /users /users/* /registration /registration/* /reviewer/registrations /reviewer/registrations/* /source/accounts /source/accounts/* /sources /sources/*
+	handle @source {
+		reverse_proxy source-service:8081
+	}
+
+	# --- problem-service route set (domains, problems, problem-scoped audit) ---
+	@problem path /domains /domains/* /problems /problems/* /audit /audit*
+	handle @problem {
+		reverse_proxy problem-service:8082
+	}
+
+	# --- evaluation-service route set ---
+	@evaluation path /evaluation /evaluation/*
+	handle @evaluation {
+		reverse_proxy evaluation-service:8083
+	}
+
+	# --- portal-service route set (public problem portal, submissions, files) ---
+	@portal path /portal /portal/*
+	handle @portal {
+		reverse_proxy portal-service:8084
+	}
+
+	# --- codejudge-service route set (automated repository evaluation) ---
+	@codejudge path /codejudge /codejudge/*
+	handle @codejudge {
+		reverse_proxy codejudge-service:8085
+	}
+
+	# --- Eureka registry REST API (dashboard is on the registry's own port 8761;
+	#     this exposes the /eureka/apps JSON through the gateway for verification). ---
+	@eureka path /eureka /eureka/*
+	handle @eureka {
+		reverse_proxy eureka-server:8761
+	}
+
+	# --- everything else (swagger-ui, /v3/api-docs, /error, OPTIONS preflight,
+	#     any unclaimed prefix) falls through to source-service. ---
+	handle {
+		reverse_proxy source-service:8081
+	}
+}

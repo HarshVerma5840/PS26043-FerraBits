@@ -1,0 +1,13 @@
+spring:
+  jpa:
+    show-sql: false
+
+app:
+  jwt:
+    secret: test-only-secret-key-min-32-bytes-for-hmac!!
+  otp:
+    ttl-minutes: 5
+    max-attempts: 3
+    max-requests-per-phone-per-hour: 5
+    mock-code: "123456"
+  identity-pepper: test-only-identity-pepper
