@@ -31,8 +31,8 @@ Modern governance and academic ecosystems face a critical disconnect: grassroots
 2. **AI-Assisted Domain Taxonomy Classification** mapping problems across a 44-node 3-tier ontology.
 3. **Multi-Perspective 5-Pool Evaluation Engine** (Government, Industry, HEI, Citizen, Community) combining human domain experts with autonomous AI evaluators.
 4. **Targeted Access Control & Distribution** to academic institutions and student innovators.
-5. **Student & University Collaborative Portal** with team formation and solution submission.
-6. **CodeJudge Automated Evaluation Engine** running static code analysis, agentic legibility scans, requirement compliance matching, and deterministic scoring on pinned git commits.
+5. **CodeJudge Automated Evaluation Engine** running static code analysis, agentic legibility scans, requirement compliance matching, and deterministic scoring on pinned git commits.
+6. **Student & University Collaborative Portal** with team formation and solution submission.
 
 ---
 
