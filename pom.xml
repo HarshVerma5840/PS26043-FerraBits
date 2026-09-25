@@ -24,6 +24,7 @@
 		<module>problem-service</module>
 		<module>portal-service</module>
 		<module>codejudge-service</module>
+		<module>capability-matching-service</module>
 	</modules>
 
 	<properties>

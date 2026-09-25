@@ -1,0 +1,30 @@
+server:
+  port: ${SERVER_PORT:8086}
+
+spring:
+  application:
+    name: capability-matching-service
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/sih_capability}
+    username: ${DB_USERNAME:sih}
+    password: ${DB_PASSWORD:sih}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
