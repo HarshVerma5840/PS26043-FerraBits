@@ -81,6 +81,15 @@
 			<optional>true</optional>
 		</dependency>
 
+		<!-- Google GenAI SDK for Gemini integration.
+		     Used by GeminiDomainResolutionProvider for structured JSON classification.
+		     Requires Java 17+; this module targets Java 21. -->
+		<dependency>
+			<groupId>com.google.genai</groupId>
+			<artifactId>google-genai</artifactId>
+			<version>1.73.0</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security-test</artifactId>

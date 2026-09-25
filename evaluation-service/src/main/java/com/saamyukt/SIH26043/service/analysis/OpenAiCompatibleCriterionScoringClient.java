@@ -3,6 +3,7 @@ package com.saamyukt.SIH26043.service.analysis;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -36,6 +37,8 @@ import java.util.Optional;
  * caller degrades that pool to MANUAL instead of blocking the cycle.</p>
  */
 @Service
+@ConditionalOnProperty(name = "app.llm.scoring-provider", havingValue = "openai-compatible",
+        matchIfMissing = true)
 public class OpenAiCompatibleCriterionScoringClient implements CriterionScoringClient {
 
     private static final Logger log =

@@ -49,6 +49,25 @@ app:
       # return empty content (finish_reason=length). 8k leaves headroom.
       max-tokens: 8192
       timeout-seconds: 60
+    gemini:
+      # API key for Google Gemini (via AI Studio or Vertex AI).
+      # Required only when app.ai.domain-resolver.provider=gemini.
+      # Never commit this value — set via GEMINI_API_KEY env var.
+      api-key: ${GEMINI_API_KEY:}
+      # Current low-latency model recommended for structured classification (Sep 2026).
+      # Override via GEMINI_MODEL env var if a newer model is preferred.
+      model: ${GEMINI_MODEL:gemini-3.1-flash-lite}
+      # Max retries for transient Gemini errors (rate-limit, 5xx).
+      # Authentication failures are never retried regardless of this setting.
+      max-retries: ${GEMINI_MAX_RETRIES:2}
+      # Low temperature for deterministic classification (range 0.0–1.0).
+      temperature: ${GEMINI_TEMPERATURE:0.1}
+  ai:
+    domain-resolver:
+      # Which provider to use for AUTO_SELECTED_UNIVERSITIES domain resolution.
+      # Options: gemini | openai-compatible | deterministic (default)
+      # 'deterministic' is always available as a fallback even when an AI provider is selected.
+      provider: ${AI_PROVIDER:deterministic}
   # Where source-service is found. With discovery enabled this is the load-balanced
   # SERVICE ID (no port) resolved through eureka; kept as a property so a local run
   # can point a non-eureka source at a fixed URL if needed.

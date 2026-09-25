@@ -7,7 +7,9 @@ import com.saamyukt.SIH26043.exception.ApiException;
 import com.saamyukt.SIH26043.repository.DomainRepository;
 import com.saamyukt.SIH26043.repository.UniversityDomainRepository;
 import com.saamyukt.SIH26043.repository.UniversityRepository;
-import com.saamyukt.SIH26043.service.analysis.OpenAiCompatibleDomainResolutionClient;
+import com.saamyukt.SIH26043.service.analysis.DomainResolutionOrchestrationService;
+import com.saamyukt.SIH26043.service.analysis.DomainResolutionRequest;
+import com.saamyukt.SIH26043.service.analysis.DomainResolutionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -18,7 +20,6 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -50,16 +51,16 @@ public class AutoUniversitySelectionService {
     private final DomainRepository domainRepository;
     private final UniversityDomainRepository universityDomainRepository;
     private final UniversityRepository universityRepository;
-    private final OpenAiCompatibleDomainResolutionClient domainResolutionClient;
+    private final DomainResolutionOrchestrationService domainResolutionService;
 
     public AutoUniversitySelectionService(DomainRepository domainRepository,
                                           UniversityDomainRepository universityDomainRepository,
                                           UniversityRepository universityRepository,
-                                          OpenAiCompatibleDomainResolutionClient domainResolutionClient) {
+                                          DomainResolutionOrchestrationService domainResolutionService) {
         this.domainRepository = domainRepository;
         this.universityDomainRepository = universityDomainRepository;
         this.universityRepository = universityRepository;
-        this.domainResolutionClient = domainResolutionClient;
+        this.domainResolutionService = domainResolutionService;
     }
 
     /**
@@ -82,18 +83,30 @@ public class AutoUniversitySelectionService {
                             + "universities manually.");
         }
 
-        List<OpenAiCompatibleDomainResolutionClient.DomainOption> options = roots.stream()
-                .map(root -> new OpenAiCompatibleDomainResolutionClient.DomainOption(
+        List<DomainResolutionRequest.DomainOption> options = roots.stream()
+                .map(root -> new DomainResolutionRequest.DomainOption(
                         root.getDomainId(), root.getDomainName(), root.getDescription()))
                 .toList();
 
-        Optional<List<String>> answer = domainResolutionClient.resolve(
-                title, description, hintNames(domainIds), options);
-        if (answer.isEmpty()) {
+        DomainResolutionRequest request = new DomainResolutionRequest(
+                "AUTO_UNI_" + java.util.UUID.randomUUID(),
+                title,
+                description,
+                hintNames(domainIds),
+                options);
+
+        DomainResolutionResult result = domainResolutionService.resolve(request);
+
+        log.info("AUTO_SELECTED_UNIVERSITIES: provider={}, fallback={}, confidence={}, domains={}",
+                result.provider(), result.fallbackUsed(), result.confidence(),
+                result.resolvedDomainIds());
+
+        // A FAILED status means neither AI nor deterministic produced a result
+        if (result.resolverStatus() == DomainResolutionResult.ResolverStatus.FAILED) {
             throw new ApiException(HttpStatus.BAD_REQUEST, unavailableMessage());
         }
 
-        List<UUID> resolvedDomainIds = knownDomainIds(answer.get(), roots);
+        List<UUID> resolvedDomainIds = knownDomainIds(result.resolvedDomainIds(), roots);
         if (resolvedDomainIds.isEmpty()) {
             throw new ApiException(HttpStatus.BAD_REQUEST,
                     "AI university selection could not place this problem in a known domain. "

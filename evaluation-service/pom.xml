@@ -84,6 +84,15 @@
 			<optional>true</optional>
 		</dependency>
 
+		<!-- Google GenAI SDK for Gemini criterion scoring (Phase 2).
+		     Activated when app.llm.scoring-provider=gemini.
+		     Reuses GEMINI_API_KEY / GEMINI_MODEL from Phase 1. -->
+		<dependency>
+			<groupId>com.google.genai</groupId>
+			<artifactId>google-genai</artifactId>
+			<version>1.73.0</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security-test</artifactId>
