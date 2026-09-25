@@ -2,8 +2,7 @@ package com.saamyukt.SIH26043.capabilitymatching.service;
 
 import com.saamyukt.SIH26043.capabilitymatching.dto.embedding.EmbeddingDTOs.EmbeddingRequest;
 import com.saamyukt.SIH26043.capabilitymatching.dto.embedding.EmbeddingDTOs.EmbeddingResult;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
 
@@ -11,16 +10,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Collections;
 
-@Service
 public class HttpEmbeddingProvider implements EmbeddingProvider {
 
     private final RestTemplate restTemplate = new RestTemplate();
     
-    @Value("${embedding.api.url:}")
     private String apiUrl;
-    
-    @Value("${embedding.api.key:}")
     private String apiKey;
+
+    public HttpEmbeddingProvider(String apiUrl, String apiKey) {
+        this.apiUrl = apiUrl;
+        this.apiKey = apiKey;
+    }
 
     @Override
     public EmbeddingResult embed(EmbeddingRequest request) {

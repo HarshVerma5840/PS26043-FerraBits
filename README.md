@@ -33,6 +33,7 @@ Modern governance and academic ecosystems face a critical disconnect: grassroots
 4. **Targeted Access Control & Distribution** to academic institutions and student innovators.
 5. **Student & University Collaborative Portal** with team formation and solution submission.
 6. **CodeJudge Automated Evaluation Engine** running static code analysis, agentic legibility scans, requirement compliance matching, and deterministic scoring on pinned git commits.
+7. **Batch 3 Capability Matching & Registry** managing institutions, skills, and equipment for intelligent matching.
 
 ---
 
@@ -62,6 +63,7 @@ flowchart TB
         EVL["evaluation-service (:8083)\n• 5-Pool Evaluation Pipeline\n• Dual-Mode (Human / AI Scoring)\n• Weighted Scoring & Prioritization\n[(sih_eval)]"]
         PTL["portal-service (:8084)\n• Catalog & Access Filtering\n• Student & University Teams\n• Project Submissions & Artifacts\n[(sih_portal)]"]
         CDJ["codejudge-service (:8085)\n• Git Clone (Pinned Commit)\n• Python Agentic Analyzer\n• Compliance & Architecture Scan\n• Deterministic Scoring Engine\n[(sih_codejudge)]"]
+        CMS["capability-matching-service (:8086)\n• Registry Import & Publishing\n• AI Capability Matching\n• Embedding Generation\n[(sih_capability)]"]
     end
 
     subgraph External["External / Infrastructure Providers"]
@@ -76,12 +78,14 @@ flowchart TB
     GW --> EVL
     GW --> PTL
     GW --> CDJ
+    GW --> CMS
 
     SRC -.->|Registers & Discovers| EUK
     PRB -.->|Registers & Discovers| EUK
     EVL -.->|Registers & Discovers| EUK
     PTL -.->|Registers & Discovers| EUK
     CDJ -.->|Registers & Discovers| EUK
+    CMS -.->|Registers & Discovers| EUK
 
     PRB -->|Internal Authz Check| SRC
     EVL -->|Problem Context Snapshot| PRB
@@ -108,6 +112,7 @@ flowchart TB
 | **`evaluation-service`** | `8083` | `sih_eval` | Phase-2 evaluation pipeline across 5 pools (Government, Industry, HEI, Citizen, Community), autonomous AI scoring fallback, weighted 0–100 aggregation, priority banding. |
 | **`portal-service`** | `8084` | `sih_portal` | Published problem discovery, participant registration (Student vs University), team formation, project submissions, artifact storage, evaluator review feedback loop. |
 | **`codejudge-service`** | `8085` | `sih_codejudge` | Commit-pinned git clone, Python agentic-legibility analyzer, software architecture check, requirement compliance matching, and deterministic scoring. |
+| **`capability-matching-service`** | `8086` | `sih_capability` | Batch 3 capability matching and registry operations, AI embedding generation, sparse/dense retrieval, and team synthesis matching. |
 | **`saamyukt-common`** | — | — | Shared Maven kernel module containing cross-service Enums, shared DTOs, and exception models. |
 | **`saamyukt-security`** | — | — | Shared stateless security library containing `JwtService`, `JwtAuthFilter`, and claim-based `AuthUser`. |
 
@@ -327,6 +332,7 @@ PS26043-FerraBits/
 ├── evaluation-service/            # 5-pool evaluation pipeline, scoring, priority banding (:8083)
 ├── portal-service/                # Student & University innovation portal & submissions (:8084)
 ├── codejudge-service/             # Automated git clone, agentic code analysis, scoring (:8085)
+├── capability-matching-service/   # Batch 3 Capability matching and registry operations (:8086)
 ├── gateway/                       # Caddy 2 L7 reverse proxy configuration (:8080)
 │
 ├── actor-ui/                      # Role-specific frontend portals (Submitter, Reviewer, etc.)

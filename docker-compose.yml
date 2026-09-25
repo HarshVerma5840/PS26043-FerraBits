@@ -275,6 +275,17 @@ services:
     ports:
       - "8086:8086"
 
+  frontend:
+    build:
+      context: ./frontend
+    image: sih26043-frontend:local
+    depends_on:
+      - gateway
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8080
+
   gateway:
     image: caddy:2
     container_name: sih26043-gateway
@@ -286,6 +297,7 @@ services:
       - codejudge-service
       - capability-matching-service
       - eureka-server
+      - frontend
     ports:
       - "8080:8080"
     volumes:

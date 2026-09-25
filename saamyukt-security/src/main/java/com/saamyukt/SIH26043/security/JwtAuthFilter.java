@@ -41,7 +41,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         user, null,
                         List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())));
                 SecurityContextHolder.getContext().setAuthentication(auth);
-            } catch (IllegalArgumentException ignored) {
+            } catch (Exception e) {
+                // print error to stdout to debug 403
+                e.printStackTrace();
                 // invalid/expired token or unreadable claims -> leave unauthenticated (401 by entry point)
             }
         }

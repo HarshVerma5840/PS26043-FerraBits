@@ -14,8 +14,8 @@ CREATE TABLE institution (
     aishe_identifier VARCHAR(50),
     state VARCHAR(100),
     district VARCHAR(100),
-    latitude DECIMAL(9,6),
-    longitude DECIMAL(9,6),
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION,
     verification_status VARCHAR(50) NOT NULL DEFAULT 'UNVERIFIED',
     active_status BOOLEAN NOT NULL DEFAULT TRUE,
     source VARCHAR(50) NOT NULL DEFAULT 'MANUAL',
@@ -40,7 +40,7 @@ CREATE TABLE faculty (
     name VARCHAR(255) NOT NULL,
     workload_capacity_pct INT NOT NULL DEFAULT 100,
     current_workload_pct INT NOT NULL DEFAULT 0,
-    past_performance_score DECIMAL(3,2) NOT NULL DEFAULT 0.5
+    past_performance_score DOUBLE PRECISION NOT NULL DEFAULT 0.5
 );
 
 CREATE TABLE student (
@@ -112,7 +112,7 @@ CREATE TABLE past_project (
     institution_id UUID NOT NULL REFERENCES institution(institution_id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     description TEXT,
-    performance_score DECIMAL(3,2) NOT NULL DEFAULT 0.0,
+    performance_score DOUBLE PRECISION NOT NULL DEFAULT 0.0,
     completed_at TIMESTAMPTZ
 );
 

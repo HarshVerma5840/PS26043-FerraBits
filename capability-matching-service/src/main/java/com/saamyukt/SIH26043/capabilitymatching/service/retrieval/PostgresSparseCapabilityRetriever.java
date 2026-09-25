@@ -37,12 +37,15 @@ public class PostgresSparseCapabilityRetriever implements SparseCapabilityRetrie
                 SELECT inst.institution_id, inst.name,
                     to_tsvector('english',
                         COALESCE(inst.name, '') || ' ' || 
+                        COALESCE(inst.state, '') || ' ' ||
                         COALESCE(inst.district, '') || ' ' ||
-                        COALESCE((SELECT string_agg(eq.name, ' ') FROM equipment eq JOIN lab l ON eq.lab_id = l.lab_id JOIN department d ON l.department_id = d.department_id WHERE d.institution_id = inst.institution_id), '') || ' ' ||
+                        COALESCE((SELECT string_agg(d.name, ' ') FROM department d WHERE d.institution_id = inst.institution_id), '') || ' ' ||
+                        COALESCE((SELECT string_agg(eq.name, ' ') FROM equipment eq JOIN lab l ON eq.lab_id = l.lab_id WHERE l.institution_id = inst.institution_id AND eq.is_operational = true), '') || ' ' ||
                         COALESCE((SELECT string_agg(s.name, ' ') FROM skill s JOIN faculty_skill fs ON s.skill_id = fs.skill_id JOIN faculty f ON fs.faculty_id = f.faculty_id JOIN department d ON f.department_id = d.department_id WHERE d.institution_id = inst.institution_id), '') || ' ' ||
-                        COALESCE((SELECT string_agg(s.name, ' ') FROM skill s JOIN student_skill ss ON s.skill_id = ss.skill_id JOIN student st ON ss.student_id = st.student_id JOIN department d ON st.department_id = d.department_id WHERE d.institution_id = inst.institution_id), '')
+                        COALESCE((SELECT string_agg(s.name, ' ') FROM skill s JOIN student_skill ss ON s.skill_id = ss.skill_id JOIN student st ON ss.student_id = st.student_id WHERE st.institution_id = inst.institution_id), '') || ' ' ||
+                        COALESCE((SELECT string_agg(l.name, ' ') FROM lab l WHERE l.institution_id = inst.institution_id), '')
                     ) as document,
-                    COALESCE((SELECT string_agg(eq.name, '||') FROM equipment eq JOIN lab l ON eq.lab_id = l.lab_id JOIN department d ON l.department_id = d.department_id WHERE d.institution_id = inst.institution_id), '') as eq_names
+                    COALESCE((SELECT string_agg(eq.name, '||') FROM equipment eq JOIN lab l ON eq.lab_id = l.lab_id WHERE l.institution_id = inst.institution_id AND eq.is_operational = true), '') as eq_names
                 FROM institution inst
                 WHERE inst.active_status = true 
                   AND inst.verification_status = 'VERIFIED'

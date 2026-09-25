@@ -14,6 +14,7 @@ import com.saamyukt.SIH26043.capabilitymatching.entity.MatchingRun;
 import com.saamyukt.SIH26043.capabilitymatching.repository.AlgorithmConfigRepository;
 import com.saamyukt.SIH26043.capabilitymatching.repository.InstitutionRepository;
 import com.saamyukt.SIH26043.capabilitymatching.repository.MatchingRunRepository;
+import com.saamyukt.SIH26043.capabilitymatching.repository.RegistryVersionRepository;
 import com.saamyukt.SIH26043.capabilitymatching.service.embedding.DenseRetrievalService;
 import com.saamyukt.SIH26043.capabilitymatching.service.retrieval.ReciprocalRankFusionService;
 import com.saamyukt.SIH26043.capabilitymatching.service.retrieval.SparseCapabilityRetriever;
@@ -39,6 +40,8 @@ public class MatchingAlgorithmService {
     private final TeamSynthesisService teamSynthesisService;
     private final ObjectMapper objectMapper;
 
+    private final RegistryVersionRepository registryVersionRepository;
+
     public MatchingAlgorithmService(
             MatchingRunRepository matchingRunRepository,
             AlgorithmConfigRepository configRepository,
@@ -48,7 +51,8 @@ public class MatchingAlgorithmService {
             ReciprocalRankFusionService rrfService,
             RerankingEngine rerankingEngine,
             TeamSynthesisService teamSynthesisService,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            RegistryVersionRepository registryVersionRepository) {
         this.matchingRunRepository = matchingRunRepository;
         this.configRepository = configRepository;
         this.institutionRepository = institutionRepository;
@@ -58,10 +62,17 @@ public class MatchingAlgorithmService {
         this.rerankingEngine = rerankingEngine;
         this.teamSynthesisService = teamSynthesisService;
         this.objectMapper = objectMapper;
+        this.registryVersionRepository = registryVersionRepository;
     }
 
     @Transactional
-    public MatchResult runMatching(ProblemFingerprint fingerprint) {
+    public MatchResult runMatching(ProblemFingerprint fingerprint, Integer registryVersionId) {
+        if (registryVersionId == null) {
+            registryVersionId = registryVersionRepository.findByIsActiveTrue()
+                .orElseThrow(() -> new IllegalStateException("No active registry version found"))
+                .getVersionId();
+        }
+
         AlgorithmConfig config = configRepository.findByActiveTrue().orElseGet(() -> {
             AlgorithmConfig defaultCfg = new AlgorithmConfig();
             defaultCfg.setVersion("v1.0.0-fallback");
@@ -81,7 +92,7 @@ public class MatchingAlgorithmService {
                 .findTopByProblemIdAndFingerprintVersionAndRegistryVersionIdAndAlgorithmVersionOrderByCreatedAtDesc(
                         fingerprint.getProblemId(),
                         fingerprint.getFingerprintVersion(),
-                        fingerprint.getFingerprintVersion(), // Assume registry version mirrors or needs passing
+                        registryVersionId,
                         config.getVersion());
 
         if (existingRun.isPresent() && existingRun.get().getResultJson() != null) {
@@ -94,7 +105,7 @@ public class MatchingAlgorithmService {
 
         int topK = 50;
         List<DenseRetrievalService.DenseRetrievalResult> denseResults = 
-                denseRetrievalService.retrieveTopK(fingerprint, topK, fingerprint.getFingerprintVersion());
+                denseRetrievalService.retrieveTopK(fingerprint, topK, registryVersionId);
         
         List<CapabilityCandidate> denseCandidates = new ArrayList<>();
         for (var dr : denseResults) {
@@ -122,7 +133,7 @@ public class MatchingAlgorithmService {
                 .requiredSkills(reqSkills)
                 .requiredEquipment(reqEq)
                 .topK(topK)
-                .registryVersionId(fingerprint.getFingerprintVersion())
+                .registryVersionId(registryVersionId)
                 .build();
         
         List<CapabilityCandidate> sparseCandidates = sparseRetriever.retrieve(sparseReq);
@@ -149,7 +160,7 @@ public class MatchingAlgorithmService {
         run.setProblemId(fingerprint.getProblemId());
         run.setAlgorithmVersion(config.getVersion());
         run.setFingerprintVersion(fingerprint.getFingerprintVersion());
-        run.setRegistryVersionId(fingerprint.getFingerprintVersion()); // Simplification: pass mapping if needed
+        run.setRegistryVersionId(registryVersionId);
         run.setModelName("all-MiniLM-L6-v2");
         run.setModelVersion("v1");
         run.setCorrelationId(UUID.randomUUID());

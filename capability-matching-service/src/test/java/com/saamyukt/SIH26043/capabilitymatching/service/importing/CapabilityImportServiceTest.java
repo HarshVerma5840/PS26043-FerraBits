@@ -78,4 +78,19 @@ public class CapabilityImportServiceTest {
         assertTrue(res.getRejectedReasons().get(0).contains("Missing") || res.getRejectedReasons().get(1).contains("Missing"));
         assertTrue(res.getRejectedReasons().get(0).contains("Duplicate") || res.getRejectedReasons().get(1).contains("Duplicate"));
     }
+
+    @Test
+    public void testInvalidRequestValidation() {
+        assertThrows(IllegalArgumentException.class, () -> service.importRegistry(null));
+
+        RegistryImportRequest req = new RegistryImportRequest();
+        assertThrows(IllegalArgumentException.class, () -> service.importRegistry(req));
+
+        req.setSource("INVALID");
+        assertThrows(IllegalArgumentException.class, () -> service.importRegistry(req));
+
+        req.setSource("MANUAL");
+        req.setInstitutions(Collections.emptyList());
+        assertThrows(IllegalArgumentException.class, () -> service.importRegistry(req));
+    }
 }

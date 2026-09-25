@@ -2,14 +2,11 @@ package com.saamyukt.SIH26043.capabilitymatching.service;
 
 import com.saamyukt.SIH26043.capabilitymatching.dto.embedding.EmbeddingDTOs.EmbeddingRequest;
 import com.saamyukt.SIH26043.capabilitymatching.dto.embedding.EmbeddingDTOs.EmbeddingResult;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
+import com.saamyukt.SIH26043.capabilitymatching.dto.embedding.EmbeddingDTOs.EmbeddingResult;
 
 import java.util.Arrays;
 import java.util.List;
 
-@Service
-@Primary
 public class MockEmbeddingProvider implements EmbeddingProvider {
 
     @Override

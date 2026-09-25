@@ -27,18 +27,43 @@ public class CapabilityImportService {
 
     @Transactional
     public ImportResultSummary importRegistry(RegistryImportRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("Import request cannot be null");
+        }
+        if (request.getSource() == null || request.getSource().isBlank()) {
+            throw new IllegalArgumentException("Source is required");
+        }
+        List<String> allowedSources = List.of("AISHE", "UNIVERSITY", "MANUAL", "SEEDED");
+        if (!allowedSources.contains(request.getSource().toUpperCase())) {
+            throw new IllegalArgumentException("Source not allowed: " + request.getSource());
+        }
+        if (request.getInstitutions() == null || request.getInstitutions().isEmpty()) {
+            throw new IllegalArgumentException("Institution list cannot be null or empty");
+        }
+
         ImportResultSummary summary = new ImportResultSummary();
         summary.setRejectedReasons(new ArrayList<>());
         
         int accepted = 0;
         int rejected = 0;
 
-        // Create new version for this import
         RegistryVersion version = new RegistryVersion();
         version.setVersionName("import-" + request.getSource() + "-" + System.currentTimeMillis());
         version.setPublishedAt(OffsetDateTime.now());
-        version.setIsActive(true);
+        version.setIsActive(false);
         version = registryVersionRepository.save(version);
+
+        List<Institution> allInsts = institutionRepository.findAll();
+        java.util.Set<String> existingAishe = new java.util.HashSet<>();
+        java.util.Set<String> existingNames = new java.util.HashSet<>();
+        for (Institution i : allInsts) {
+            if (i.getAisheIdentifier() != null) {
+                existingAishe.add(i.getAisheIdentifier().trim().toUpperCase());
+            }
+            if (i.getName() != null) {
+                existingNames.add(i.getName().trim().toLowerCase());
+            }
+        }
 
         for (InstitutionImportDto dto : request.getInstitutions()) {
             if (dto.getName() == null || dto.getName().trim().isEmpty()) {
@@ -47,20 +72,26 @@ public class CapabilityImportService {
                 continue;
             }
 
-            String normalizedName = dto.getName().trim().replaceAll("\\s+", " ");
-            String aishe = dto.getAisheIdentifier() != null ? dto.getAisheIdentifier().trim() : null;
-
-            // Simple duplicate check - in a real scenario we'd do a DB lookup or batch query
-            boolean isDuplicate = false;
-            if (aishe != null) {
-                isDuplicate = institutionRepository.findAll().stream()
-                        .anyMatch(i -> aishe.equals(i.getAisheIdentifier()));
-            } else {
-                isDuplicate = institutionRepository.findAll().stream()
-                        .anyMatch(i -> normalizedName.equalsIgnoreCase(i.getName()));
+            if (dto.getLatitude() != null && (dto.getLatitude() < -90 || dto.getLatitude() > 90)) {
+                rejected++;
+                summary.getRejectedReasons().add("Invalid latitude for " + dto.getName());
+                continue;
+            }
+            if (dto.getLongitude() != null && (dto.getLongitude() < -180 || dto.getLongitude() > 180)) {
+                rejected++;
+                summary.getRejectedReasons().add("Invalid longitude for " + dto.getName());
+                continue;
             }
 
-            if (isDuplicate) {
+            String normalizedName = dto.getName().trim().replaceAll("\\s+", " ");
+            String aishe = dto.getAisheIdentifier() != null ? dto.getAisheIdentifier().trim().toUpperCase() : null;
+
+            if (aishe != null && existingAishe.contains(aishe)) {
+                rejected++;
+                summary.getRejectedReasons().add("Duplicate AISHE detected: " + aishe);
+                continue;
+            }
+            if (existingNames.contains(normalizedName.toLowerCase())) {
                 rejected++;
                 summary.getRejectedReasons().add("Duplicate institution detected: " + normalizedName);
                 continue;
@@ -78,7 +109,6 @@ public class CapabilityImportService {
             inst.setSource(request.getSource());
             inst.setRawImportData(dto.getRawJsonData());
             inst.setImportedAt(OffsetDateTime.now());
-            // Assume AISHE is trusted, manual requires verification
             if ("AISHE".equalsIgnoreCase(request.getSource()) || "SEEDED".equalsIgnoreCase(request.getSource())) {
                 inst.setVerificationStatus("VERIFIED");
                 inst.setVerifiedAt(OffsetDateTime.now());
@@ -90,10 +120,9 @@ public class CapabilityImportService {
             inst.setCreatedAt(OffsetDateTime.now());
             inst.setUpdatedAt(OffsetDateTime.now());
 
-            // Normalization of departments, skills, equipment can be extended similarly.
-            // For now, we focus on institution tracking per the core prompt requirements.
-
             institutionRepository.save(inst);
+            if (aishe != null) existingAishe.add(aishe);
+            existingNames.add(normalizedName.toLowerCase());
             accepted++;
         }
 

@@ -4,13 +4,14 @@
 # RELATIVE API paths — so the gateway contract is "same paths, one port":
 # path prefixes below are forwarded verbatim, only the upstream host changes.
 #
-# Five standalone services, each on its own database:
+# Six standalone services, each on its own database:
 #   source-service (:8081)   — auth/identity, source registration & accounts
 #   problem-service (:8082)  — problems, domains, problem-scoped audit
 #   evaluation-service (:8083) — evaluation pipeline
 #   portal-service (:8084)   — published problem portal + project submissions
 #   codejudge-service (:8085) — automated repository evaluation
-# There is no application monolith — every route below lands on one of the five.
+#   capability-matching-service (:8086) — batch 3 capability matching and registry
+# There is no application monolith — every route below lands on one of the six.
 #
 # Every public endpoint must be listed as BOTH the bare prefix and the `/*` glob:
 # Caddy's `path` matcher treats `/x/*` as "under /x/" and does NOT match the bare
@@ -55,6 +56,12 @@
 		reverse_proxy codejudge-service:8085
 	}
 
+	# --- capability-matching-service route set (matching and registry) ---
+	@capability path /capability /capability/*
+	handle @capability {
+		reverse_proxy capability-matching-service:8086
+	}
+
 	# --- Eureka registry REST API (dashboard is on the registry's own port 8761;
 	#     this exposes the /eureka/apps JSON through the gateway for verification). ---
 	@eureka path /eureka /eureka/*
@@ -62,9 +69,14 @@
 		reverse_proxy eureka-server:8761
 	}
 
-	# --- everything else (swagger-ui, /v3/api-docs, /error, OPTIONS preflight,
-	#     any unclaimed prefix) falls through to source-service. ---
-	handle {
+	# --- swagger and OpenAPI ---
+	@swagger path /swagger-ui /swagger-ui/* /v3/api-docs /v3/api-docs/* /error
+	handle @swagger {
 		reverse_proxy source-service:8081
+	}
+
+	# --- frontend fallback (SPA) ---
+	handle {
+		reverse_proxy frontend:80
 	}
 }

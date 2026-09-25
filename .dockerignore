@@ -10,6 +10,7 @@
 !problem-service/target/problem-service-0.0.1-SNAPSHOT.jar
 !portal-service/target/portal-service-0.0.1-SNAPSHOT.jar
 !codejudge-service/target/codejudge-service-0.0.1-SNAPSHOT.jar
+!capability-matching-service/target/capability-matching-service-0.0.1-SNAPSHOT.jar
 !eureka-server/target/eureka-server-0.0.1-SNAPSHOT.jar
 **/data
 actor-ui

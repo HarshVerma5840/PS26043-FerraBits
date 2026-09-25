@@ -8,6 +8,7 @@ import com.saamyukt.SIH26043.capabilitymatching.entity.MatchingRun;
 import com.saamyukt.SIH26043.capabilitymatching.repository.AlgorithmConfigRepository;
 import com.saamyukt.SIH26043.capabilitymatching.repository.InstitutionRepository;
 import com.saamyukt.SIH26043.capabilitymatching.repository.MatchingRunRepository;
+import com.saamyukt.SIH26043.capabilitymatching.repository.RegistryVersionRepository;
 import com.saamyukt.SIH26043.capabilitymatching.service.embedding.DenseRetrievalService;
 import com.saamyukt.SIH26043.capabilitymatching.service.retrieval.ReciprocalRankFusionService;
 import com.saamyukt.SIH26043.capabilitymatching.service.retrieval.SparseCapabilityRetriever;
@@ -37,6 +38,8 @@ public class MatchingAlgorithmServiceTest {
     private TeamSynthesisService teamSynthesisService;
     private ObjectMapper objectMapper;
 
+    private RegistryVersionRepository registryVersionRepository;
+
     @BeforeEach
     void setUp() {
         runRepo = Mockito.mock(MatchingRunRepository.class);
@@ -47,10 +50,11 @@ public class MatchingAlgorithmServiceTest {
         rrfService = Mockito.mock(ReciprocalRankFusionService.class);
         rerankingEngine = Mockito.mock(RerankingEngine.class);
         teamSynthesisService = Mockito.mock(TeamSynthesisService.class);
+        registryVersionRepository = Mockito.mock(RegistryVersionRepository.class);
         objectMapper = new ObjectMapper();
 
         service = new MatchingAlgorithmService(runRepo, configRepo, instRepo, denseRetrievalService, 
-                sparseRetriever, rrfService, rerankingEngine, teamSynthesisService, objectMapper);
+                sparseRetriever, rrfService, rerankingEngine, teamSynthesisService, objectMapper, registryVersionRepository);
     }
 
     @Test
@@ -71,7 +75,7 @@ public class MatchingAlgorithmServiceTest {
         when(rrfService.fuse(any(), any(), anyInt())).thenReturn(Collections.emptyList());
         when(rerankingEngine.rerank(any(), any(), any())).thenReturn(Collections.emptyList());
 
-        MatchResult res = service.runMatching(fp);
+        MatchResult res = service.runMatching(fp, 1);
         assertEquals(0, res.getMatches().size());
         assertEquals("v1.0.0-fallback", res.getAlgorithmVersion());
     }
