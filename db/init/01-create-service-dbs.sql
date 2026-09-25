@@ -6,3 +6,4 @@ CREATE DATABASE sih_problem;
 CREATE DATABASE sih_source;
 CREATE DATABASE sih_portal;
 CREATE DATABASE sih_codejudge;
+CREATE DATABASE sih_capability;

@@ -254,6 +254,27 @@ services:
     volumes:
       - codejudge-workspaces:/data/codejudge-workspaces
 
+  capability-matching-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        JAR_FILE: capability-matching-service/target/capability-matching-service-0.0.1-SNAPSHOT.jar
+    image: sih26043-capability-matching-service:local
+    depends_on:
+      db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    environment:
+      SERVER_PORT: "8086"
+      DB_URL: jdbc:postgresql://db:5432/sih_capability
+      DB_USERNAME: ${DB_USERNAME:-sih}
+      DB_PASSWORD: ${DB_PASSWORD:-sih}
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
+    ports:
+      - "8086:8086"
+
   gateway:
     image: caddy:2
     container_name: sih26043-gateway
@@ -263,6 +284,7 @@ services:
       - evaluation-service
       - portal-service
       - codejudge-service
+      - capability-matching-service
       - eureka-server
     ports:
       - "8080:8080"
