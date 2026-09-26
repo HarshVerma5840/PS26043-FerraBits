@@ -6,10 +6,28 @@ export interface User {
 }
 
 export interface Problem {
-  id: string
+  id?: string
+  problemId: string
   title: string
   description: string
   domainId?: string
+  sourceBucket?: string
+  subEntityType?: string
+  status?: string
+  urgency?: string
+  severity?: string
+  sourceId?: string
+  sourceAccountId?: string
+  locationId?: string
+  affectedPopulation?: number
+  expectedOutcome?: string
+  existingIntervention?: string
+  submittedAt?: string
+  updatedAt?: string
+  submittedByUserId?: string
+  accessRule?: string
+  accessUniversities?: string[]
+  version?: number
 }
 
 export interface RegistryVersion {
@@ -18,6 +36,7 @@ export interface RegistryVersion {
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
   createdAt: string
   publishedAt?: string
+  archivedAt?: string
 }
 
 export interface Capability {
@@ -38,45 +57,82 @@ export interface Institution {
 }
 
 export interface EvidenceCard {
-  id: string
-  title: string
-  description: string
-  relevanceScore: number
+  institutionId?: string
+  institutionName?: string
+  departmentName?: string
+  labName?: string
+  equipment?: string[]
+  faculty?: string[]
+  teamCapability?: string
+  denseScore?: number
+  sparseScore?: number
+  rerankingScore?: number
+  finalScore?: number
+  explanation?: string
 }
 
 export interface RecommendationReview {
-  id: string
+  reviewId: string
   problemId: string
-  targetInstitutionId: string
-  aggregateScore: number
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'OVERRIDDEN'
-  overrideReason?: string
-  evidenceCards: EvidenceCard[]
+  runCreatedAt?: string
+  currentDecisionId?: string
+  topEvidenceCards?: EvidenceCard[]
+  auditHistory?: GovernanceAuditRecord[]
+}
+
+export interface GovernanceAuditRecord {
+  id: string
+  action: 'APPROVE' | 'REJECT' | 'OVERRIDE' | string
+  actorId?: string
+  actorRole?: string
+  reason?: string
+  requestMetadata?: string
+  originalInstitutionId?: string
+  selectedInstitutionId?: string
+  timestamp?: string
+  previousHash?: string
+  currentHash?: string
 }
 
 export interface Project {
-  id: string
-  title: string
-  description: string
+  id: string        // projectId
+  projectId: string
+  problemId: string
   institutionId: string
-  status: string
-  problemId?: string
+  name: string
+  description?: string
+  status: 'ACTIVE' | 'COMPLETED' | 'SUSPENDED' | string
   createdAt: string
+  updatedAt?: string
+  // Origin data from matching run / governance decision (joined on client)
+  matchingRunId?: string
+  registryVersionId?: number
+  decisionOrigin?: 'APPROVED' | 'OVERRIDDEN' | string
+  selectedByActorRole?: string
+  facultyAssignmentId?: string
 }
 
 export interface TeamMember {
-  id: string
-  userId: string
+  id: string           // teamMemberId or participantId
+  participantId?: string
+  userId?: string
   name: string
-  role: string
-  skills: string[]
+  role: string         // LEAD, STUDENT_MEMBER, FACULTY_MENTOR, INDUSTRY_MENTOR
+  participantType?: string  // STUDENT, UNIVERSITY, INDUSTRY
+  skills?: string[]
+  orderIndex?: number
 }
 
 export interface SkillGap {
+  // NOTE: There is no backend skill-gap endpoint.
+  // Skill gaps are computed client-side from matched problem requirements vs team member skills.
   id: string
   skill: string
   requiredLevel: string
-  severity: 'LOW' | 'MEDIUM' | 'HIGH'
+  currentLevel?: string
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
+  recommendedMemberType?: 'STUDENT' | 'FACULTY_MENTOR' | 'INDUSTRY_MENTOR'
 }
 
 export interface Milestone {
@@ -114,60 +170,160 @@ export interface Deployment {
 }
 
 export interface IndustryOrganization {
-  id: string
+  id: string             // organizationId
   name: string
-  contactPersonEmail: string
+  contactEmail?: string
+  contactPersonEmail?: string
   verified: boolean
   totalFundingAmount?: number
+  domain?: string
+  status?: string
 }
 
-export interface Funding {
-  id: string
-  amount: number
-  currency: string
+export interface IndustryParticipant {
+  id: string             // participantId
+  projectId: string
+  organizationId: string
+  organizationName?: string
+  participationType: string
   status: string
 }
 
+export interface Funding {
+  id: string             // fundingId
+  projectId: string
+  organizationId: string
+  amount: number
+  currency: string
+  status: string
+  purpose?: string
+}
+
 export interface Mentorship {
-  id: string
+  id: string             // mentorshipId
+  projectId: string
+  mentorUserId?: string
   mentorId: string
+  mentorName?: string
   scope: string
   status: string
 }
 
+export interface MentorshipSession {
+  id: string             // sessionId
+  mentorshipId: string
+  scheduledAt: string
+  durationMinutes: number
+  status: string         // SCHEDULED, COMPLETED, CANCELLED
+  meetingLink?: string
+  notes?: string
+}
+
+export interface ConversationParticipant {
+  participantId: string
+  userId: string
+  joinedAt: string
+  lastReadAt?: string
+  role?: string
+}
+
 export interface Conversation {
-  id: string
+  id: string             // conversationId
   type: string
   contextId?: string
+  createdAt: string
+  updatedAt?: string
+  participants?: ConversationParticipant[]
+  unreadCount?: number
+  lastMessageAt?: string
 }
 
 export interface Message {
-  id: string
+  id: string             // messageId
+  conversationId: string
   senderId: string
   content: string
-  read: boolean
-  timestamp: string
+  sentAt: string
+  isRead: boolean
+  readBy?: string[]
 }
 
-export interface Feedback {
-  id: string
+export interface PaginatedMessages {
+  content: Message[]
+  totalPages: number
+  totalElements: number
+  size: number
+  number: number
+}
+
+export interface CitizenFeedback {
+  id: string             // feedbackId
+  projectId: string
+  userId: string
   rating: number
   category: string
   comment: string
+  completionUsefulness?: string
+  isAnonymous: boolean
   moderationStatus: string
+  createdAt: string
+  locationGeohash?: string
 }
 
-export interface AnalyticsSummary {
+export interface CreateFeedback {
+  rating: number
+  category: string
+  comment: string
+  completionUsefulness?: string
+  isAnonymous: boolean
+  latitude?: number
+  longitude?: number
+}
+
+export interface FeedbackSummary {
+  totalFeedback: number
+  averageRating: number
+}
+
+export interface ImpactMetrics {
   projectsCompleted: number
   projectsDeployed: number
   districtsServed: number
+  institutionsInvolved: number
+  studentsInvolved: number
+  facultyInvolved: number
+  industryContributions: number
+  citizenFeedbackCount: number
   averageSatisfaction: number
+  averageCompletionTimeDays: number
+  deploymentSuccessRate: number
 }
 
 export interface DistrictAnalytics {
   district: string
   state: string
   projectCount: number
+  deployedCount: number
+  activeStudents: number
+  geohash: string
+}
+
+export interface InstitutionAnalytics {
+  institutionId: string
+  institutionName: string
+  projectCount: number
+  successRate: number
+  totalStudents: number
+}
+
+export interface ProjectAnalytics {
+  projectId: string
+  projectName: string
+  status: string
+  deploymentStatus: string
+  district: string
+  institutionName: string
+  satisfactionScore: number
 }
 
 export interface Participant {

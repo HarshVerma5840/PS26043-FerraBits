@@ -1,4 +1,4 @@
-import { httpClient } from './httpClient'
+import { httpClient, multipartConfig } from './httpClient'
 import { Problem, Participant, Submission, PortalFile } from '../types'
 
 export const portalApi = {
@@ -42,18 +42,35 @@ export const portalApi = {
     const response = await httpClient.get(`/portal/submissions/${submissionId}/files`)
     return response.data
   },
-  uploadFile: async (submissionId: string, file: File, onUploadProgress?: (progressEvent: any) => void): Promise<PortalFile> => {
+  /**
+   * Upload a file for a submission. Supports progress tracking and
+   * cancellation via AbortController.
+   *
+   * @throws ApiError with isCancelled=true if aborted
+   */
+  uploadFile: async (
+    submissionId: string,
+    file: File,
+    signal?: AbortSignal,
+    onUploadProgress?: (progressEvent: any) => void
+  ): Promise<PortalFile> => {
     const formData = new FormData()
     formData.append('file', file)
-    const response = await httpClient.post(`/portal/submissions/${submissionId}/files`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-      onUploadProgress
-    })
+    const response = await httpClient.post(
+      `/portal/submissions/${submissionId}/files`,
+      formData,
+      multipartConfig(signal, onUploadProgress)
+    )
     return response.data
   },
-  getDownloadUrl: (fileId: string) => {
-    // In a real app, you might fetch a pre-signed URL or directly use the proxy path.
-    // For now we'll just construct the URL and the component can use it in an <a href> or fetch.
-    return `/portal/files/${fileId}/download`
-  }
+  /**
+   * Returns the full download URL for a portal file.
+   * In production this is absolute (VITE_API_BASE_URL + path).
+   * In dev the Vite proxy intercepts the relative /portal path.
+   */
+  getDownloadUrl: (fileId: string): string => {
+    const base = (import.meta.env.VITE_API_BASE_URL as string) ?? ''
+    return `${base}/portal/files/${fileId}/download`
+  },
 }
+

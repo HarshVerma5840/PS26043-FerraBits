@@ -13,11 +13,11 @@ export default function ReviewDeskPage() {
     queryFn: () => governanceApi.getReviews()
   })
 
-  const filtered = reviews?.filter(r => {
+  const filtered = Array.isArray(reviews) ? reviews.filter(r => {
     if (statusFilter && r.status !== statusFilter) return false
-    if (search && !r.id.includes(search)) return false
+    if (search && !r.reviewId?.toLowerCase().includes(search.toLowerCase())) return false
     return true
-  })
+  }) : []
 
   return (
     <div className="animate-fade-in" style={{ padding: '2rem' }}>
@@ -64,10 +64,10 @@ export default function ReviewDeskPage() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {filtered?.map((review) => (
-              <div key={review.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
+              <div key={review.reviewId} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
-                    <span style={{ fontWeight: 600 }}>Review {review.id.substring(0, 8)}...</span>
+                    <span style={{ fontWeight: 600 }}>Review {review.reviewId ? `${review.reviewId.substring(0, 8)}...` : 'Unavailable'}</span>
                     <span className="badge" style={{ 
                       background: review.status === 'PENDING' ? 'rgba(245, 158, 11, 0.1)' : 
                                   review.status === 'APPROVED' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
@@ -79,11 +79,10 @@ export default function ReviewDeskPage() {
                   </div>
                   <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: 'flex', gap: '1.5rem' }}>
                     <span>Problem ID: {review.problemId}</span>
-                    <span>Target Institution: {review.targetInstitutionId}</span>
-                    <span>Score: {(review.aggregateScore * 100).toFixed(1)}%</span>
+                    <span>Evidence cards: {review.topEvidenceCards?.length ?? 0}</span>
                   </div>
                 </div>
-                <Link to={`/admin/reviews/${review.id}`} className="btn btn-secondary">
+                <Link to={`/admin/reviews/${review.reviewId}`} className="btn btn-secondary">
                   View Details
                 </Link>
               </div>

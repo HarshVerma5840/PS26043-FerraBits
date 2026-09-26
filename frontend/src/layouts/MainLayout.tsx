@@ -62,7 +62,7 @@ export default function MainLayout() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Logged in as</div>
-              <div style={{ fontWeight: 500 }}>{user?.name}</div>
+              <div style={{ fontWeight: 500 }}>{user?.phone}</div>
             </div>
             <button
               onClick={handleLogout}

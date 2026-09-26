@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { portalApi } from '../api/portalApi'
 import { ArrowLeft, Clock, MapPin, CheckCircle } from 'lucide-react'

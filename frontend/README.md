@@ -1,71 +1,90 @@
-# SAAMYUKT Frontend Application
+# SAAMYUKT Web Frontend
 
-This is the official frontend application for the SAAMYUKT platform (formerly SIH26043 / FerraBits). It connects to the underlying Spring Boot microservices via the Caddy gateway.
+## Overview
+The SAAMYUKT web frontend provides administrative, governance, and evaluation workflows for the platform. It is built with React, TypeScript, Vite, and Tailwind CSS.
 
-## Technology Stack
-- React 18
-- TypeScript
-- Vite
-- React Router DOM
-- TanStack Query (React Query)
-- Axios
-- Recharts
-- React-Leaflet
-- Lucide React (Icons)
+> **Note on Mobile App Workflows**
+> Citizen and student/innovator workflows (e.g., submitting civic grievances, tracking project work) belong exclusively to the Android application. The web frontend does not contain pages for these roles.
 
-## Project Structure
-- `src/api`: Axios HTTP client and domain-specific API wrappers (auth, problem, portal, etc.)
-- `src/auth`: JWT-based authentication context and hooks
-- `src/components`: Reusable UI components (Sidebar, FileUploadPanel, etc.)
-- `src/layouts`: Master page templates (PortalLayout, ProjectLayout, AdminLayout)
-- `src/pages`: Distinct page views matching router targets
-- `src/types`: Centralized TypeScript interfaces reflecting backend entities
+## Environments & Startup
 
-## API Architecture
-The frontend assumes a unified API gateway (Caddy) serving all microservices under specific path prefixes (`/auth`, `/problems`, `/portal`, `/capability`, etc.).
-When running locally via Vite (`npm run dev`), Vite automatically proxies these prefixes to `http://localhost:8080`.
-
-## Environment Variables
-The application recognizes the following environment variables:
-- `VITE_API_BASE_URL`: The absolute base URL for the API gateway. (Default: `/` which leverages same-origin relative paths in Docker, or falls back to Vite proxy during dev).
-
-## Available Commands
-
-### Development
+### Local Development
+To run the frontend against a local backend (e.g., Caddy API Gateway):
 ```bash
-# Install dependencies
 npm install
-
-# Start the Vite development server on http://localhost:5173
 npm run dev
 ```
 
-### Building & Checking
+### Production Build
+To create a production-optimized static bundle:
 ```bash
-# Compile TypeScript without emitting files (typecheck)
 npm run typecheck
-
-# Lint the codebase
 npm run lint
-
-# Build the production application into /dist
 npm run build
 ```
+The output will be placed in the `dist/` directory.
 
-## Docker Operations
-This frontend is built into the main Docker Compose stack as the `frontend` service.
-It uses a multi-stage Dockerfile:
-1. `node:20-alpine`: Compiles the React application.
-2. `nginx:alpine`: Serves the static `/dist` directory.
-
-The main `docker-compose.yml` mounts the Nginx container, and the root Caddy gateway routes all traffic not matching API endpoints directly to this frontend, supporting robust SPA push-state refreshing.
-
+### Docker Startup (Full Stack)
+The frontend is designed to run behind a Caddy API Gateway within the microservice Docker stack.
+To start the entire environment from the repository root:
 ```bash
-# Build and start the entire stack, including the frontend
-docker-compose up --build -d
+# Package backend microservices (if not already packaged)
+./mvnw -DskipTests package
+
+# Bring up the full stack (Gateway, 6 Microservices, Postgres, Frontend Nginx)
+docker compose up -d --build
+```
+The frontend is then accessible at `http://localhost:8080`.
+
+## Configuration
+The frontend relies on the following environment variable:
+- `VITE_API_BASE_URL`: The URL of the API Gateway (default: `http://localhost:8080`).
+
+## Architecture & API Gateway
+The frontend does not communicate directly with the individual microservices. All requests are routed through the Caddy API Gateway running on port `8080`.
+
+- **API Proxy Route**: `/auth/api/v1/...`, `/problem/...`, etc., are proxied to their respective backend services by Caddy.
+- **SPA Fallback**: Nested frontend routes (e.g., `/admin/governance`) are handled seamlessly on browser refresh via Nginx `try_files` logic.
+
+## Roles & Routing
+
+### Supported Roles
+The web frontend exclusively supports the following JWT roles:
+- `ADMIN`: Platform administrators and governance officials.
+- `REVIEWER` / `NODAL_OFFICER`: Triage and scoping officials for civic grievances.
+- `EVALUATOR`: Technical reviewers for innovator projects.
+- `FACULTY`: Faculty members (Preview mode only).
+
+### Role-to-Route Mapping
+- `ADMIN` → `/admin/governance`, `/admin/analytics`
+- `REVIEWER` → `/nodal/triage`
+- `EVALUATOR` → `/evaluator/dashboard`
+- `FACULTY` → `/faculty/projects`
+
+### Faculty Preview Policy
+Access to the Faculty Workspace (`/faculty/projects`) is strictly limited to users with the explicit `FACULTY` or `ADMIN` role. Regular `SUBMITTER` users are restricted and will receive an "Access Denied" (403) page. No arbitrary roles were created for this workflow.
+
+## Testing
+
+### Automated Tests
+Run the Vitest and React Testing Library suite:
+```bash
+npm run test
 ```
 
-## Known Placeholders / Mocks
-- Analytics heatmap default coordinates are placeholders. If `lat/lng` are absent from the backend `DistrictAnalytics` payload, they default to center-India.
-- Certain chart visualizations will fall back to static mock data if the backend `/capability/api/v1/analytics/projects` returns an empty array, strictly to ensure visual structure during the backend rollout phase.
-- Some file downloading workflows use mock blob generation if the backend binary stream is incomplete.
+### Browser Smoke-Test Checklist
+To verify a deployment, ensure the following workflows succeed:
+- [ ] **Admin Role**: Login → Redirects to Dashboard → Can access Governance and Analytics → Refresh page works.
+- [ ] **Reviewer Role**: Login → Redirects to Triage Queue → Navigating to `/faculty/projects` denies access.
+- [ ] **Evaluator Role**: Login → Redirects to Evaluator Dashboard.
+- [ ] **Logout**: Successfully clears token and returns to login.
+- [ ] **SPA Fallback**: Refreshing the browser on a deeply nested route does not throw a 404.
+
+*Note: For testing, users can be manually elevated in the database (e.g., `UPDATE users SET role = 'ADMIN' WHERE phone = '9999999999';`).*
+
+## Troubleshooting
+
+- **502 Bad Gateway on API calls**: The backend microservice has not fully started up yet, or Eureka discovery is still propagating. Wait 30 seconds and try again.
+- **401 Unauthorized**: JWT token has expired or is invalid. The frontend should automatically log you out.
+- **404 on Browser Refresh**: Ensure Nginx is configured with `try_files $uri $uri/ /index.html` (handled automatically by the Dockerfile).
+- **Network Error / CORS**: Ensure `VITE_API_BASE_URL` matches the exact hostname/port you are accessing in the browser.

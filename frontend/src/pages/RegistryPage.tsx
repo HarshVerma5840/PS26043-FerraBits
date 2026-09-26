@@ -1,12 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { registryApi } from '../api/registryApi'
-import { Database, UploadCloud, RefreshCw } from 'lucide-react'
+import { Database, UploadCloud, RefreshCw, Archive } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
+import RegistryImportDialog from '../components/RegistryImportDialog'
 
 export default function RegistryPage() {
   const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState<'INSTITUTIONS' | 'VERSIONS'>('INSTITUTIONS')
+  const [showImport, setShowImport] = useState(false)
 
   const { data: institutions, isLoading: loadingInst } = useQuery({
     queryKey: ['institutions'],
@@ -23,6 +25,11 @@ export default function RegistryPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['registry-versions'] })
   })
 
+  const archiveMutation = useMutation({
+    mutationFn: (id: string) => registryApi.archiveVersion(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['registry-versions'] })
+  })
+
   return (
     <div className="animate-fade-in" style={{ padding: '2rem' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
@@ -34,11 +41,22 @@ export default function RegistryPage() {
           </div>
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
-          <button className="btn btn-secondary">
+          <button className="btn btn-secondary" onClick={() => setShowImport(true)}>
             <UploadCloud size={16} /> Import Data
           </button>
         </div>
       </header>
+      
+      {showImport && (
+        <RegistryImportDialog 
+          onClose={() => setShowImport(false)} 
+          onSuccess={() => {
+            setShowImport(false)
+            queryClient.invalidateQueries({ queryKey: ['registry-versions'] })
+            setActiveTab('VERSIONS')
+          }}
+        />
+      )}
 
       <div style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid var(--glass-border)', marginBottom: '2rem' }}>
         <button 
@@ -94,7 +112,9 @@ export default function RegistryPage() {
             <tbody>
               {loadingVers ? <tr><td colSpan={4} style={{ padding: '1rem' }}>Loading...</td></tr> : versions?.map(v => (
                 <tr key={v.id} style={{ borderBottom: '1px solid var(--glass-border)' }}>
-                  <td style={{ padding: '1rem', fontWeight: 500 }}>{v.version}</td>
+                  <td style={{ padding: '1rem', fontWeight: 500 }}>
+                    <Link to={`/admin/registry/versions/${v.id}`} style={{ color: 'var(--text-main)' }}>{v.version}</Link>
+                  </td>
                   <td style={{ padding: '1rem' }}>
                     <span className="badge" style={{ background: v.status === 'PUBLISHED' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255,255,255,0.1)' }}>
                       {v.status}
@@ -102,11 +122,18 @@ export default function RegistryPage() {
                   </td>
                   <td style={{ padding: '1rem', color: 'var(--text-muted)' }}>{new Date(v.createdAt).toLocaleString()}</td>
                   <td style={{ padding: '1rem' }}>
-                    {v.status === 'DRAFT' && (
-                      <button className="btn btn-secondary" onClick={() => publishMutation.mutate(v.id)} disabled={publishMutation.isPending}>
-                        <RefreshCw size={14} /> Publish
-                      </button>
-                    )}
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      {v.status === 'DRAFT' && (
+                        <button className="btn btn-secondary" onClick={() => publishMutation.mutate(v.id)} disabled={publishMutation.isPending}>
+                          <RefreshCw size={14} /> Publish
+                        </button>
+                      )}
+                      {v.status === 'PUBLISHED' && (
+                        <button className="btn btn-secondary" style={{ color: 'var(--accent)' }} onClick={() => archiveMutation.mutate(v.id)} disabled={archiveMutation.isPending}>
+                          <Archive size={14} /> Archive
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

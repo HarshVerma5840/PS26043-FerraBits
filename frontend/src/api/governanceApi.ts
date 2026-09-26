@@ -4,7 +4,7 @@ import { RecommendationReview } from '../types'
 export const governanceApi = {
   getReviews: async (): Promise<RecommendationReview[]> => {
     const response = await httpClient.get('/capability/governance/reviews')
-    return response.data
+    return response.data.content || response.data || []
   },
   getReviewById: async (id: string): Promise<RecommendationReview> => {
     const response = await httpClient.get(`/capability/governance/reviews/${id}`)
@@ -19,7 +19,10 @@ export const governanceApi = {
     return response.data
   },
   overrideReview: async (id: string, targetInstitutionId: string, overrideReason: string) => {
-    const response = await httpClient.post(`/capability/governance/reviews/${id}/override`, { targetInstitutionId, overrideReason })
+    const response = await httpClient.post(`/capability/governance/reviews/${id}/override`, {
+      selectedInstitutionId: targetInstitutionId,
+      reason: overrideReason
+    })
     return response.data
   }
 }

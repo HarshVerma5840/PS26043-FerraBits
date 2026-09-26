@@ -279,8 +279,6 @@ services:
     build:
       context: ./frontend
     image: sih26043-frontend:local
-    depends_on:
-      - gateway
     ports:
       - "3000:80"
     environment:

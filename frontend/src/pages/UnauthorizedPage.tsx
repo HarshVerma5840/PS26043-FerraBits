@@ -11,6 +11,9 @@ export default function UnauthorizedPage() {
           You don't have the necessary permissions to access this page. 
           Security checks are enforced on the backend.
         </p>
+        <div style={{ color: 'yellow', marginBottom: '1rem', fontSize: '12px' }}>
+          Debug Role: {JSON.parse(localStorage.getItem('user') || '{}').role || 'Unknown'}
+        </div>
         <Link to="/" className="btn">Return to Dashboard</Link>
       </div>
     </div>

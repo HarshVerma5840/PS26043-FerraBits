@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useParams, useNavigate } from 'react-router-dom'
 import { registryApi } from '../api/registryApi'
-import { ArrowLeft, MapPin, Database } from 'lucide-react'
+import { ArrowLeft, MapPin } from 'lucide-react'
 
 export default function InstitutionDetailsPage() {
   const { id } = useParams<{ id: string }>()

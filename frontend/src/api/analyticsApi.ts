@@ -1,21 +1,21 @@
 import { httpClient } from './httpClient'
-import { AnalyticsSummary, DistrictAnalytics } from '../types'
+import { ImpactMetrics, DistrictAnalytics, InstitutionAnalytics, ProjectAnalytics } from '../types'
 
 export const analyticsApi = {
-  getSummary: async (): Promise<AnalyticsSummary> => {
+  getSummary: async (): Promise<ImpactMetrics> => {
     const response = await httpClient.get('/capability/api/v1/analytics/impact')
     return response.data
   },
   getDistrictAnalytics: async (): Promise<DistrictAnalytics[]> => {
     const response = await httpClient.get('/capability/api/v1/analytics/districts')
-    return response.data
+    return Array.isArray(response.data) ? response.data : []
   },
-  getInstitutionsAnalytics: async () => {
+  getInstitutionsAnalytics: async (): Promise<InstitutionAnalytics[]> => {
     const response = await httpClient.get('/capability/api/v1/analytics/institutions')
-    return response.data
+    return Array.isArray(response.data) ? response.data : []
   },
-  getProjectsAnalytics: async () => {
+  getProjectsAnalytics: async (): Promise<ProjectAnalytics[]> => {
     const response = await httpClient.get('/capability/api/v1/analytics/projects')
-    return response.data
+    return Array.isArray(response.data) ? response.data : []
   }
 }

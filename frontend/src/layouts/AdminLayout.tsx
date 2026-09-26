@@ -2,21 +2,34 @@ import { Outlet, Navigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import Sidebar from '../components/Sidebar'
 import Header from '../components/Header'
-import { Shield, Database, LayoutDashboard } from 'lucide-react'
+import { Shield, Database, LayoutDashboard, ClipboardList, Users, Building, TerminalSquare, Sliders } from 'lucide-react'
 
 export default function AdminLayout() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
 
   if (!isAuthenticated) return <Navigate to="/login" replace />
 
-  // Note: We don't block access on the frontend based on roles.
-  // The backend will return 401/403 which is caught by Axios interceptors.
+  const isAdmin = user?.role === 'ADMIN'
+  const isReviewer = user?.role === 'REVIEWER'
+
+  if (!isAdmin && !isReviewer) {
+    return <Navigate to="/unauthorized" replace />
+  }
   
-  const navItems = [
-    { to: '/admin/analytics', icon: LayoutDashboard, label: 'Ecosystem Analytics' },
-    { to: '/admin/reviews', icon: Shield, label: 'Governance Reviews' },
-    { to: '/admin/registry', icon: Database, label: 'Capability Registry' },
-  ]
+  const navItems = []
+  if (isAdmin) {
+    navItems.push({ to: '/admin/analytics', icon: LayoutDashboard, label: 'Ecosystem Analytics' })
+    navItems.push({ to: '/admin/evaluation', icon: Shield, label: 'Evaluation Center' })
+    navItems.push({ to: '/admin/registry', icon: Database, label: 'Capability Registry' })
+    navItems.push({ to: '/admin/registry/workspace', icon: Database, label: 'Registry Workspace' })
+    navItems.push({ to: '/admin/sources', icon: Building, label: 'Source Accounts' })
+    navItems.push({ to: '/admin/users', icon: Users, label: 'User Roles' })
+    navItems.push({ to: '/admin/codejudge/jobs', icon: TerminalSquare, label: 'CodeJudge Jobs' })
+    navItems.push({ to: '/admin/codejudge/config', icon: Sliders, label: 'CodeJudge Config' })
+  }
+  if (isAdmin || isReviewer) {
+    navItems.push({ to: '/admin/reviewer-queue', icon: ClipboardList, label: 'Registration Queue' })
+  }
 
   return (
     <div className="app-container">

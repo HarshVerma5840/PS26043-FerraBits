@@ -1,0 +1,716 @@
+
+> frontend@0.0.0 lint
+> eslint . --max-warnings 0
+
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\auth\AuthContext.tsx
+  277:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\components\FileUploadPanel.tsx
+  2:41  warning  'X' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\components\NotificationBell.tsx
+  11:5  error  Error: Cannot access variable before it is declared
+
+`fetchUnreadCount` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\components\NotificationBell.tsx:11:5
+   9 |
+  10 |   useEffect(() => {
+> 11 |     fetchUnreadCount()
+     |     ^^^^^^^^^^^^^^^^ `fetchUnreadCount` accessed before it is declared
+  12 |     
+  13 |     // Simple polling every 30 seconds
+  14 |     const interval = setInterval(fetchUnreadCount, 30000)
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\components\NotificationBell.tsx:18:3
+  16 |   }, [])
+  17 |
+> 18 |   const fetchUnreadCount = () => {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 19 |     notificationApi.getUnreadCount()
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 20 |       .then(count => setUnreadCount(count))
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 21 |       .catch(console.error)
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 22 |   }
+     | ^^^^ `fetchUnreadCount` is declared here
+  23 |
+  24 |   return (
+  25 |     <div style={{ position: 'relative' }}>  react-hooks/immutability
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\components\NotificationDropdown.tsx
+  20:5  error    Error: Cannot access variable before it is declared
+
+`fetchNotifications` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\components\NotificationDropdown.tsx:20:5
+  18 |
+  19 |   useEffect(() => {
+> 20 |     fetchNotifications()
+     |     ^^^^^^^^^^^^^^^^^^ `fetchNotifications` accessed before it is declared
+  21 |
+  22 |     const handleClickOutside = (event: MouseEvent) => {
+  23 |       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\components\NotificationDropdown.tsx:31:3
+  29 |   }, [])
+  30 |
+> 31 |   const fetchNotifications = () => {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 32 |     setLoading(true)
+     | ^^^^^^^^^^^^^^^^^^^^
+> 33 |     notificationApi.getNotifications({ page: 0, size: 5 })
+     | ^^^^^^^^^^^^^^^^^^^^
+> 34 |       .then(res => {
+     | ^^^^^^^^^^^^^^^^^^^^
+> 35 |         setNotifications(res.content)
+     | ^^^^^^^^^^^^^^^^^^^^
+> 36 |         onUnreadCountChange(res.content.filter(n => !n.read).length)
+     | ^^^^^^^^^^^^^^^^^^^^
+> 37 |       })
+     | ^^^^^^^^^^^^^^^^^^^^
+> 38 |       .catch(console.error)
+     | ^^^^^^^^^^^^^^^^^^^^
+> 39 |       .finally(() => setLoading(false))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 40 |   }
+     | ^^^^ `fetchNotifications` is declared here
+  41 |
+  42 |   const handleMarkAsRead = async (id: string) => {
+  43 |     try {  react-hooks/immutability
+  29:6  warning  React Hook useEffect has missing dependencies: 'fetchNotifications' and 'onClose'. Either include them or remove the dependency array. If 'onClose' changes too often, find the parent component that defines it and wrap that definition in useCallback                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         react-hooks/exhaustive-deps
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\components\NotificationItem.tsx
+  2:10  warning  'Link' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\components\analytics\AnalyticsComponents.tsx
+  1:17  warning  'useState' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\components\analytics\ImpactSummaryCards.tsx
+  3:69  warning  'MessageSquare' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\components\feedback\FeedbackList.tsx
+  68:40  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\components\feedback\FeedbackList.tsx:68:40
+  66 |             </div>
+  67 |             <div>
+> 68 |               {new Date(f.createdAt || Date.now()).toLocaleString()}
+     |                                        ^^^^^^^^^^ Cannot call impure function
+  69 |             </div>
+  70 |           </div>
+  71 |             react-hooks/purity
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\components\messaging\ConversationDetails.tsx
+  2:10  warning  'Info' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\components\project\ProjectOriginPanel.tsx
+  3:42  warning  'CheckCircle2' is defined but never used   @typescript-eslint/no-unused-vars
+  3:56  warning  'AlertTriangle' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\components\project\ProjectStatusPanel.tsx
+   3:47  warning  'XCircle' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+   3:56  warning  'Clock' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+  27:19  error    Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\components\project\ProjectStatusPanel.tsx:27:19
+  25 |
+  26 |   const duration = project.createdAt
+> 27 |     ? Math.floor((Date.now() - new Date(project.createdAt).getTime()) / 86400000)
+     |                   ^^^^^^^^^^ Cannot call impure function
+  28 |     : null
+  29 |
+  30 |   return (  react-hooks/purity
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\AggregationPage.tsx
+  13:5  error    Error: Cannot access variable before it is declared
+
+`fetchData` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\AggregationPage.tsx:13:5
+  11 |
+  12 |   useEffect(() => {
+> 13 |     fetchData()
+     |     ^^^^^^^^^ `fetchData` accessed before it is declared
+  14 |   }, [cycle.cycleId])
+  15 |
+  16 |   const fetchData = () => {
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\AggregationPage.tsx:16:3
+  14 |   }, [cycle.cycleId])
+  15 |
+> 16 |   const fetchData = () => {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 17 |     setLoading(true)
+     | ^^^^^^^^^^^^^^^^^^^^
+> 18 |     evaluationAdminApi.getAggregation(cycle.cycleId)
+     | ^^^^^^^^^^^^^^^^^^^^
+> 19 |       .then(res => setData(res))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 20 |       .catch(() => setData(null)) // 404 is fine if not aggregated yet
+     | ^^^^^^^^^^^^^^^^^^^^
+> 21 |       .finally(() => setLoading(false))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 22 |   }
+     | ^^^^ `fetchData` is declared here
+  23 |
+  24 |   const handleAggregate = async () => {
+  25 |     setRunning(true)  react-hooks/immutability
+  14:6  warning  React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react-hooks/exhaustive-deps
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\AnalyticsDashboardPage.tsx
+  35:42  warning  'loadInst' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  40:38  warning  'loadProj' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\AssignmentQueuePage.tsx
+   4:10  warning  'ClipboardList' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+   4:39  warning  'Clock' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  13:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\AssignmentQueuePage.tsx:13:5
+  11 |
+  12 |   useEffect(() => {
+> 13 |     setLoading(true)
+     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  14 |     evaluationApi.getAssignments(filter || undefined)
+  15 |       .then(res => setAssignments(res))
+  16 |       .catch(err => setError(err.message))  react-hooks/set-state-in-effect
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\CodeJudgeAdminJobsPage.tsx
+  12:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\CodeJudgeAdminJobsPage.tsx:12:5
+  10 |
+  11 |   useEffect(() => {
+> 12 |     setLoading(true)
+     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  13 |     codejudgeApi.getAdminJobs(status || undefined)
+  14 |       .then(res => setJobs(res))
+  15 |       .catch(err => setError(err.message))  react-hooks/set-state-in-effect
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\CodeJudgeEvaluationDetailsPage.tsx
+   4:78  warning  'AlertTriangle' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+  20:7   error    Error: Cannot access variable before it is declared
+
+`fetchData` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\CodeJudgeEvaluationDetailsPage.tsx:20:7
+  18 |   useEffect(() => {
+  19 |     if (id) {
+> 20 |       fetchData()
+     |       ^^^^^^^^^ `fetchData` accessed before it is declared
+  21 |     }
+  22 |   }, [id])
+  23 |
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\CodeJudgeEvaluationDetailsPage.tsx:24:3
+  22 |   }, [id])
+  23 |
+> 24 |   const fetchData = () => {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 25 |     if (!id) return
+     | ^^^^^^^^^^^^^^^^^^^
+> 26 |     codejudgeApi.getEvaluation(id)
+     | ^^^^^^^^^^^^^^^^^^^
+> 27 |       .then(res => setEvaluation(res))
+     | ^^^^^^^^^^^^^^^^^^^
+> 28 |       .catch(err => setError(err.message))
+     | ^^^^^^^^^^^^^^^^^^^
+> 29 |       .finally(() => setLoading(false))
+     | ^^^^^^^^^^^^^^^^^^^
+> 30 |   }
+     | ^^^^ `fetchData` is declared here
+  31 |
+  32 |   const handleRetry = async () => {
+  33 |     if (!id) return  react-hooks/immutability
+  22:6   warning  React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      react-hooks/exhaustive-deps
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\CodeJudgeEvaluationListPage.tsx
+  13:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\CodeJudgeEvaluationListPage.tsx:13:5
+  11 |
+  12 |   useEffect(() => {
+> 13 |     setLoading(true)
+     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  14 |     codejudgeApi.listEvaluations(status || undefined)
+  15 |       .then(res => setEvaluations(res))
+  16 |       .catch(err => setError(err.message))  react-hooks/set-state-in-effect
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\CodeJudgeFindingsPage.tsx
+  13:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\CodeJudgeFindingsPage.tsx:13:5
+  11 |
+  12 |   useEffect(() => {
+> 13 |     setLoading(true)
+     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  14 |     codejudgeApi.getFindings(evaluation.evaluationId)
+  15 |       .then(res => setFindings(res))
+  16 |       .catch(err => setError(err.message))  react-hooks/set-state-in-effect
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\CodeJudgeReportPage.tsx
+  13:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\CodeJudgeReportPage.tsx:13:5
+  11 |
+  12 |   useEffect(() => {
+> 13 |     setLoading(true)
+     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  14 |     codejudgeApi.getReportMarkdown(evaluation.evaluationId)
+  15 |       .then(res => setMarkdown(res))
+  16 |       .catch(err => setError(err.message))  react-hooks/set-state-in-effect
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\CodeJudgeScorePage.tsx
+  13:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\CodeJudgeScorePage.tsx:13:5
+  11 |
+  12 |   useEffect(() => {
+> 13 |     setLoading(true)
+     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  14 |     codejudgeApi.getScore(evaluation.evaluationId)
+  15 |       .then(res => setScore(res))
+  16 |       .catch(err => setError(err.message))  react-hooks/set-state-in-effect
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\EvaluationAdminDashboard.tsx
+  3:10  warning  'Activity' is defined but never used  @typescript-eslint/no-unused-vars
+  3:36  warning  'RotateCw' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\EvaluationHistoryPage.tsx
+   4:33  warning  'CheckCircle' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  12:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\EvaluationHistoryPage.tsx:12:5
+  10 |
+  11 |   useEffect(() => {
+> 12 |     setLoading(true)
+     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  13 |     evaluationApi.getAssignments('SUBMITTED')
+  14 |       .then(res => setAssignments(res))
+  15 |       .catch(err => setError(err.message))  react-hooks/set-state-in-effect
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\EvaluationQueuePage.tsx
+  13:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\EvaluationQueuePage.tsx:13:5
+  11 |
+  12 |   useEffect(() => {
+> 13 |     setLoading(true)
+     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  14 |     evaluationAdminApi.getQueue({ status: status || undefined, size: 50 })
+  15 |       .then(res => setCycles(res.content))
+  16 |       .catch(err => setError(err.message))  react-hooks/set-state-in-effect
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\EvaluationSubmissionPage.tsx
+  4:21  warning  'Save' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\IndustryPage.tsx
+   5:74  warning  'MentorshipSession' is defined but never used                        @typescript-eslint/no-unused-vars
+   6:84  warning  'Search' is defined but never used                                   @typescript-eslint/no-unused-vars
+  51:67  warning  'i' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\InstitutionDetailsPage.tsx
+  4:29  warning  'Database' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\MessagingPage.tsx
+   6:10  warning  'Conversation' is defined but never used                 @typescript-eslint/no-unused-vars
+  35:42  warning  'loadingConvDetails' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\NotificationPage.tsx
+  15:5  error  Error: Cannot access variable before it is declared
+
+`fetchNotifications` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\NotificationPage.tsx:15:5
+  13 |
+  14 |   useEffect(() => {
+> 15 |     fetchNotifications()
+     |     ^^^^^^^^^^^^^^^^^^ `fetchNotifications` accessed before it is declared
+  16 |   }, [])
+  17 |
+  18 |   const fetchNotifications = () => {
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\NotificationPage.tsx:18:3
+  16 |   }, [])
+  17 |
+> 18 |   const fetchNotifications = () => {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 19 |     setLoading(true)
+     | ^^^^^^^^^^^^^^^^^^^^
+> 20 |     notificationApi.getNotifications({ page: 0, size: 50 })
+     | ^^^^^^^^^^^^^^^^^^^^
+> 21 |       .then(res => setNotifications(res.content))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 22 |       .catch(err => setError(err.message))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 23 |       .finally(() => setLoading(false))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 24 |   }
+     | ^^^^ `fetchNotifications` is declared here
+  25 |
+  26 |   const handleMarkAsRead = async (id: string) => {
+  27 |     try {  react-hooks/immutability
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\ParticipantProfilePage.tsx
+  18:16  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\PoolModePage.tsx
+  14:5  error  Error: Cannot access variable before it is declared
+
+`fetchModes` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\PoolModePage.tsx:14:5
+  12 |
+  13 |   useEffect(() => {
+> 14 |     fetchModes()
+     |     ^^^^^^^^^^ `fetchModes` accessed before it is declared
+  15 |   }, [])
+  16 |
+  17 |   const fetchModes = () => {
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\PoolModePage.tsx:17:3
+  15 |   }, [])
+  16 |
+> 17 |   const fetchModes = () => {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 18 |     setLoading(true)
+     | ^^^^^^^^^^^^^^^^^^^^
+> 19 |     evaluationAdminApi.getPoolModes()
+     | ^^^^^^^^^^^^^^^^^^^^
+> 20 |       .then(res => setModes(res))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 21 |       .catch(err => setError(err.message))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 22 |       .finally(() => setLoading(false))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 23 |   }
+     | ^^^^ `fetchModes` is declared here
+  24 |
+  25 |   const handleToggle = async (pool: string, currentMode: 'MANUAL' | 'AUTO') => {
+  26 |     const newMode = currentMode === 'AUTO' ? 'MANUAL' : 'AUTO'  react-hooks/immutability
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\ProblemDetailsPage.tsx
+  1:20  warning  'useMutation' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\ProjectListPage.tsx
+   2:16  warning  'useNavigate' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+   5:33  warning  'Clock' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+   5:40  warning  'CheckCircle2' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+   5:54  warning  'XCircle' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+  44:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\ProjectListPage.tsx:44:5
+  42 |
+  43 |   useEffect(() => {
+> 44 |     setLoading(true)
+     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  45 |     projectApi.getProjects()
+  46 |       .then(setProjects)
+  47 |       .catch(err => setError(err.message))  react-hooks/set-state-in-effect
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\ProjectReviewPage.tsx
+  19:5  error  Error: Cannot access variable before it is declared
+
+`fetchReviews` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\ProjectReviewPage.tsx:19:5
+  17 |
+  18 |   useEffect(() => {
+> 19 |     fetchReviews()
+     |     ^^^^^^^^^^^^ `fetchReviews` accessed before it is declared
+  20 |   }, [])
+  21 |
+  22 |   const fetchReviews = () => {
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\ProjectReviewPage.tsx:22:3
+  20 |   }, [])
+  21 |
+> 22 |   const fetchReviews = () => {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 23 |     setLoading(true)
+     | ^^^^^^^^^^^^^^^^^^^^
+> 24 |     evaluationApi.getProjectReviews()
+     | ^^^^^^^^^^^^^^^^^^^^
+> 25 |       .then(res => setReviews(res))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 26 |       .catch(err => setError(err.message))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 27 |       .finally(() => setLoading(false))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 28 |   }
+     | ^^^^ `fetchReviews` is declared here
+  29 |
+  30 |   useEffect(() => {
+  31 |     if (selectedId) {  react-hooks/immutability
+  32:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\ProjectReviewPage.tsx:32:7
+  30 |   useEffect(() => {
+  31 |     if (selectedId) {
+> 32 |       setDetailLoading(true)
+     |       ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  33 |       evaluationApi.getProjectReviewDetail(selectedId)
+  34 |         .then(res => setDetail(res))
+  35 |         .catch(err => alert(err.message))                                     react-hooks/set-state-in-effect
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\RegistrationReviewPage.tsx
+  82:32  warning  'i' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\RegistrationWizardPage.tsx
+    5:10  warning  'LogIn' is defined but never used                     @typescript-eslint/no-unused-vars
+    9:11  warning  'isAuthenticated' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  118:23  warning  'e' is defined but never used                         @typescript-eslint/no-unused-vars
+  118:26  error    Empty block statement                                 no-empty
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\ReviewDetailPage.tsx
+  5:10  warning  'Shield' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\ReviewerRegistrationQueuePage.tsx
+   4:10  warning  'Clock' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+   4:17  warning  'CheckCircle' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+   4:30  warning  'AlertTriangle' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+  13:5   error    Error: Cannot access variable before it is declared
+
+`fetchRegistrations` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\ReviewerRegistrationQueuePage.tsx:13:5
+  11 |
+  12 |   useEffect(() => {
+> 13 |     fetchRegistrations(filter)
+     |     ^^^^^^^^^^^^^^^^^^ `fetchRegistrations` accessed before it is declared
+  14 |   }, [filter])
+  15 |
+  16 |   const fetchRegistrations = (status: string) => {
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\ReviewerRegistrationQueuePage.tsx:16:3
+  14 |   }, [filter])
+  15 |
+> 16 |   const fetchRegistrations = (status: string) => {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 17 |     setLoading(true)
+     | ^^^^^^^^^^^^^^^^^^^^
+> 18 |     sourceApi.getReviewerRegistrations(status || undefined)
+     | ^^^^^^^^^^^^^^^^^^^^
+> 19 |       .then(res => setRegistrations(res))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 20 |       .catch(err => setError(err.message))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 21 |       .finally(() => setLoading(false))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 22 |   }
+     | ^^^^ `fetchRegistrations` is declared here
+  23 |
+  24 |   const handleAssign = async (id: string) => {
+  25 |     try {  react-hooks/immutability
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\SourceAccountPage.tsx
+  11:5  error  Error: Cannot access variable before it is declared
+
+`fetchAccounts` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\SourceAccountPage.tsx:11:5
+   9 |
+  10 |   useEffect(() => {
+> 11 |     fetchAccounts()
+     |     ^^^^^^^^^^^^^ `fetchAccounts` accessed before it is declared
+  12 |   }, [])
+  13 |
+  14 |   const fetchAccounts = () => {
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\SourceAccountPage.tsx:14:3
+  12 |   }, [])
+  13 |
+> 14 |   const fetchAccounts = () => {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 15 |     setLoading(true)
+     | ^^^^^^^^^^^^^^^^^^^^
+> 16 |     sourceApi.getSourceAccounts()
+     | ^^^^^^^^^^^^^^^^^^^^
+> 17 |       .then(res => setAccounts(res))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 18 |       .catch(err => setError(err.message))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 19 |       .finally(() => setLoading(false))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 20 |   }
+     | ^^^^ `fetchAccounts` is declared here
+  21 |
+  22 |   const handleVerify = async (id: string) => {
+  23 |     try {  react-hooks/immutability
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\SubmissionDetailsPage.tsx
+  30:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\SubmissionDetailsPage.tsx:30:7
+  28 |   useEffect(() => {
+  29 |     if (sub && sub.content) {
+> 30 |       setContent(sub.content)
+     |       ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  31 |     }
+  32 |   }, [sub])
+  33 |  react-hooks/set-state-in-effect
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\TeamBuilder.tsx
+  55:10  warning  'submissionId' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  73:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\TeamBuilder.tsx:73:5
+  71 |   // On mount: scan submissions to find one belonging to this project
+  72 |   useEffect(() => {
+> 73 |     setScanLoading(true)
+     |     ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  74 |     teamApi.getMySubmissions()
+  75 |       .then(submissions => {
+  76 |         // Find a submission linked to this projectId if any field matches  react-hooks/set-state-in-effect
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\UserRoleManagementPage.tsx
+  13:5  error  Error: Cannot access variable before it is declared
+
+`fetchUsers` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\UserRoleManagementPage.tsx:13:5
+  11 |
+  12 |   useEffect(() => {
+> 13 |     fetchUsers()
+     |     ^^^^^^^^^^ `fetchUsers` accessed before it is declared
+  14 |   }, [])
+  15 |
+  16 |   const fetchUsers = () => {
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\pages\UserRoleManagementPage.tsx:16:3
+  14 |   }, [])
+  15 |
+> 16 |   const fetchUsers = () => {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 17 |     setLoading(true)
+     | ^^^^^^^^^^^^^^^^^^^^
+> 18 |     sourceApi.getUsers()
+     | ^^^^^^^^^^^^^^^^^^^^
+> 19 |       .then(res => setUsers(res))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 20 |       .catch(err => setError(err.message))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 21 |       .finally(() => setLoading(false))
+     | ^^^^^^^^^^^^^^^^^^^^
+> 22 |   }
+     | ^^^^ `fetchUsers` is declared here
+  23 |
+  24 |   const handleRoleChange = (userId: string, role: string) => {
+  25 |     setRoleEdits(prev => ({ ...prev, [userId]: role }))  react-hooks/immutability
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\v2\pages\AdminGovernancePage.tsx
+  46:126  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\v2\pages\AdminGovernancePage.tsx:46:126
+  44 |             <div key={i} className="relative pl-6">
+  45 |               <div className="absolute -left-[9px] top-1 w-4 h-4 rounded-full border-2 border-[#FFF] bg-surface-container-high"></div>
+> 46 |               <div className="font-label-sm text-label-sm text-on-surface-variant font-bold mb-0.5">{new Date(h.timestamp || Date.now()).toLocaleDateString()}</div>
+     |                                                                                                                              ^^^^^^^^^^ Cannot call impure function
+  47 |               <div className="font-label-md text-label-md font-bold text-on-surface">{h.action}</div>
+  48 |               <div className="font-body-sm text-body-sm text-on-surface-variant">by {h.actorRole || 'System'}</div>
+  49 |             </div>  react-hooks/purity
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\v2\pages\EvaluatorDashboardPage.tsx
+  286:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\v2\pages\EvaluatorDashboardPage.tsx:286:7
+  284 |         initialScores[c.criterionId] = c.score || 0
+  285 |       })
+> 286 |       setScores(initialScores)
+      |       ^^^^^^^^^ Avoid calling setState() directly within an effect
+  287 |     }
+  288 |   }, [assignmentDetail, scores])
+  289 |  react-hooks/set-state-in-effect
+
+C:\Users\kashi\OneDrive\Documents\GitHub\PS26043-FerraBits\frontend\src\v2\pages\NodalDashboard.tsx
+  247:31  warning  'ticket' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+✖ 71 problems (27 errors, 44 warnings)
+

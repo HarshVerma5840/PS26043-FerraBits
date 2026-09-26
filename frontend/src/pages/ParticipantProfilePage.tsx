@@ -15,7 +15,7 @@ export default function ParticipantProfilePage() {
     queryFn: async () => {
       try {
         return await portalApi.getMe()
-      } catch (e) {
+      } catch (_e) {
         return null // Not registered
       }
     }

@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { governanceApi } from '../api/governanceApi'
-import { Shield, CheckCircle, XCircle, AlertTriangle, ArrowLeft } from 'lucide-react'
+import { CheckCircle, XCircle, AlertTriangle, ArrowLeft } from 'lucide-react'
 
 export default function ReviewDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -56,7 +56,7 @@ export default function ReviewDetailPage() {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: '1.5rem', marginBottom: '0.5rem' }}>Review {review.id}</h1>
+          <h1 style={{ margin: 0, fontSize: '1.5rem', marginBottom: '0.5rem' }}>Review {review.reviewId}</h1>
           <span className="badge" style={{ background: 'rgba(255,255,255,0.05)' }}>Status: {review.status}</span>
         </div>
         
@@ -79,12 +79,9 @@ export default function ReviewDetailPage() {
         <div className="glass-panel" style={{ padding: '1.5rem' }}>
           <h3 style={{ marginTop: 0 }}>Matching Scores</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.9rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Dense Retrieval Score</span> <span>85.4%</span></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Sparse Term Match</span> <span>72.1%</span></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Cross-Encoder Rerank</span> <span>91.2%</span></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', borderTop: '1px solid var(--glass-border)', paddingTop: '0.5rem', marginTop: '0.5rem' }}>
-              <span>Final Aggregate Score</span> <span>{(review.aggregateScore * 100).toFixed(1)}%</span>
-            </div>
+            <div style={{ color: 'var(--text-muted)' }}>Scores are shown per evidence card below.</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Evidence cards</span> <span>{review.topEvidenceCards?.length ?? 0}</span></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Audit decisions</span> <span>{review.auditHistory?.length ?? 0}</span></div>
           </div>
         </div>
         
@@ -92,21 +89,22 @@ export default function ReviewDetailPage() {
           <h3 style={{ marginTop: 0 }}>Target Context</h3>
           <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
             <p><strong>Problem:</strong> {review.problemId}</p>
-            <p><strong>Proposed Institution:</strong> {review.targetInstitutionId}</p>
-            {review.overrideReason && <p><strong>Override Reason:</strong> {review.overrideReason}</p>}
+            <p><strong>Decision ID:</strong> {review.currentDecisionId ?? 'Pending'}</p>
           </div>
         </div>
       </div>
 
       <h3 style={{ marginBottom: '1rem' }}>Top Evidence Cards</h3>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
-        {review.evidenceCards?.map((card, i) => (
-          <div key={card.id || i} className="glass-panel" style={{ padding: '1.5rem' }}>
+        {review.topEvidenceCards?.map((card, i) => (
+          <div key={card.institutionId || i} className="glass-panel" style={{ padding: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-              <span style={{ fontWeight: 600 }}>{card.title}</span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--primary)' }}>Score: {(card.relevanceScore * 100).toFixed(0)}%</span>
+              <span style={{ fontWeight: 600 }}>{card.institutionName || card.institutionId || 'Institution'}</span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--primary)' }}>Score: {typeof card.finalScore === 'number' ? `${(card.finalScore * 100).toFixed(0)}%` : '—'}</span>
             </div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>{card.description}</p>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>{card.explanation || card.teamCapability || 'No explanation available.'}</p>
+            {card.departmentName && <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Department: {card.departmentName}</p>}
+            {card.labName && <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Lab: {card.labName}</p>}
           </div>
         ))}
       </div>

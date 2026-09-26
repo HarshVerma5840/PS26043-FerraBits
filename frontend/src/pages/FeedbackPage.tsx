@@ -1,113 +1,124 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import toast from 'react-hot-toast'
 import { useParams } from 'react-router-dom'
 import { useState } from 'react'
 import { feedbackApi } from '../api/feedbackApi'
-import { MessageSquarePlus, Star } from 'lucide-react'
+import { useAuth } from '../auth/AuthContext'
+import { MessageSquarePlus } from 'lucide-react'
+
+import FeedbackSubmissionForm from '../components/feedback/FeedbackSubmissionForm'
+import FeedbackList from '../components/feedback/FeedbackList'
+import FeedbackSummary from '../components/feedback/FeedbackSummary'
+import ImpactMetricsPanel from '../components/feedback/ImpactMetricsPanel'
+import FeedbackModerationDialog from '../components/feedback/FeedbackModerationDialog'
+import { CreateFeedback, CitizenFeedback } from '../types'
 
 export default function FeedbackPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const queryClient = useQueryClient()
+  const { user } = useAuth()
   
-  const [rating, setRating] = useState(5)
-  const [category, setCategory] = useState('GENERAL')
-  const [comments, setComments] = useState('')
-  const [isAnonymous, setIsAnonymous] = useState(false)
+  // Assume admin if role is ADMIN
+  const isAdmin = user?.role === 'ADMIN'
+  
+  const [moderateItem, setModerateItem] = useState<CitizenFeedback | null>(null)
 
-  const { data: feedbackList, isLoading } = useQuery({
+  // Fetch feedback for this project
+  const { data: feedbackList, isLoading: loadingList } = useQuery({
     queryKey: ['feedback', projectId],
     queryFn: () => feedbackApi.getProjectFeedback(projectId!)
   })
 
+  // Fetch global summary
+  const { data: summary, isLoading: loadingSummary } = useQuery({
+    queryKey: ['feedback-summary'],
+    queryFn: () => feedbackApi.getFeedbackSummary()
+  })
+
+  // Submit mutation
   const submitMutation = useMutation({
-    mutationFn: () => feedbackApi.submitFeedback(projectId!, {
-      rating, category, comments, isAnonymous
-    } as any),
+    mutationFn: (data: CreateFeedback) => feedbackApi.submitFeedback(projectId!, data),
     onSuccess: () => {
-      setComments('')
-      setRating(5)
       queryClient.invalidateQueries({ queryKey: ['feedback', projectId] })
-    }
+      queryClient.invalidateQueries({ queryKey: ['feedback-summary'] })
+      toast.success('Feedback submitted successfully!')
+    },
+    onError: (err: any) => toast.error(err.message)
+  })
+
+  // Moderate mutation
+  const moderateMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string, status: string }) => feedbackApi.moderateFeedback(id, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['feedback', projectId] })
+      setModerateItem(null)
+    },
+    onError: (err: any) => toast.error(err.message)
+  })
+
+  const handleModerate = (id: string, status: string) => {
+    moderateMutation.mutate({ id, status })
+  }
+
+  // Fetch global impact metrics
+  const { data: impact, isLoading: loadingImpact } = useQuery({
+    queryKey: ['impact-metrics'],
+    queryFn: () => feedbackApi.getImpactMetrics()
   })
 
   return (
     <div className="animate-fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+      
+      {/* Left Column: Form & Summary & Impact */}
       <div>
         <header style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
           <MessageSquarePlus size={32} color="var(--primary)" />
           <div>
-            <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Submit Feedback</h1>
-            <p style={{ color: 'var(--text-muted)', margin: 0 }}>Share your experience</p>
+            <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Citizen Feedback</h1>
+            <p style={{ color: 'var(--text-muted)', margin: 0 }}>Community impact and review</p>
           </div>
         </header>
 
-        <div className="glass-panel" style={{ padding: '2rem' }}>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Category</label>
-            <select value={category} onChange={e => setCategory(e.target.value)} style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', color: '#fff', borderRadius: '8px', outline: 'none' }}>
-              <option value="GENERAL">General</option>
-              <option value="TECHNICAL">Technical Issue</option>
-              <option value="COLLABORATION">Collaboration</option>
-            </select>
-          </div>
-          
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Rating (1-5)</label>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              {[1,2,3,4,5].map(r => (
-                <button key={r} onClick={() => setRating(r)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                  <Star size={24} color={rating >= r ? 'var(--primary)' : 'var(--text-muted)'} fill={rating >= r ? 'var(--primary)' : 'transparent'} />
-                </button>
-              ))}
-            </div>
-          </div>
+        <ImpactMetricsPanel metrics={impact} loading={loadingImpact} />
 
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Comments</label>
-            <textarea 
-              value={comments} 
-              onChange={e => setComments(e.target.value)} 
-              rows={5}
-              style={{ width: '100%', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', color: '#fff', borderRadius: '8px', resize: 'vertical' }}
-            />
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-            <input type="checkbox" id="anon" checked={isAnonymous} onChange={e => setIsAnonymous(e.target.checked)} />
-            <label htmlFor="anon" style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Submit anonymously</label>
-          </div>
-
-          <button className="btn" style={{ width: '100%', justifyContent: 'center' }} onClick={() => submitMutation.mutate()} disabled={!comments || submitMutation.isPending}>
-            Submit Feedback
-          </button>
+        <div style={{ marginBottom: '2rem' }}>
+          <FeedbackSummary summary={summary} loading={loadingSummary} />
         </div>
+
+        <FeedbackSubmissionForm 
+          onSubmit={(data) => submitMutation.mutate(data)} 
+          loading={submitMutation.isPending} 
+        />
       </div>
 
+      {/* Right Column: Feedback List */}
       <div>
-        <h2 style={{ marginTop: 0, marginBottom: '2rem' }}>Past Feedback</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {isLoading ? <div style={{ color: 'var(--text-muted)' }}>Loading...</div> : feedbackList?.map((f: any) => (
-            <div key={f.id} className="glass-panel" style={{ padding: '1.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                <div style={{ display: 'flex', gap: '0.25rem' }}>
-                  {[1,2,3,4,5].map(r => (
-                    <Star key={r} size={14} color={f.rating >= r ? 'var(--primary)' : 'var(--text-muted)'} fill={f.rating >= r ? 'var(--primary)' : 'transparent'} />
-                  ))}
-                </div>
-                <span className="badge" style={{ background: 'rgba(255,255,255,0.05)' }}>{f.category}</span>
-              </div>
-              <p style={{ margin: '0.5rem 0', fontSize: '0.95rem', lineHeight: 1.5 }}>{f.comments}</p>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                {f.isAnonymous ? 'Anonymous' : f.submitterId} &bull; {new Date(f.submittedAt || Date.now()).toLocaleDateString()}
-              </div>
-            </div>
-          ))}
-          {(!feedbackList || feedbackList.length === 0) && (
-            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)', border: '1px dashed var(--glass-border)', borderRadius: '8px' }}>
-              No feedback submitted yet.
-            </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', marginTop: '0.5rem' }}>
+          <h2 style={{ margin: 0 }}>Recent Feedback</h2>
+          {isAdmin && (
+            <span style={{ fontSize: '0.8rem', padding: '0.2rem 0.5rem', background: 'rgba(245,158,11,0.1)', color: '#f59e0b', borderRadius: '4px' }}>
+              Moderator View
+            </span>
           )}
         </div>
+        
+        <FeedbackList 
+          feedback={feedbackList || []} 
+          loading={loadingList} 
+          adminView={isAdmin}
+          onModerate={isAdmin ? (item) => setModerateItem(item) : undefined}
+        />
       </div>
+
+      {/* Dialogs */}
+      {moderateItem && (
+        <FeedbackModerationDialog 
+          feedback={moderateItem} 
+          onClose={() => setModerateItem(null)} 
+          onModerate={handleModerate} 
+          loading={moderateMutation.isPending}
+        />
+      )}
     </div>
   )
 }

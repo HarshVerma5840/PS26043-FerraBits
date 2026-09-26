@@ -2,7 +2,7 @@ import { Outlet, Navigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import Sidebar from '../components/Sidebar'
 import Header from '../components/Header'
-import { BookOpen, FileText } from 'lucide-react'
+import { BookOpen, FileText, ClipboardList, Code } from 'lucide-react'
 
 export default function PortalLayout() {
   const { isAuthenticated } = useAuth()
@@ -12,6 +12,8 @@ export default function PortalLayout() {
   const navItems = [
     { to: '/portal/problems', icon: BookOpen, label: 'Problem Statements' },
     { to: '/portal/submissions', icon: FileText, label: 'My Submissions' },
+    { to: '/portal/registrations', icon: ClipboardList, label: 'My Registrations' },
+    { to: '/portal/codejudge', icon: Code, label: 'CodeJudge Analysis' },
   ]
 
   return (

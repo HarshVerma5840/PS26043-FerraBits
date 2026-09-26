@@ -1,61 +1,75 @@
-import { useQuery } from '@tanstack/react-query'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { projectApi } from '../api/projectApi'
-import { CheckCircle2, Clock, MapPin, Package } from 'lucide-react'
+import { Project } from '../types'
+import ProjectOriginPanel from '../components/project/ProjectOriginPanel'
+import ProjectStatusPanel from '../components/project/ProjectStatusPanel'
+import ProjectActivityPanel from '../components/project/ProjectActivityPanel'
 import MilestoneList from '../components/MilestoneList'
 import FieldTestPanel from '../components/FieldTestPanel'
 import DeploymentPanel from '../components/DeploymentPanel'
+import { Briefcase } from 'lucide-react'
 
 export default function ProjectOverviewPage() {
   const { projectId } = useParams<{ projectId: string }>()
+  const [project, setProject] = useState<Project | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const { data: project, isLoading } = useQuery({
-    queryKey: ['project', projectId],
-    queryFn: () => projectApi.getProjectById(projectId!)
-  })
+  useEffect(() => {
+    if (projectId) {
+      projectApi.getProjectById(projectId)
+        .then(setProject)
+        .catch(err => setError(err.message))
+        .finally(() => setLoading(false))
+    }
+  }, [projectId])
 
-  if (isLoading) return <div style={{ padding: '2rem' }}>Loading workspace...</div>
-  if (!project) return <div style={{ padding: '2rem' }}>Project not found.</div>
+  if (loading) return <div style={{ padding: '2rem' }}>Loading workspace...</div>
+  if (error || !project) return (
+    <div style={{ padding: '2rem' }}>
+      <div style={{ color: '#f43f5e' }}>{error || 'Project not found.'}</div>
+    </div>
+  )
 
   return (
     <div className="animate-fade-in">
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '2rem' }}>
-        <div>
-          <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
-            <h2 style={{ marginTop: 0 }}>Project Overview</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
-              <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Target Institution</div>
-                <div style={{ fontWeight: 600 }}>{project.institutionId}</div>
-              </div>
-              <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Problem Statement</div>
-                <div style={{ fontWeight: 600 }}>{project.problemId}</div>
-              </div>
-            </div>
-            <p style={{ color: 'var(--text-muted)', lineHeight: 1.6 }}>
-              This workspace coordinates the delivery of the approved capability matching solution. Ensure milestones are tracked and team skill gaps are mitigated.
-            </p>
+      {/* Header */}
+      <div className="glass-panel" style={{ padding: '1.75rem', marginBottom: '2rem', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+          <Briefcase size={28} color="var(--primary)" style={{ marginTop: '2px' }} />
+          <div>
+            <h1 style={{ margin: 0, fontSize: '1.5rem' }}>{project.name}</h1>
+            {project.description && (
+              <p style={{ margin: '0.5rem 0 0', color: 'var(--text-muted)', lineHeight: 1.6 }}>{project.description}</p>
+            )}
           </div>
-
-          <MilestoneList projectId={projectId!} />
         </div>
+        <span style={{ 
+          padding: '0.35rem 1rem', 
+          borderRadius: '999px', 
+          fontWeight: 600, 
+          fontSize: '0.9rem',
+          background: project.status === 'ACTIVE' ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.08)',
+          color: project.status === 'ACTIVE' ? '#10b981' : 'var(--text-muted)'
+        }}>
+          {project.status}
+        </span>
+      </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '2rem', alignItems: 'start' }}>
+        {/* Main column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          <MilestoneList projectId={projectId!} />
           <FieldTestPanel projectId={projectId!} />
           <DeploymentPanel projectId={projectId!} />
-          
-          <div className="glass-panel" style={{ padding: '1.5rem' }}>
-            <h3 style={{ marginTop: 0, fontSize: '1.1rem' }}>Activity Timeline</h3>
-            <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <Clock size={16} style={{ color: 'var(--primary)' }} /> <span>Workspace initialized</span>
-              </div>
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <CheckCircle2 size={16} style={{ color: 'var(--ok)' }} /> <span>Review approved</span>
-              </div>
-            </div>
-          </div>
+        </div>
+
+        {/* Sidebar */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <ProjectStatusPanel project={project} />
+          <ProjectOriginPanel project={project} />
+          <ProjectActivityPanel projectId={projectId!} />
         </div>
       </div>
     </div>
