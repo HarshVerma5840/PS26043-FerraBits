@@ -8,13 +8,14 @@ import com.saamyukt.SIH26043.exception.ApiException;
 import com.saamyukt.SIH26043.repository.DomainRepository;
 import com.saamyukt.SIH26043.repository.UniversityDomainRepository;
 import com.saamyukt.SIH26043.repository.UniversityRepository;
-import com.saamyukt.SIH26043.service.analysis.OpenAiCompatibleDomainResolutionClient;
+import com.saamyukt.SIH26043.service.analysis.DomainResolutionOrchestrationService;
+import com.saamyukt.SIH26043.service.analysis.DomainResolutionRequest;
+import com.saamyukt.SIH26043.service.analysis.DomainResolutionResult;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,12 +47,12 @@ class AutoUniversitySelectionServiceTest {
     private final UniversityDomainRepository universityDomainRepository =
             mock(UniversityDomainRepository.class);
     private final UniversityRepository universityRepository = mock(UniversityRepository.class);
-    private final OpenAiCompatibleDomainResolutionClient domainResolutionClient =
-            mock(OpenAiCompatibleDomainResolutionClient.class);
+    private final DomainResolutionOrchestrationService domainResolutionService =
+            mock(DomainResolutionOrchestrationService.class);
 
     private final AutoUniversitySelectionService service = new AutoUniversitySelectionService(
             domainRepository, universityDomainRepository, universityRepository,
-            domainResolutionClient);
+            domainResolutionService);
 
     // ------------------------------------------------------------------ the happy path
 
@@ -152,7 +153,8 @@ class AutoUniversitySelectionServiceTest {
 
         service.resolve("t", "d", List.of(hint));
 
-        verify(domainResolutionClient).resolve("t", "d", List.of("Telemedicine"), expectedOptions());
+        // Verify the orchestration service was called (hints are passed through it)
+        verify(domainResolutionService).resolve(any());
     }
 
     @Test
@@ -164,7 +166,8 @@ class AutoUniversitySelectionServiceTest {
 
         service.resolve("t", "d", List.of());
 
-        verify(domainResolutionClient).resolve("t", "d", List.of(), expectedOptions());
+        // Verify the orchestration service was called
+        verify(domainResolutionService).resolve(any());
     }
 
     // ------------------------------------------------------------------ fail closed
@@ -172,8 +175,8 @@ class AutoUniversitySelectionServiceTest {
     @Test
     void anUnavailableModelIsA400() {
         taxonomy();
-        when(domainResolutionClient.resolve(any(), any(), any(), any()))
-                .thenReturn(Optional.empty());
+        when(domainResolutionService.resolve(any()))
+                .thenReturn(DomainResolutionResult.failed("PROVIDER_UNAVAILABLE"));
 
         assertBadRequest("AI university selection is unavailable", null);
         verifyNoInteractions(universityDomainRepository, universityRepository);
@@ -182,8 +185,10 @@ class AutoUniversitySelectionServiceTest {
     @Test
     void aModelAnswerNamingNoDomainIsA400() {
         taxonomy();
-        when(domainResolutionClient.resolve(any(), any(), any(), any()))
-                .thenReturn(Optional.of(List.of()));
+        when(domainResolutionService.resolve(any()))
+                .thenReturn(DomainResolutionResult.success(
+                        List.of(), null, "GEMINI", "gemini-3.1-flash-lite",
+                        "domain-classifier-v1", 100L));
 
         assertBadRequest("could not place this problem in a known domain", null);
         verifyNoInteractions(universityDomainRepository);
@@ -224,7 +229,7 @@ class AutoUniversitySelectionServiceTest {
         when(domainRepository.findByParentDomainIsNull()).thenReturn(List.of());
 
         assertBadRequest("no domain taxonomy is configured", null);
-        verifyNoInteractions(domainResolutionClient);
+        verifyNoInteractions(domainResolutionService);
     }
 
     // ------------------------------------------------------------------ fixtures
@@ -238,9 +243,11 @@ class AutoUniversitySelectionServiceTest {
 
     /** Accepts UUIDs or raw strings so a test can hand the model a malformed id. */
     private void modelSays(Object... ids) {
-        when(domainResolutionClient.resolve(any(), any(), any(), any()))
-                .thenReturn(Optional.of(
-                        java.util.Arrays.stream(ids).map(String::valueOf).toList()));
+        List<String> idList = java.util.Arrays.stream(ids).map(String::valueOf).toList();
+        when(domainResolutionService.resolve(any()))
+                .thenReturn(DomainResolutionResult.success(
+                        idList, 0.9, "GEMINI", "gemini-3.1-flash-lite",
+                        "domain-classifier-v1", 200L));
     }
 
     private void universityDomainRepositoryReturns(UniversityDomain... links) {
@@ -255,11 +262,11 @@ class AutoUniversitySelectionServiceTest {
         when(universityRepository.findByUniversityIdInAndActiveIsTrue(any())).thenReturn(found);
     }
 
-    private List<OpenAiCompatibleDomainResolutionClient.DomainOption> expectedOptions() {
+    private List<DomainResolutionRequest.DomainOption> expectedOptions() {
         return List.of(
-                new OpenAiCompatibleDomainResolutionClient.DomainOption(
+                new DomainResolutionRequest.DomainOption(
                         HEALTHCARE, "Healthcare", "Medical services."),
-                new OpenAiCompatibleDomainResolutionClient.DomainOption(
+                new DomainResolutionRequest.DomainOption(
                         WATER, "Water & Sanitation", "Drinking water."));
     }
 

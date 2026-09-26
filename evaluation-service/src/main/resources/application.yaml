@@ -78,6 +78,25 @@ app:
       # Ask the server for a JSON object (chat/completions response_format). Some
       # OpenAI-compatible routers reject the field; set false to rely on prompt only.
       json-response-format: true
+    gemini:
+      # API key for Google Gemini (via AI Studio or Vertex AI).
+      # Required only when app.llm.scoring-provider=gemini.
+      # Never commit this value — set via GEMINI_API_KEY env var.
+      api-key: ${GEMINI_API_KEY:}
+      # Model used for criterion scoring when scoring-provider=gemini.
+      # Same env var as Phase 1 domain resolution (shared key, shared model).
+      model: ${GEMINI_MODEL:gemini-3.1-flash-lite}
+      # Max retries for transient Gemini errors (rate-limit, 5xx).
+      max-retries: ${GEMINI_MAX_RETRIES:2}
+      # Low temperature for deterministic classification (0.0–1.0).
+      temperature: ${GEMINI_TEMPERATURE:0.1}
+    # Selects the CriterionScoringClient bean.
+    # Options:
+    #   openai-compatible  → OpenAiCompatibleCriterionScoringClient (default)
+    #   gemini             → GeminiCriterionScoringClient (requires GEMINI_API_KEY)
+    # In either case, if the provider returns Optional.empty(), AutoEvaluationService
+    # degrades the pool to MANUAL so problem submission is never blocked.
+    scoring-provider: ${AI_SCORING_PROVIDER:openai-compatible}
 
 eureka:
   client:

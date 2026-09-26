@@ -1,6 +1,7 @@
 package com.saamyukt.SIH26043.evaluation.pipeline;
 
 import com.saamyukt.SIH26043.evaluation.ai.AiAdvisor;
+import com.saamyukt.SIH26043.evaluation.ai.CodeJudgeAiContext;
 import com.saamyukt.SIH26043.entity.AiEvaluation;
 import com.saamyukt.SIH26043.entity.CodeAnalysis;
 import com.saamyukt.SIH26043.entity.SecurityFinding;
@@ -8,6 +9,7 @@ import com.saamyukt.SIH26043.enums.EvaluationStatus;
 import com.saamyukt.SIH26043.enums.FindingSeverity;
 import com.saamyukt.SIH26043.repository.AiEvaluationRepository;
 import com.saamyukt.SIH26043.repository.CodeAnalysisRepository;
+import com.saamyukt.SIH26043.repository.ProjectSubmissionRepository;
 import com.saamyukt.SIH26043.repository.SecurityFindingRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,7 @@ public class AiStage implements Stage {
     private final CodeAnalysisRepository codeAnalysisRepository;
     private final SecurityFindingRepository securityFindingRepository;
     private final AiEvaluationRepository aiEvaluationRepository;
+    private final ProjectSubmissionRepository projectSubmissionRepository;
     private final AiAdvisor aiAdvisor;
     private final ObjectMapper objectMapper;
 
@@ -44,12 +47,14 @@ public class AiStage implements Stage {
                    CodeAnalysisRepository codeAnalysisRepository,
                    SecurityFindingRepository securityFindingRepository,
                    AiEvaluationRepository aiEvaluationRepository,
+                   ProjectSubmissionRepository projectSubmissionRepository,
                    AiAdvisor aiAdvisor,
                    ObjectMapper objectMapper) {
         this.stageMachine = stageMachine;
         this.codeAnalysisRepository = codeAnalysisRepository;
         this.securityFindingRepository = securityFindingRepository;
         this.aiEvaluationRepository = aiEvaluationRepository;
+        this.projectSubmissionRepository = projectSubmissionRepository;
         this.aiAdvisor = aiAdvisor;
         this.objectMapper = objectMapper;
     }
@@ -76,7 +81,17 @@ public class AiStage implements Stage {
             row.setModel(null);
             row.getPayload().put("note", "LLM not configured; deterministic evidence only");
         } else {
-            Optional<Map<String, Object>> assessment = aiAdvisor.assess(toUserText(summary));
+            com.saamyukt.SIH26043.entity.ProjectSubmission submission = projectSubmissionRepository
+                    .findById(context.getSubmissionId())
+                    .orElseThrow(() -> new IllegalStateException("Submission not found"));
+
+            CodeJudgeAiContext aiContext = new CodeJudgeAiContext(
+                    submission,
+                    context.getWorkspaceDir(),
+                    summary
+            );
+
+            Optional<Map<String, Object>> assessment = aiAdvisor.assess(aiContext);
             if (assessment.isPresent()) {
                 row.setStatus("AVAILABLE");
                 row.setModel(aiAdvisor.model());
@@ -114,13 +129,5 @@ public class AiStage implements Stage {
         security.put("high", high);
         summary.put("securityFindings", security);
         return summary;
-    }
-
-    private String toUserText(Map<String, Object> summary) {
-        try {
-            return objectMapper.writeValueAsString(summary);
-        } catch (Exception e) {
-            return summary.toString();
-        }
     }
 }

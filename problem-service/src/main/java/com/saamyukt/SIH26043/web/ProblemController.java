@@ -71,7 +71,7 @@ public class ProblemController {
         this.orchestrator = orchestrator;
     }
 
-    @GetMapping("/nearby")
+    @GetMapping("/nearby-legacy")
     public org.springframework.data.domain.Page<com.saamyukt.SIH26043.web.dto.PublicProblemSummary> getNearbyProblems(
             @RequestParam("latitude") double latitude,
             @RequestParam("longitude") double longitude,
