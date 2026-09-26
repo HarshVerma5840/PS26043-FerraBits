@@ -40,6 +40,13 @@ The frontend is then accessible at `http://localhost:8080`.
 The frontend relies on the following environment variable:
 - `VITE_API_BASE_URL`: The URL of the API Gateway (default: `http://localhost:8080`).
 
+### Backend Environment Variables (AI Models)
+The AI models are used for **CodeJudge code evaluation**, **Domain Resolution**, and **AI Assessment** workflows.
+Ensure the following are set in the environment where the backend is run:
+- `GEMINI_API_KEY`: Required for Gemini-based evaluation and domain resolution.
+- `OPENAI_API_KEY`: Required if using OpenAI-compatible endpoints (DeepSeek, etc).
+- `AI_SCORING_PROVIDER`: Set to either `gemini` or `openai-compatible` (defaults to `openai-compatible`).
+
 ## Architecture & API Gateway
 The frontend does not communicate directly with the individual microservices. All requests are routed through the Caddy API Gateway running on port `8080`.
 
