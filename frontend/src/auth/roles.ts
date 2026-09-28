@@ -1,4 +1,4 @@
-﻿/**
+/**
  * roles.ts — Single source of truth for backend-supported JWT roles.
  *
  * The backend (source-service) defines UserRole enum as:
@@ -36,8 +36,9 @@ export function roleDefaultRoute(role: string | null | undefined): string {
       return '/nodal/triage'
     case BackendRole.EVALUATOR:
       return '/evaluator/dossier'
+    case BackendRole.SUBMITTER:
+      return '/citizen/dashboard'
     default:
-      // SUBMITTER and any unknown role have no web portal.
       return '/unauthorized'
   }
 }
@@ -47,6 +48,7 @@ export function hasWebPortal(role: string | null | undefined): boolean {
   return (
     role === BackendRole.ADMIN ||
     role === BackendRole.REVIEWER ||
-    role === BackendRole.EVALUATOR
+    role === BackendRole.EVALUATOR ||
+    role === BackendRole.SUBMITTER
   )
 }

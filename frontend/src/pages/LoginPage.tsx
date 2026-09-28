@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [challengeId, setChallengeId] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState<'official' | 'citizen'>('official')
 
   const location = useLocation()
   const from: string | undefined = (location.state as { from?: { pathname: string } })?.from?.pathname
@@ -92,6 +93,14 @@ export default function LoginPage() {
     }
   }
 
+  const switchTab = (tab: 'official' | 'citizen') => {
+    setActiveTab(tab)
+    setPhone('')
+    setOtpCode('')
+    setChallengeId('')
+    setError('')
+  }
+
   return (
     <div className="bg-[#f4f6f9] text-[#191c1d] antialiased min-h-screen flex flex-col justify-between pb-safe selection:bg-[#fc6018]/20 selection:text-[#a83900]">
       <div className="w-full flex flex-col">
@@ -139,12 +148,20 @@ export default function LoginPage() {
           
           {/* 3. Auth Switcher Tabs */}
           <div className="bg-[#edeeef] rounded-xl p-1 flex items-center shadow-inner">
-            <button className="flex-1 py-2 rounded-lg bg-white text-[#00173b] font-bold text-xs shadow-xs text-center border border-[#c4c6d0]/30 transition-all flex items-center justify-center gap-1.5" type="button">
-              <span className="material-symbols-outlined text-[16px] text-[#fc6018]">person</span>
+            <button 
+              className={`flex-1 py-2 rounded-lg font-bold text-xs text-center transition-all flex items-center justify-center gap-1.5 ${activeTab === 'official' ? 'bg-white text-[#00173b] shadow-xs border border-[#c4c6d0]/30' : 'text-[#44474f] font-semibold hover:text-[#00173b]'}`} 
+              type="button"
+              onClick={() => switchTab('official')}
+            >
+              <span className={`material-symbols-outlined text-[16px] ${activeTab === 'official' ? 'text-[#fc6018]' : ''}`}>person</span>
               <span>Official Login</span>
             </button>
-            <button className="flex-1 py-2 rounded-lg text-[#44474f] font-semibold text-xs text-center hover:text-[#00173b] transition-all flex items-center justify-center gap-1.5 opacity-50 cursor-not-allowed" type="button" title="Available in App">
-              <span className="material-symbols-outlined text-[16px]">school</span>
+            <button 
+              className={`flex-1 py-2 rounded-lg font-bold text-xs text-center transition-all flex items-center justify-center gap-1.5 ${activeTab === 'citizen' ? 'bg-white text-[#00173b] shadow-xs border border-[#c4c6d0]/30' : 'text-[#44474f] font-semibold hover:text-[#00173b]'}`} 
+              type="button"
+              onClick={() => switchTab('citizen')}
+            >
+              <span className={`material-symbols-outlined text-[16px] ${activeTab === 'citizen' ? 'text-[#fc6018]' : ''}`}>school</span>
               <span>Citizen / Innovator</span>
             </button>
           </div>
@@ -156,12 +173,16 @@ export default function LoginPage() {
             <div className="flex items-center justify-between border-b border-[#c4c6d0]/20 pb-3">
               <div>
                 <h2 className="text-base font-bold text-[#00173b] flex items-center gap-1.5">
-                  <span>Aadhaar OTP Access</span>
+                  <span>{activeTab === 'citizen' ? 'Citizen & Innovator Access' : 'Aadhaar OTP Access'}</span>
                   <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-1.5 py-0.5 rounded border border-emerald-200 flex items-center gap-0.5">
                     <span className="material-symbols-outlined text-[12px]">verified</span> Secure
                   </span>
                 </h2>
-                <p className="text-[11px] text-[#44474f]">ओटीपी द्वारा त्वरित एवं सुरक्षित सत्यापन</p>
+                <p className="text-[11px] text-[#44474f]">
+                  {activeTab === 'citizen' 
+                    ? 'नागरिक पोर्टल – समस्या दर्ज करें या नवाचार प्रस्ताव सबमिट करें' 
+                    : 'ओटीपी द्वारा त्वरित एवं सुरक्षित सत्यापन'}
+                </p>
               </div>
               <div className="text-right">
                 <span className="text-[11px] font-semibold text-[#fc6018] hover:underline cursor-pointer">Help / सहायता</span>
@@ -213,7 +234,9 @@ export default function LoginPage() {
                 {import.meta.env.DEV && (
                   <p className="text-[11px] text-[#44474f] flex items-center gap-1 pl-0.5 mt-2 bg-yellow-50 p-2 rounded">
                     <span className="material-symbols-outlined text-[13px] text-yellow-600">info</span>
-                    <span>[DEV] Test Admin: 9999999999, Reviewer: 8888888888</span>
+                    <span>{activeTab === 'citizen' 
+                      ? '[DEV] Register any new number to create a Citizen/SUBMITTER account' 
+                      : '[DEV] Test Admin: 9999999999, Reviewer: 8888888888'}</span>
                   </p>
                 )}
               </form>

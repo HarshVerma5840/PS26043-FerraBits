@@ -2,7 +2,7 @@ import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 
-import { NodalOfficerLayout, EvaluatorDemoLayout, AdminDemoLayout, CommonLayout, FacultyDemoLayout } from './v2/layouts/Layouts'
+import { NodalOfficerLayout, EvaluatorDemoLayout, AdminDemoLayout, CommonLayout, FacultyDemoLayout, CitizenDemoLayout, StudentDemoLayout } from './v2/layouts/Layouts'
 import { DemoRoleSwitcher } from './v2/components/DemoRoleSwitcher'
 import { PrivateRoute, RoleRoute, RoleLandingRedirect, FacultyRoute } from './v2/components/AuthGuards'
 import { useAuth } from './auth/AuthContext'
@@ -16,6 +16,8 @@ const EvaluatorDashboardPage = React.lazy(() => import('./v2/pages/EvaluatorDash
 const AdminGovernancePage = React.lazy(() => import('./v2/pages/AdminGovernancePage'))
 const AdminAnalyticsPage = React.lazy(() => import('./v2/pages/AdminAnalyticsPage'))
 const FacultyWorkspace = React.lazy(() => import('./v2/pages/Pages').then(module => ({ default: module.FacultyWorkspace })))
+const CitizenDashboardPage = React.lazy(() => import('./v2/pages/CitizenDashboardPage'))
+const StudentDashboardPage = React.lazy(() => import('./v2/pages/StudentDashboardPage'))
 const LoginPage = React.lazy(() => import('./pages/LoginPage'))
 const UnauthorizedPage = React.lazy(() => import('./pages/UnauthorizedPage'))
 const MessagingPage = React.lazy(() => import('./pages/MessagingPage'))
@@ -70,6 +72,20 @@ function App() {
               <Route index element={<Navigate to="projects" replace />} />
               <Route path="projects" element={<FacultyWorkspace />} />
               <Route path="projects/:projectId" element={<FacultyWorkspace />} />
+            </Route>
+          </Route>
+
+          <Route path="/citizen" element={<RoleRoute allowedRoles={[BackendRole.SUBMITTER, BackendRole.ADMIN]} />}>
+            <Route element={<CitizenDemoLayout />}>
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<CitizenDashboardPage />} />
+            </Route>
+          </Route>
+
+          <Route path="/student" element={<RoleRoute allowedRoles={[BackendRole.SUBMITTER, BackendRole.ADMIN]} />}>
+            <Route element={<StudentDemoLayout />}>
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<StudentDashboardPage />} />
             </Route>
           </Route>
 

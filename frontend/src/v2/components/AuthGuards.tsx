@@ -51,8 +51,8 @@ export function RoleLandingRedirect() {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
-  // The roleDefaultRoute function handles ADMIN, REVIEWER, EVALUATOR correctly,
-  // and returns /unauthorized for unsupported roles (e.g. SUBMITTER attempting web login).
+  // The roleDefaultRoute function handles ADMIN, REVIEWER, EVALUATOR, and SUBMITTER correctly,
+  // mapping them to their respective web portals.
   const target = roleDefaultRoute(user.role)
   return <Navigate to={target} replace />
 }

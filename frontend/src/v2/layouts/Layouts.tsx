@@ -121,3 +121,49 @@ export function CommonLayout() {
     </div>
   )
 }
+
+export function CitizenDemoLayout() {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <header className="fixed top-0 w-full z-50 shadow-[0_1px_8px_rgba(0,0,0,0.06)]">
+        <TirangaStrip />
+        <GovHeader />
+        <BrandingHeader role="Citizen Grievance Filer" name="Ramesh Kumar" />
+        <div className="w-full bg-primary-container text-on-primary">
+          <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
+            <nav className="flex items-center overflow-x-auto py-1 gap-1 hide-scrollbar">
+              <NavLink to="/citizen/dashboard" className={getNavClass}>Dashboard & Citizen Portal</NavLink>
+            </nav>
+          </div>
+        </div>
+      </header>
+      <main className="w-full pt-44 bg-surface min-h-[calc(100vh-180px)]">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  )
+}
+
+export function StudentDemoLayout() {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <header className="fixed top-0 w-full z-50 shadow-[0_1px_8px_rgba(0,0,0,0.06)]">
+        <TirangaStrip />
+        <GovHeader />
+        <BrandingHeader role="Student Innovator" name="Student Lab" />
+        <div className="w-full bg-primary-container text-on-primary">
+          <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
+            <nav className="flex items-center overflow-x-auto py-1 gap-1 hide-scrollbar">
+              <NavLink to="/student/dashboard" className={getNavClass}>Innovation & Student Lab</NavLink>
+            </nav>
+          </div>
+        </div>
+      </header>
+      <main className="w-full pt-44 bg-surface min-h-[calc(100vh-180px)]">
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
+  )
+}
