@@ -15,11 +15,27 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
+        default_schema: ${DB_SCHEMA:public}
   flyway:
     locations: classpath:db/migration
+    enabled: true
+    baseline-on-migrate: true
+    create-schemas: true
+    schemas: ${DB_SCHEMA:public}
+    default-schema: ${DB_SCHEMA:public}
 
 server:
-  port: 8085
+  port: ${SERVER_PORT:${PORT:8085}}
+  address: ${SERVER_ADDRESS:0.0.0.0}
+  error:
+    include-stacktrace: never
+    include-message: never
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN
 
 app:
   jwt:
@@ -52,23 +68,17 @@ app:
     # Build/run/test execution of untrusted code is NOT enabled in this
     # deployment. Turn on only inside a real sandbox (see codejudgeservice.md §23).
     sandbox-enabled: ${CODEJUDGE_SANDBOX_ENABLED:false}
-  # Where problem-service is found. With discovery enabled this is the
-  # load-balanced SERVICE ID (no port) resolved through eureka; kept as a
-  # property so a local run can point a non-eureka peer at a fixed URL.
-  # The context snapshot is an enrichment, not a precondition: when this is
-  # unreachable the intake simply proceeds without it (see ProblemContextGateway).
+  # Where problem-service is found. Resolves via eureka or direct Render private networking.
   problem-service:
-    base-url: ${PROBLEM_SERVICE_URL:http://problem-service}
+    base-url: ${PROBLEM_SERVICE_URL:http://problem-service:8082}
   llm:
-    # OpenAI-compatible local model, shared convention with evaluation-service.
+    # OpenAI-compatible model, shared convention with evaluation-service.
     # CodeJudge uses it for an ADVISORY assessment only — it never contributes to
     # final_score. Empty key → the ai_evaluation row is recorded UNAVAILABLE and
     # the pipeline completes on deterministic evidence.
-    # NOTE: inside docker the host is reached as host.docker.internal, so
-    # docker-compose overrides base-url accordingly.
     openai:
       api-key: ${OPENAI_API_KEY:}
-      base-url: ${OPENAI_BASE_URL:http://localhost:20128/v1}
+      base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
       model: ${OPENAI_MODEL:agentrouter/deepseek-v4-flash}
       max-tokens: 8192
       timeout-seconds: 60
@@ -77,7 +87,7 @@ app:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+      defaultZone: ${EUREKA_SERVER_URL:http://eureka-server:8761/eureka/}
   instance:
     # Register by container/host IP so peers on the same network (or localhost)
     # can reach us — hostnames inside containers are random container ids.

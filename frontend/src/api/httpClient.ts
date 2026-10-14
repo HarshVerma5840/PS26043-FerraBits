@@ -51,7 +51,21 @@ export interface ApiError {
  *
  * No trailing slash — each API client owns its own path prefix.
  */
-const BASE_URL: string = (import.meta.env.VITE_API_BASE_URL as string) ?? ''
+const rawBase = (import.meta.env.VITE_API_BASE_URL as string)?.trim() ?? ''
+const cleanBase = rawBase.replace(/\/+$/, '')
+const BASE_URL: string =
+  cleanBase && !cleanBase.startsWith('http://') && !cleanBase.startsWith('https://') && !cleanBase.startsWith('/')
+    ? `https://${cleanBase}`
+    : cleanBase
+
+if (
+  import.meta.env.PROD &&
+  (cleanBase === 'gateway' || cleanBase === 'localhost' || cleanBase.includes('host.docker.internal'))
+) {
+  console.warn(
+    `[SAAMYUKT] Incompatible VITE_API_BASE_URL (${cleanBase}) detected in production. Browser requests require a public HTTPS gateway URL.`,
+  )
+}
 
 export const httpClient = axios.create({
   baseURL: BASE_URL,

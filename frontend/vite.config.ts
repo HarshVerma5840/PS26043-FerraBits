@@ -5,27 +5,20 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [react()],
   server: {
-    // In dev, proxy every backend path prefix to the API Gateway at localhost:8080.
-    // In production, VITE_API_BASE_URL is set to the real gateway URL and this
-    // proxy block has no effect — requests are sent directly to the gateway.
-    proxy: {
-      '/auth': 'http://localhost:8080',
-      '/users': 'http://localhost:8080',
-      '/registration': 'http://localhost:8080',
-      '/reviewer': 'http://localhost:8080',
-      '/source': 'http://localhost:8080',
-      '/sources': 'http://localhost:8080',
-      '/domains': 'http://localhost:8080',
-      '/problems': 'http://localhost:8080',
-	      '/citizen': 'http://localhost:8080',
-	      '/uploads': 'http://localhost:8080',
-      '/audit': 'http://localhost:8080',
-      '/evaluation': 'http://localhost:8080',
-      '/portal': 'http://localhost:8080',
-      '/codejudge': 'http://localhost:8080',
-      '/capability': 'http://localhost:8080',
-      '/notifications': 'http://localhost:8080',  // NotificationController
-    },
+    // In dev, proxy every backend path prefix to the API Gateway.
+    // In production, VITE_API_BASE_URL is set to the real gateway URL.
+    proxy: (() => {
+      const target = process.env.VITE_API_BASE_URL || process.env.VITE_GATEWAY_URL || 'http://localhost:8080'
+      const prefixes = [
+        '/auth', '/users', '/registration', '/reviewer', '/source', '/sources',
+        '/domains', '/problems', '/citizen', '/uploads', '/audit',
+        '/evaluation', '/portal', '/codejudge', '/capability', '/notifications'
+      ]
+      return prefixes.reduce((acc, prefix) => {
+        acc[prefix] = { target, changeOrigin: true }
+        return acc
+      }, {} as Record<string, { target: string; changeOrigin: boolean }>)
+    })(),
   },
   build: {
     target: 'esnext',

@@ -1,9 +1,18 @@
+# ==============================================================================
+# SAAMYUKT (SIH PS26043) — Frontend Production Dockerfile
+# Multi-stage build with Vite and Nginx runtime
+# ==============================================================================
+
 # Build Stage
 FROM node:20-alpine AS build
 WORKDIR /app
 
 COPY package*.json ./
 RUN npm install
+
+# Injects the Render public gateway URL during production bundle compilation
+ARG VITE_API_BASE_URL=""
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 
 COPY . .
 RUN npm run build

@@ -1,11 +1,21 @@
 server:
-  port: ${SERVER_PORT:8087}
+  port: ${SERVER_PORT:${PORT:8086}}
+  address: ${SERVER_ADDRESS:0.0.0.0}
+  error:
+    include-stacktrace: never
+    include-message: never
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN
 
 app:
   jwt:
-    secret: ${JWT_SECRET:local-dev-only-secret-key-min-32-bytes-change-me!!}
+    secret: ${JWT_SECRET:}
     issuer: ${JWT_ISSUER:sih26043}
-    access-token-ttl-minutes: ${JWT_TTL:60}
+    access-token-ttl-minutes: ${JWT_TTL:15}
 
 spring:
   application:
@@ -22,20 +32,24 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        default_schema: ${DB_SCHEMA:public}
   flyway:
     enabled: true
     baseline-on-migrate: true
+    create-schemas: true
+    schemas: ${DB_SCHEMA:public}
+    default-schema: ${DB_SCHEMA:public}
 
 embedding:
-  provider: mock
+  provider: ${EMBEDDING_PROVIDER:mock}
   api:
-    url:
-    key:
+    url: ${EMBEDDING_API_URL:}
+    key: ${EMBEDDING_API_KEY:}
 
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+      defaultZone: ${EUREKA_SERVER_URL:http://eureka-server:8761/eureka/}
     fetch-registry: true
     register-with-eureka: true
   instance:

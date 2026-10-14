@@ -1,20 +1,77 @@
-# Thin wrapper image, shared by every service in the reactor (eureka-server,
-# source-service, problem-service, evaluation-service): it only copies a
-# pre-built Spring Boot fat jar.
+# ==============================================================================
+# SAAMYUKT (SIH PS26043) — Production Multi-Stage Dockerfile for Microservices
+# Used by: eureka-server, source-service, problem-service, evaluation-service,
+#          portal-service, capability-matching-service
 #
-# Build it from the repo root AFTER packaging on the host:
-#   ./mvnw -DskipTests package
-#   docker compose up -d --build
-#
-# JAR_FILE has no default on purpose — each compose service names its own jar
-# (see docker-compose.yml), and a missing arg should fail the build loudly
-# instead of silently shipping some other service's jar.
-FROM eclipse-temurin:21-jre
+# Supports:
+#   1. Clean Render cloud builds directly from git checkout (no prebuilt target/)
+#   2. Local builds via SERVICE_NAME, MODULE_NAME, or legacy JAR_FILE arguments
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Stage 1: Build stage using Maven and Eclipse Temurin JDK 21
+# ------------------------------------------------------------------------------
+FROM eclipse-temurin:21-jdk-alpine AS builder
+
+WORKDIR /build
+
+# Copy Maven wrapper files and ensure execution permission
+COPY pom.xml mvnw ./
+COPY .mvn/ .mvn/
+RUN chmod +x ./mvnw
+
+# Copy all reactor modules so Maven initializes the multi-module project graph
+COPY saamyukt-common/ saamyukt-common/
+COPY saamyukt-security/ saamyukt-security/
+COPY eureka-server/ eureka-server/
+COPY source-service/ source-service/
+COPY problem-service/ problem-service/
+COPY evaluation-service/ evaluation-service/
+COPY portal-service/ portal-service/
+COPY codejudge-service/ codejudge-service/
+COPY capability-matching-service/ capability-matching-service/
+
+# Service selection argument (supports SERVICE_NAME, MODULE_NAME, or JAR_FILE)
+ARG SERVICE_NAME=""
+ARG MODULE_NAME=""
+ARG JAR_FILE=""
+
+# Resolve the target module name and compile the fat JAR
+RUN set -e; \
+    TARGET_MODULE="${SERVICE_NAME:-${MODULE_NAME}}"; \
+    if [ -z "$TARGET_MODULE" ] && [ -n "$JAR_FILE" ]; then \
+        TARGET_MODULE=$(echo "$JAR_FILE" | cut -d'/' -f1); \
+    fi; \
+    if [ -z "$TARGET_MODULE" ]; then \
+        echo "ERROR: Either SERVICE_NAME, MODULE_NAME, or JAR_FILE must be provided." >&2; \
+        exit 1; \
+    fi; \
+    echo "==> Building microservice: ${TARGET_MODULE}"; \
+    ./mvnw -B -DskipTests clean package -pl "${TARGET_MODULE}" -am; \
+    mkdir -p /output && \
+    find "${TARGET_MODULE}/target" -maxdepth 1 -name "*.jar" ! -name "*sources.jar" ! -name "*original*.jar" -exec cp {} /output/service.jar \;
+
+# ------------------------------------------------------------------------------
+# Stage 2: Minimal Production JRE 21 Runtime
+# ------------------------------------------------------------------------------
+FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
-ARG JAR_FILE
-COPY ${JAR_FILE} /app/service.jar
 
-# No EXPOSE: the listening port is per service (SERVER_PORT) and published by
-# compose, so hardcoding one here would only mislead.
-ENTRYPOINT ["java", "-jar", "/app/service.jar"]
+# Pre-create data and storage directories for services requiring local paths
+RUN mkdir -p /data /data/evidence /data/portal-files
+
+# Copy the compiled JAR from builder stage
+COPY --from=builder /output/service.jar /app/service.jar
+
+# Fallback default port if neither PORT nor SERVER_PORT is provided
+ARG DEFAULT_PORT=8080
+ENV DEFAULT_PORT=${DEFAULT_PORT}
+
+EXPOSE 8080
+
+# 1. Bind Spring Boot explicitly to 0.0.0.0 via -Dserver.address=0.0.0.0
+# 2. Respect Render's $PORT first, fallback to $SERVER_PORT, then $DEFAULT_PORT
+# 3. Enable container cgroup memory limits (-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0)
+# 4. Use exec to replace the shell process so PID 1 receives SIGTERM signals
+ENTRYPOINT ["sh", "-c", "exec java -Dserver.address=0.0.0.0 -Dserver.port=${PORT:-${SERVER_PORT:-${DEFAULT_PORT}}} -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -jar /app/service.jar \"$@\"", "--"]

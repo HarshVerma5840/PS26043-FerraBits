@@ -21,62 +21,79 @@
 # /internal/** endpoints are NOT routed here — services call each other directly
 # on their own ports.
 
-:8080 {
+:{$PORT:8080} {
 	encode gzip
+
+	# --- Gateway Health Check (used by Render zero-downtime healthcheck) ---
+	@healthz path /healthz
+	handle @healthz {
+		respond "OK" 200
+	}
+
+	# --- CORS Preflight and Response Headers for Web Clients ---
+	@cors_preflight method OPTIONS
+	handle @cors_preflight {
+		header Access-Control-Allow-Origin "{$CORS_ALLOWED_ORIGIN:https://saamyukt-frontend.onrender.com}"
+		header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+		header Access-Control-Allow-Headers "Authorization, Content-Type, Accept, X-Correlation-ID, X-Requested-With"
+		header Access-Control-Max-Age "3600"
+		header Vary "Origin"
+		respond "" 204
+	}
+	header {
+		Access-Control-Allow-Origin "{$CORS_ALLOWED_ORIGIN:https://saamyukt-frontend.onrender.com}"
+		Access-Control-Expose-Headers "Location, X-Correlation-ID"
+		Vary "Origin"
+	}
 
 	# --- source-service route set (auth, users, source registration & accounts).
 	#     Explicit even though the fallback below is also source-service, so the
 	#     intent is documented and the routing is robust to a future default change. ---
-	@source path /auth /auth/* /users /users/* /registration /registration/* /reviewer/registrations /reviewer/registrations/* /source/accounts /source/accounts/* /sources /sources/*
+	@source path /auth /auth/* /users /users/* /registration /registration/* /reviewer /reviewer/* /reviewer/registrations /reviewer/registrations/* /source /source/* /source/accounts /source/accounts/* /sources /sources/*
 	handle @source {
-		reverse_proxy source-service:8081
+		reverse_proxy {$SOURCE_SERVICE_HOST:source-service}:{$SOURCE_SERVICE_PORT:8081}
 	}
 
 	# --- problem-service route set (domains, problems, problem-scoped audit) ---
 	@problem path /domains /domains/* /problems /problems/* /citizen /citizen/* /uploads /uploads/* /audit /audit* /notifications /notifications/*
 	handle @problem {
-		reverse_proxy problem-service:8082
+		reverse_proxy {$PROBLEM_SERVICE_HOST:problem-service}:{$PROBLEM_SERVICE_PORT:8082}
 	}
 
 	# --- evaluation-service route set ---
 	@evaluation path /evaluation /evaluation/*
 	handle @evaluation {
-		reverse_proxy evaluation-service:8083
+		reverse_proxy {$EVALUATION_SERVICE_HOST:evaluation-service}:{$EVALUATION_SERVICE_PORT:8083}
 	}
 
 	# --- portal-service route set (public problem portal, submissions, files) ---
 	@portal path /portal /portal/*
 	handle @portal {
-		reverse_proxy portal-service:8084
+		reverse_proxy {$PORTAL_SERVICE_HOST:portal-service}:{$PORTAL_SERVICE_PORT:8084}
 	}
 
 	# --- codejudge-service route set (automated repository evaluation) ---
 	@codejudge path /codejudge /codejudge/*
 	handle @codejudge {
-		reverse_proxy codejudge-service:8085
+		reverse_proxy {$CODEJUDGE_SERVICE_HOST:codejudge-service}:{$CODEJUDGE_SERVICE_PORT:8085}
 	}
 
 	# --- capability-matching-service route set (matching and registry) ---
 	@capability path /capability /capability/*
 	handle @capability {
-		reverse_proxy capability-matching-service:8086
-	}
-
-	# --- Eureka registry REST API (dashboard is on the registry's own port 8761;
-	#     this exposes the /eureka/apps JSON through the gateway for verification). ---
-	@eureka path /eureka /eureka/*
-	handle @eureka {
-		reverse_proxy eureka-server:8761
+		reverse_proxy {$CAPABILITY_SERVICE_HOST:capability-matching-service}:{$CAPABILITY_SERVICE_PORT:8086}
 	}
 
 	# --- swagger and OpenAPI ---
 	@swagger path /swagger-ui /swagger-ui/* /v3/api-docs /v3/api-docs/* /error
 	handle @swagger {
-		reverse_proxy source-service:8081
+		reverse_proxy {$SOURCE_SERVICE_HOST:source-service}:{$SOURCE_SERVICE_PORT:8081}
 	}
 
-	# --- frontend fallback (SPA) ---
+	# --- Fallback for unmapped routes on API Gateway ---
 	handle {
-		reverse_proxy frontend:80
+		respond "{\"error\":\"Not Found\",\"message\":\"API route does not exist on SAAMYUKT Gateway\"}" 404 {
+			close
+		}
 	}
 }

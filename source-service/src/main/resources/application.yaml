@@ -15,11 +15,27 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
+        default_schema: ${DB_SCHEMA:public}
   flyway:
     locations: classpath:db/migration
+    enabled: true
+    baseline-on-migrate: true
+    create-schemas: true
+    schemas: ${DB_SCHEMA:public}
+    default-schema: ${DB_SCHEMA:public}
 
 server:
-  port: 8081
+  port: ${SERVER_PORT:${PORT:8081}}
+  address: ${SERVER_ADDRESS:0.0.0.0}
+  error:
+    include-stacktrace: never
+    include-message: never
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN
 
 app:
   jwt:
@@ -45,7 +61,7 @@ app:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+      defaultZone: ${EUREKA_SERVER_URL:http://eureka-server:8761/eureka/}
   instance:
     # Register by container/host IP so peers on the same network (or localhost)
     # can reach us — hostnames inside containers are random container ids.

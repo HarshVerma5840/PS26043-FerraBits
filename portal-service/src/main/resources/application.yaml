@@ -15,15 +15,31 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
+        default_schema: ${DB_SCHEMA:public}
   flyway:
     locations: classpath:db/migration
+    enabled: true
+    baseline-on-migrate: true
+    create-schemas: true
+    schemas: ${DB_SCHEMA:public}
+    default-schema: ${DB_SCHEMA:public}
   servlet:
     multipart:
       max-file-size: 50MB
       max-request-size: 55MB
 
 server:
-  port: 8084
+  port: ${SERVER_PORT:${PORT:8084}}
+  address: ${SERVER_ADDRESS:0.0.0.0}
+  error:
+    include-stacktrace: never
+    include-message: never
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN
 
 app:
   jwt:
@@ -34,20 +50,18 @@ app:
     access-token-ttl-minutes: 15
   portal:
     storage-dir: ${PORTAL_FILE_STORAGE_DIR:./data/portal-files}
-  # Where source-service / evaluation-service are found. With discovery enabled
-  # these are the load-balanced SERVICE IDs (no port) resolved through eureka;
-  # kept as properties so a local run can point a non-eureka peer at a fixed URL.
+  # Where peers are found. Resolves via eureka or direct Render private networking.
   source-service:
-    base-url: ${SOURCE_SERVICE_URL:http://source-service}
+    base-url: ${SOURCE_SERVICE_URL:http://source-service:8081}
   evaluation-service:
-    base-url: ${EVALUATION_SERVICE_URL:http://evaluation-service}
+    base-url: ${EVALUATION_SERVICE_URL:http://evaluation-service:8083}
   codejudge-service:
-    base-url: ${CODEJUDGE_SERVICE_URL:http://codejudge-service}
+    base-url: ${CODEJUDGE_SERVICE_URL:http://codejudge-service:8085}
 
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+      defaultZone: ${EUREKA_SERVER_URL:http://eureka-server:8761/eureka/}
   instance:
     # Register by container/host IP so peers on the same network (or localhost)
     # can reach us — hostnames inside containers are random container ids.

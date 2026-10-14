@@ -76,9 +76,10 @@ public class ProblemClientConfig {
         public ClientHttpResponse intercept(HttpRequest request, byte[] body,
                                             ClientHttpRequestExecution execution) throws IOException {
             String serviceId = request.getURI().getHost();
-            ServiceInstance instance = loadBalancer.choose(serviceId);
+            ServiceInstance instance = loadBalancer != null ? loadBalancer.choose(serviceId) : null;
             if (instance == null) {
-                throw new IOException("No live instances available for service " + serviceId);
+                // Fall back to direct execution against the configured host (e.g. Render private networking)
+                return execution.execute(request, body);
             }
             URI rewritten = loadBalancer.reconstructURI(instance, request.getURI());
             return execution.execute(new HttpRequest() {
