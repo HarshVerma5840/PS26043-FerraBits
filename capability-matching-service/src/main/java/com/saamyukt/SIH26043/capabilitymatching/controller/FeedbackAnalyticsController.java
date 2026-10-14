@@ -69,22 +69,22 @@ public class FeedbackAnalyticsController {
         return ResponseEntity.ok(service.getImpactMetrics());
     }
 
-    // Example endpoints for granular analytics (districts, institutions, projects)
+    // Granular analytics endpoints (districts, institutions, projects)
     @GetMapping("/analytics/districts")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<String> getDistrictsAnalytics() {
-        return ResponseEntity.ok("District analytics endpoint");
+    public ResponseEntity<List<DistrictAnalyticsDto>> getDistrictsAnalytics() {
+        return ResponseEntity.ok(service.getDistrictsAnalytics());
     }
 
     @GetMapping("/analytics/institutions")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<String> getInstitutionsAnalytics() {
-        return ResponseEntity.ok("Institutions analytics endpoint");
+    public ResponseEntity<List<InstitutionAnalyticsDto>> getInstitutionsAnalytics() {
+        return ResponseEntity.ok(service.getInstitutionsAnalytics());
     }
 
     @GetMapping("/analytics/projects")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<String> getProjectsAnalytics() {
-        return ResponseEntity.ok("Projects analytics endpoint");
+    public ResponseEntity<List<ProjectAnalyticsDto>> getProjectsAnalytics() {
+        return ResponseEntity.ok(service.getProjectsAnalytics());
     }
 }

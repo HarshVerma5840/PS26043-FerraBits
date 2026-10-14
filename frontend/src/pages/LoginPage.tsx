@@ -268,6 +268,7 @@ export default function LoginPage() {
                       className="absolute inset-0 w-full h-full opacity-0 cursor-text z-10 font-inter"
                       disabled={loading}
                       autoFocus
+                      aria-label="Enter 6-digit OTP"
                     />
                     
                     {/* Visual Segmented PIN boxes */}

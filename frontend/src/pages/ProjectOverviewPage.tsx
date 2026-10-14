@@ -11,7 +11,8 @@ import DeploymentPanel from '../components/DeploymentPanel'
 import { Briefcase } from 'lucide-react'
 
 export default function ProjectOverviewPage() {
-  const { projectId } = useParams<{ projectId: string }>()
+  const { id, projectId: paramProjectId } = useParams<{ id?: string; projectId?: string }>()
+  const projectId = id || paramProjectId
   const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

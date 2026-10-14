@@ -109,7 +109,7 @@ export const sourceApi = {
     const response = await httpClient.get(`/registration/${registrationId}/history`)
     return response.data
   },
-  
+
   // Reviewer Queue
   getReviewerRegistrations: async (status?: string): Promise<Registration[]> => {
     const response = await httpClient.get(`/reviewer/registrations${status ? `?status=${status}` : ''}`)
@@ -137,8 +137,17 @@ export const sourceApi = {
     const response = await httpClient.get('/source/accounts')
     return response.data
   },
-  verifySourceAccount: async (sourceAccountId: string): Promise<SourceAccount> => {
-    const response = await httpClient.post(`/sources/${sourceAccountId}/verify`)
+  verifySourceAccount: async (
+    sourceAccountId: string,
+    payload: { method?: string; result?: string; notes?: string; evidenceUrl?: string } = {}
+  ): Promise<SourceAccount> => {
+    const body = {
+      method: payload.method || 'MANUAL_REVIEW',
+      result: payload.result || 'PASS',
+      notes: payload.notes || 'Verified by reviewer via web portal',
+      evidenceUrl: payload.evidenceUrl || undefined,
+    }
+    const response = await httpClient.post(`/sources/${sourceAccountId}/verify`, body)
     return response.data
   },
 
@@ -149,6 +158,10 @@ export const sourceApi = {
   },
   updateUserRole: async (userId: string, role: string): Promise<User> => {
     const response = await httpClient.patch(`/users/${userId}/role`, { role })
+    return response.data
+  },
+  onboardEvaluator: async (req: { phone: string; evaluatorPool: string }): Promise<{ userId: string; phone: string; role: string; evaluatorPool: string; devOtp?: string }> => {
+    const response = await httpClient.post('/users/evaluators', req)
     return response.data
   }
 }

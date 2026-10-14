@@ -19,6 +19,8 @@ export default function AdminLayout() {
   const navItems = []
   if (isAdmin) {
     navItems.push({ to: '/admin/analytics', icon: LayoutDashboard, label: 'Ecosystem Analytics' })
+    navItems.push({ to: '/admin/governance', icon: ClipboardList, label: 'Governance Review' })
+    navItems.push({ to: '/admin/projects', icon: Building, label: 'Projects' })
     navItems.push({ to: '/admin/evaluation', icon: Shield, label: 'Evaluation Center' })
     navItems.push({ to: '/admin/registry', icon: Database, label: 'Capability Registry' })
     navItems.push({ to: '/admin/registry/workspace', icon: Database, label: 'Registry Workspace' })

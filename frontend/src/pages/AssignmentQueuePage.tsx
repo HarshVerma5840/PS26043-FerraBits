@@ -1,21 +1,65 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { evaluationApi, Assignment } from '../api/evaluationApi'
-import { ExternalLink, AlertTriangle } from 'lucide-react'
+import { useAuth } from '../auth/AuthContext'
+import { ExternalLink, AlertTriangle, ShieldAlert, ArrowRight } from 'lucide-react'
 
 export default function AssignmentQueuePage() {
+  const { user } = useAuth()
+  const isEvaluator = user?.role === 'EVALUATOR'
+
   const [assignments, setAssignments] = useState<Assignment[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(isEvaluator)
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<string>('')
 
   useEffect(() => {
+    if (!isEvaluator) return
     setLoading(true)
     evaluationApi.getAssignments(filter || undefined)
       .then(res => setAssignments(res))
       .catch(err => setError(err.message))
       .finally(() => setLoading(false))
-  }, [filter])
+  }, [filter, isEvaluator])
+
+  if (!isEvaluator) {
+    return (
+      <div className="main-content" style={{ maxWidth: '850px', margin: '0 auto' }}>
+        <div className="page-header">
+          <h1 className="page-title">Assignment Queue</h1>
+          <p style={{ color: 'var(--text-muted)' }}>Problems assigned to you for scoring</p>
+        </div>
+
+        <div className="glass-panel" style={{ padding: '2rem' }}>
+          <div style={{
+            background: 'rgba(59, 130, 246, 0.1)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            borderRadius: '8px',
+            padding: '1.25rem',
+            marginBottom: '1.5rem',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '1rem',
+            color: '#93c5fd'
+          }}>
+            <ShieldAlert size={24} style={{ flexShrink: 0, marginTop: '2px' }} />
+            <div>
+              <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Administrative Observer Mode</div>
+              <div style={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
+                Personal assignment queues are reserved for domain evaluators assigned to specific problems. As an administrator, you manage and monitor all evaluation cycles via the master evaluation queue.
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+            <Link to="/admin/evaluation/queue" className="btn btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+              Open Master Evaluation Queue <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="main-content">
@@ -71,11 +115,16 @@ export default function AssignmentQueuePage() {
                 </td>
                 <td style={{ padding: '1rem' }}>{new Date(a.assignedAt).toLocaleDateString()}</td>
                 <td style={{ padding: '1rem' }}>
-                  {a.deadlineAt ? (
-                    <span style={{ color: new Date(a.deadlineAt) < new Date() ? 'var(--accent)' : 'inherit' }}>
-                      {new Date(a.deadlineAt).toLocaleDateString()}
-                    </span>
-                  ) : '-'}
+                  {(() => {
+                    const dl = a.deadline || a.deadlineAt
+                    if (!dl) return '-'
+                    const isOverdue = a.overdue || new Date(dl) < new Date()
+                    return (
+                      <span style={{ color: isOverdue ? 'var(--accent)' : 'inherit', fontWeight: isOverdue ? 600 : 'normal' }}>
+                        {new Date(dl).toLocaleDateString()}
+                      </span>
+                    )
+                  })()}
                 </td>
                 <td style={{ padding: '1rem', textAlign: 'right' }}>
                   <Link to={`/evaluator/assignments/${a.assignmentId}`} className="btn" style={{ padding: '0.4rem 0.8rem' }}>

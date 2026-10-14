@@ -23,7 +23,8 @@ const MEMBER_LABELS: Record<string, string> = {
 const PLACEHOLDER_GAPS: SkillGap[] = []
 
 export default function SkillGapDetailsPage() {
-  const { projectId } = useParams<{ projectId: string }>()
+  const { id, projectId: paramProjectId } = useParams<{ id?: string; projectId?: string }>()
+  const projectId = id || paramProjectId
   const navigate = useNavigate()
 
   // In a real flow, gaps would be computed from:

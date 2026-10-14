@@ -51,19 +51,19 @@ public class RegistryApiController {
     }
 
     @PostMapping("/import")
-    @PreAuthorize("hasAnyRole('ADMIN', 'REGISTRY_MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ImportResultSummary> importRegistry(@RequestBody RegistryImportRequest request) {
         return ResponseEntity.ok(importService.importRegistry(request));
     }
 
     @PostMapping("/versions/{versionId}/publish")
-    @PreAuthorize("hasAnyRole('ADMIN', 'REGISTRY_MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RegistryVersionDto> publishVersion(@PathVariable Integer versionId) {
         return ResponseEntity.ok(registryService.publishVersion(versionId));
     }
 
     @PostMapping("/versions/{versionId}/archive")
-    @PreAuthorize("hasAnyRole('ADMIN', 'REGISTRY_MANAGER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RegistryVersionDto> archiveVersion(@PathVariable Integer versionId) {
         return ResponseEntity.ok(registryService.archiveVersion(versionId));
     }

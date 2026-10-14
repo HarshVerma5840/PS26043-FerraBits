@@ -11,11 +11,13 @@ export function NodalOfficerLayout() {
       <header className="fixed top-0 w-full z-50 shadow-[0_1px_8px_rgba(0,0,0,0.06)]">
         <TirangaStrip />
         <GovHeader />
-        <BrandingHeader role="Nodal Scoping Director" name="Shri Amitabh Verma" />
+        <BrandingHeader role="Nodal Officer" name="Nodal Office Console" />
         <div className="w-full bg-primary-container text-on-primary">
           <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
             <nav className="flex items-center overflow-x-auto py-1 gap-1 hide-scrollbar">
               <NavLink to="/nodal/triage" className={getNavClass}>Nodal Scoping & GIS Console</NavLink>
+              <NavLink to="/nodal/registrations" className={getNavClass}>Source Registration Queue</NavLink>
+              <NavLink to="/nodal/sources" className={getNavClass}>Source Organizations</NavLink>
             </nav>
           </div>
         </div>
@@ -34,7 +36,7 @@ export function EvaluatorDemoLayout() {
       <header className="fixed top-0 w-full z-50 shadow-[0_1px_8px_rgba(0,0,0,0.06)]">
         <TirangaStrip />
         <GovHeader />
-        <BrandingHeader role="Academic Evaluator" name="Dr. Rakesh Singh" />
+        <BrandingHeader role="Evaluator" name="Evaluation Console" />
         <div className="w-full bg-primary-container text-on-primary">
           <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
             <nav className="flex items-center overflow-x-auto py-1 gap-1 hide-scrollbar">
@@ -57,7 +59,7 @@ export function FacultyDemoLayout() {
       <header className="fixed top-0 w-full z-50 shadow-[0_1px_8px_rgba(0,0,0,0.06)]">
         <TirangaStrip />
         <GovHeader />
-        <BrandingHeader role="Faculty Principal" name="Prof. Anil Kumar" />
+        <BrandingHeader role="Admin Preview" name="Faculty Workspace (Preview)" />
         <div className="w-full bg-primary-container text-on-primary">
           <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
             <nav className="flex items-center overflow-x-auto py-1 gap-1 hide-scrollbar">
@@ -80,7 +82,7 @@ export function AdminDemoLayout() {
       <header className="fixed top-0 w-full z-50 shadow-[0_1px_8px_rgba(0,0,0,0.06)]">
         <TirangaStrip />
         <GovHeader />
-        <BrandingHeader role="System Administrator" name="Admin Portal" />
+        <BrandingHeader role="System Administrator" name="Admin Governance Console" />
         <div className="w-full bg-primary-container text-on-primary">
           <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
             <nav className="flex items-center overflow-x-auto py-1 gap-1 hide-scrollbar">
@@ -128,11 +130,11 @@ export function CitizenDemoLayout() {
       <header className="fixed top-0 w-full z-50 shadow-[0_1px_8px_rgba(0,0,0,0.06)]">
         <TirangaStrip />
         <GovHeader />
-        <BrandingHeader role="Citizen Grievance Filer" name="Ramesh Kumar" />
+        <BrandingHeader role="Admin Preview" name="Citizen Portal (Preview)" />
         <div className="w-full bg-primary-container text-on-primary">
           <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
             <nav className="flex items-center overflow-x-auto py-1 gap-1 hide-scrollbar">
-              <NavLink to="/citizen/dashboard" className={getNavClass}>Dashboard & Citizen Portal</NavLink>
+              <NavLink to="/preview/citizen" className={getNavClass}>Preview: Citizen Portal</NavLink>
             </nav>
           </div>
         </div>
@@ -155,7 +157,7 @@ export function StudentDemoLayout() {
         <div className="w-full bg-primary-container text-on-primary">
           <div className="max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between">
             <nav className="flex items-center overflow-x-auto py-1 gap-1 hide-scrollbar">
-              <NavLink to="/student/dashboard" className={getNavClass}>Innovation & Student Lab</NavLink>
+              <NavLink to="/preview/student" className={getNavClass}>Preview: Student Lab</NavLink>
             </nav>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { projectApi } from '../api/projectApi'
 import { Project } from '../types'
 import { Briefcase, ArrowRight, Info } from 'lucide-react'
@@ -25,7 +25,7 @@ function EmptyState() {
       <h3 style={{ color: '#fff', marginBottom: '0.5rem' }}>No active projects yet</h3>
       <p style={{ color: 'var(--text-muted)', maxWidth: '480px', margin: '0 auto 1.5rem' }}>
         Projects are created automatically when an admin approves or overrides a capability-matching recommendation.
-        Visit the <Link to="/admin/reviews" style={{ color: 'var(--primary)' }}>Governance Review Desk</Link> to approve a recommendation.
+        Visit the <Link to="/admin/governance" style={{ color: 'var(--primary)' }}>Governance Review Desk</Link> to approve a recommendation.
       </p>
       <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', padding: '0.75rem 1.25rem', borderRadius: '8px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
         <Info size={16} /> Projects appear here once a matching run is approved
@@ -49,6 +49,8 @@ export default function ProjectListPage() {
   }, [])
 
   const filtered = statusFilter ? projects.filter(p => p.status === statusFilter) : projects
+  const location = useLocation()
+  const basePath = location.pathname.startsWith('/admin') ? '/admin/projects' : '/portal/projects'
 
   return (
     <div className="main-content">
@@ -106,7 +108,7 @@ export default function ProjectListPage() {
                 <div>{new Date(proj.createdAt).toLocaleDateString()}</div>
               </div>
 
-              <Link to={`/projects/${proj.id}`} className="btn btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
+              <Link to={`${basePath}/${proj.id}`} className="btn btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
                 Enter Workspace <ArrowRight size={16} />
               </Link>
             </div>

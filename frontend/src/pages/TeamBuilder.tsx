@@ -48,7 +48,8 @@ function roleBadge(role: string) {
 // ── main component ────────────────────────────────────────────────────────────
 
 export default function TeamBuilder() {
-  const { projectId } = useParams<{ projectId: string }>()
+  const { id, projectId: paramProjectId } = useParams<{ id?: string; projectId?: string }>()
+  const projectId = id || paramProjectId
 
   // We can't load team directly from projectId — need a submissionId.
   // Users can paste their submissionId to load. We also try scanning /portal/submissions.

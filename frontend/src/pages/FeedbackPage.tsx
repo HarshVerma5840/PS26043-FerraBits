@@ -14,7 +14,8 @@ import FeedbackModerationDialog from '../components/feedback/FeedbackModerationD
 import { CreateFeedback, CitizenFeedback } from '../types'
 
 export default function FeedbackPage() {
-  const { projectId } = useParams<{ projectId: string }>()
+  const { id, projectId: paramProjectId } = useParams<{ id?: string; projectId?: string }>()
+  const projectId = id || paramProjectId
   const queryClient = useQueryClient()
   const { user } = useAuth()
   
@@ -26,7 +27,8 @@ export default function FeedbackPage() {
   // Fetch feedback for this project
   const { data: feedbackList, isLoading: loadingList } = useQuery({
     queryKey: ['feedback', projectId],
-    queryFn: () => feedbackApi.getProjectFeedback(projectId!)
+    queryFn: () => feedbackApi.getProjectFeedback(projectId!),
+    enabled: !!projectId
   })
 
   // Fetch global summary

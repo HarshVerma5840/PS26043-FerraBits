@@ -3,43 +3,69 @@ import { httpClient, pageParams } from './httpClient'
 export interface EvaluatorProfile {
   profileId: string
   userId: string
-  evaluatorPool: string
-  isActive: boolean
-  maxConcurrentAssignments: number
-  totalAssigned: number
-  totalCompleted: number
+  evaluatorType?: string
+  evaluatorPool?: string
+  fullName?: string
+  organization?: string
+  designation?: string
+  experienceYears?: number
+  regionStates?: string[]
+  affiliatedSourceId?: string
+  maxWorkload?: number
+  maxConcurrentAssignments?: number
+  active?: boolean
+  isActive?: boolean
+  totalAssigned?: number
+  totalCompleted?: number
   createdAt: string
+  updatedAt?: string
 }
 
 export interface CriterionScore {
   criterionId: string
-  criterionKey: string
-  name: string
+  criterionKey?: string
+  name?: string
+  criterionLabel?: string
   description?: string
   maxScore: number
-  displayOrder: number
+  displayOrder?: number
+  sortOrder?: number
+  score?: number
+  myScore?: number
+  comment?: string
+  myComment?: string
 }
 
 export interface Assignment {
   assignmentId: string
   cycleId: string
   problemId: string
-  evaluatorProfileId: string
+  problemTitle?: string
+  evaluatorProfileId?: string
   status: string
   assignedAt: string
+  deadline?: string
   deadlineAt?: string
+  submittedAt?: string
   completedAt?: string
   expiresAt?: string
   declineReason?: string
   totalScore?: number
-  isStale: boolean
+  isStale?: boolean
+  overdue?: boolean
+  criteriaTotal?: number
+  criteriaScored?: number
+  cycleStatus?: string
 }
 
 export interface AssignmentDetail {
   assignment: Assignment
   problem?: any
+  analysis?: any
   advisoryProfile?: any
-  criteria: any[]
+  feedback?: string
+  recommendation?: string
+  criteria: CriterionScore[]
 }
 
 export interface ScoreSubmission {
@@ -53,24 +79,53 @@ export interface ScoreSubmission {
   recommendation?: string
 }
 
+export interface ProjectReviewFile {
+  fileId: string
+  fileName?: string
+  filename?: string
+  originalName?: string
+  sizeBytes?: number
+  contentType?: string
+  contentUrl?: string
+}
+
 export interface ProjectReview {
   projectReviewId: string
-  cycleId: string
+  cycleId?: string
   problemId: string
-  submissionId: string
-  evaluatorProfileId: string
+  problemTitle?: string
+  submissionId?: string
+  submissionTitle?: string
+  round?: number
+  evaluatorProfileId?: string
   status: string
   decision?: string
   decisionComment?: string
-  assignedAt: string
+  assignedAt?: string
+  createdAt?: string
   decidedAt?: string
 }
 
 export interface ProjectReviewDetail {
-  review: ProjectReview
+  projectReviewId?: string
+  submissionId?: string
+  problemId?: string
+  cycleId?: string
+  problemTitle?: string
+  submissionTitle?: string
+  summary?: string
+  githubUrl?: string
+  links?: { label?: string; url?: string; [key: string]: any }[]
+  round?: number
+  status?: string
+  decisionComment?: string
+  files?: ProjectReviewFile[]
+  createdAt?: string
+  decidedAt?: string
+  // backward-compat nested properties
+  review?: ProjectReview
   problem?: any
   submission?: any
-  files?: any[]
 }
 
 export const evaluationApi = {

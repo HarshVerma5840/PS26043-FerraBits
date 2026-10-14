@@ -13,7 +13,8 @@ import MentorshipDialog from '../components/industry/MentorshipDialog'
 import MentorshipSessionDialog from '../components/industry/MentorshipSessionDialog'
 
 export default function IndustryPage() {
-  const { projectId } = useParams<{ projectId: string }>()
+  const { id, projectId: paramProjectId } = useParams<{ id?: string; projectId?: string }>()
+  const projectId = id || paramProjectId
 
   // Data state
   const [orgs, setOrgs] = useState<IndustryOrganization[]>([])
@@ -41,13 +42,18 @@ export default function IndustryPage() {
 
   // Load all data
   useEffect(() => {
-    Promise.all([
+    const promises: [
+      Promise<IndustryOrganization[]>,
+      Promise<IndustryParticipant[]>,
+      Promise<Funding[]>,
+      Promise<Mentorship[]>,
+      Promise<TeamMember[]>
+    ] = [
       industryApi.getOrganizations(),
-      industryApi.getProjectParticipants(projectId!),
-      industryApi.getProjectFunding(projectId!),
-      industryApi.getProjectMentorships(projectId!),
-      // Try to load team to see if there are mentors
-      teamApi.getMySubmissions().then(subs => {
+      projectId ? industryApi.getProjectParticipants(projectId) : Promise.resolve([]),
+      projectId ? industryApi.getProjectFunding(projectId) : Promise.resolve([]),
+      projectId ? industryApi.getProjectMentorships(projectId) : Promise.resolve([]),
+      projectId ? teamApi.getMySubmissions().then(subs => {
         const sub = subs.find(s => s.projectId === projectId || s.problemId === projectId)
         if (sub && sub.team) return sub.team.members.map((m: any, _i: number) => ({
           id: m.participantId,
@@ -56,8 +62,10 @@ export default function IndustryPage() {
           role: m.participantType === 'UNIVERSITY' ? 'FACULTY_MENTOR' : m.participantType === 'INDUSTRY' ? 'INDUSTRY_MENTOR' : 'STUDENT_MEMBER'
         }))
         return []
-      }).catch(() => [])
-    ])
+      }).catch(() => []) : Promise.resolve([])
+    ]
+
+    Promise.all(promises)
     .then(([os, ps, fs, ms, ts]) => {
       setOrgs(os)
       setParticipants(ps)

@@ -40,6 +40,20 @@ public class ProjectExecutionService {
         this.deploymentRepository = deploymentRepository;
     }
 
+    @Transactional(readOnly = true)
+    public List<ProjectDto> getProjects() {
+        return projectRepository.findAll().stream()
+                .map(this::mapToProjectDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public ProjectDto getProject(UUID projectId) {
+        ActiveProject project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectId));
+        return mapToProjectDto(project);
+    }
+
     @Transactional
     public MilestoneDto createMilestone(UUID projectId, MilestoneDto dto) {
         ActiveProject project = projectRepository.findById(projectId)
@@ -294,6 +308,19 @@ public class ProjectExecutionService {
         dto.setVerificationNotes(dep.getVerificationNotes());
         dto.setRollbackState(dep.getRollbackState());
         dto.setCreatedAt(dep.getCreatedAt());
+        return dto;
+    }
+
+    private ProjectDto mapToProjectDto(ActiveProject p) {
+        ProjectDto dto = new ProjectDto();
+        dto.setProjectId(p.getProjectId());
+        dto.setProblemId(p.getProblemId());
+        dto.setInstitutionId(p.getInstitutionId());
+        dto.setName(p.getName());
+        dto.setDescription(p.getDescription());
+        dto.setStatus(p.getStatus());
+        dto.setCreatedAt(p.getCreatedAt());
+        dto.setUpdatedAt(p.getUpdatedAt());
         return dto;
     }
 }

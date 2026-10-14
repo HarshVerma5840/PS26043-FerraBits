@@ -31,14 +31,16 @@ function TaskCard({ task, onDragStart }: { task: any, onDragStart: (e: React.Dra
 }
 
 export default function KanbanBoard() {
-  const { projectId } = useParams<{ projectId: string }>()
+  const { id, projectId: paramProjectId } = useParams<{ id?: string; projectId?: string }>()
+  const projectId = id || paramProjectId
   const queryClient = useQueryClient()
   const [isAdding, setIsAdding] = useState<string | null>(null)
   const [newTaskTitle, setNewTaskTitle] = useState('')
 
   const { data: tasks, isLoading } = useQuery({
     queryKey: ['kanban', projectId],
-    queryFn: () => projectApi.getProjectTasks(projectId!)
+    queryFn: () => projectApi.getProjectTasks(projectId!),
+    enabled: !!projectId
   })
 
   const createMutation = useMutation({

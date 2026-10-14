@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { evaluationApi, AssignmentDetail } from '../api/evaluationApi'
+import { useAuth } from '../auth/AuthContext'
 import { ArrowLeft, Check, X, AlertTriangle } from 'lucide-react'
 
 export default function AssignmentDetailsPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const isEvaluator = user?.role === 'EVALUATOR'
   const [detail, setDetail] = useState<AssignmentDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -23,20 +26,22 @@ export default function AssignmentDetailsPage() {
   }, [id])
 
   const handleAccept = async () => {
-    if (!id) return
+    if (!id || !isEvaluator) return
     try {
       await evaluationApi.acceptAssignment(id)
       const fresh = await evaluationApi.getAssignmentDetail(id)
       setDetail(fresh)
+      toast.success('Assignment accepted')
     } catch (err: any) {
       toast.error(err.message)
     }
   }
 
   const handleDecline = async () => {
-    if (!id) return
+    if (!id || !isEvaluator) return
     try {
       await evaluationApi.declineAssignment(id, declineReason)
+      toast.success('Assignment declined')
       navigate('/evaluator/assignments')
     } catch (err: any) {
       toast.error(err.message)
@@ -46,7 +51,8 @@ export default function AssignmentDetailsPage() {
   if (loading) return <div>Loading...</div>
   if (error || !detail) return <div style={{ color: 'red', padding: '2rem' }}>{error || 'Not found'}</div>
 
-  const { assignment, problem, advisoryProfile } = detail
+  const { assignment, problem } = detail
+  const advisory = detail.analysis || detail.advisoryProfile
 
   return (
     <div className="main-content" style={{ maxWidth: '900px', margin: '0 auto' }}>
@@ -58,7 +64,7 @@ export default function AssignmentDetailsPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
           <div>
             <h1 className="page-title" style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>
-              {problem ? problem.title : 'Problem details unavailable'}
+              {problem ? (problem.title || problem.problemTitle || 'Evaluator Assignment') : 'Problem details unavailable'}
             </h1>
             <div style={{ display: 'flex', gap: '1rem', color: 'var(--text-muted)' }}>
               <span>Problem ID: <span style={{ fontFamily: 'monospace' }}>{assignment.problemId.substring(0,8)}</span></span>
@@ -80,45 +86,53 @@ export default function AssignmentDetailsPage() {
         {problem && (
           <div style={{ marginBottom: '2rem' }}>
             <h3 style={{ color: 'var(--primary)', marginBottom: '0.5rem' }}>Description</h3>
-            <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{problem.description}</p>
+            <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{problem.description || problem.problemDescription || 'No description provided.'}</p>
           </div>
         )}
 
-        {advisoryProfile && (
+        {advisory && (
           <div style={{ marginBottom: '2rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px dashed var(--glass-border)' }}>
             <h3 style={{ color: 'var(--text-muted)', marginBottom: '0.5rem', fontSize: '1rem' }}>Advisory AI Profile</h3>
-            <p style={{ fontSize: '0.9rem' }}>{JSON.stringify(advisoryProfile)}</p>
-            <em style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Context only — must never influence the score.</em>
+            <p style={{ fontSize: '0.9rem' }}>{JSON.stringify(advisory)}</p>
+            <em style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Context only — must never influence the score (§13.4).</em>
           </div>
         )}
 
-        <div style={{ borderTop: '1px solid var(--glass-border)', paddingTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          {assignment.status === 'ASSIGNED' && (
+        <div style={{ borderTop: '1px solid var(--glass-border)', paddingTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          {!isEvaluator ? (
+            <div style={{ padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+              🔒 <strong>Observer Mode:</strong> Acceptance, decline, and scorecard submission are restricted to users with the EVALUATOR role.
+            </div>
+          ) : (
             <>
-              <button onClick={handleAccept} className="btn" style={{ background: 'var(--secondary)' }}>
-                <Check size={18} /> Accept Assignment
-              </button>
-              <button onClick={() => setShowDecline(!showDecline)} className="btn btn-secondary">
-                <X size={18} /> Decline
-              </button>
-            </>
-          )}
+              {assignment.status === 'ASSIGNED' && (
+                <>
+                  <button onClick={handleAccept} className="btn" style={{ background: 'var(--secondary)' }}>
+                    <Check size={18} /> Accept Assignment
+                  </button>
+                  <button onClick={() => setShowDecline(!showDecline)} className="btn btn-secondary">
+                    <X size={18} /> Decline
+                  </button>
+                </>
+              )}
 
-          {assignment.status === 'IN_PROGRESS' && (
-            <>
-              <Link to={`/evaluator/assignments/${assignment.assignmentId}/score`} className="btn">
-                Score Assignment
-              </Link>
-              <button onClick={() => setShowDecline(!showDecline)} className="btn btn-secondary">
-                <X size={18} /> Decline
-              </button>
-            </>
-          )}
+              {assignment.status === 'IN_PROGRESS' && (
+                <>
+                  <Link to={`/evaluator/assignments/${assignment.assignmentId}/score`} className="btn">
+                    Score Assignment
+                  </Link>
+                  <button onClick={() => setShowDecline(!showDecline)} className="btn btn-secondary">
+                    <X size={18} /> Decline
+                  </button>
+                </>
+              )}
 
-          {assignment.status === 'SUBMITTED' && (
-            <Link to={`/evaluator/assignments/${assignment.assignmentId}/score`} className="btn btn-secondary">
-              View Submitted Scorecard
-            </Link>
+              {assignment.status === 'SUBMITTED' && (
+                <Link to={`/evaluator/assignments/${assignment.assignmentId}/score`} className="btn btn-secondary">
+                  View Submitted Scorecard
+                </Link>
+              )}
+            </>
           )}
         </div>
 

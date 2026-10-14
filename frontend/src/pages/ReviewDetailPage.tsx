@@ -117,14 +117,16 @@ export default function ReviewDetailPage() {
             
             {activeModal === 'OVERRIDE' && (
               <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Select Target Institution ID</label>
-                <input type="text" value={overrideInst} onChange={e => setOverrideInst(e.target.value)} style={{ width: '100%', padding: '0.5rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', color: '#fff' }} />
+                <label htmlFor="target-institution-id" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Select Target Institution ID</label>
+                <input id="target-institution-id" type="text" placeholder="Enter target institution ID..." value={overrideInst} onChange={e => setOverrideInst(e.target.value)} style={{ width: '100%', padding: '0.5rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', color: '#fff' }} />
               </div>
             )}
             
             <div style={{ marginBottom: '1.5rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Reason (Mandatory)</label>
+              <label htmlFor="modal-reason" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Reason (Mandatory)</label>
               <textarea 
+                id="modal-reason"
+                placeholder="Enter mandatory reason..."
                 value={activeModal === 'REJECT' ? rejectReason : overrideReason} 
                 onChange={e => activeModal === 'REJECT' ? setRejectReason(e.target.value) : setOverrideReason(e.target.value)}
                 style={{ width: '100%', height: '100px', padding: '0.5rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', color: '#fff' }} 

@@ -33,7 +33,7 @@
 	}
 
 	# --- problem-service route set (domains, problems, problem-scoped audit) ---
-	@problem path /domains /domains/* /problems /problems/* /audit /audit*
+	@problem path /domains /domains/* /problems /problems/* /citizen /citizen/* /uploads /uploads/* /audit /audit* /notifications /notifications/*
 	handle @problem {
 		reverse_proxy problem-service:8082
 	}

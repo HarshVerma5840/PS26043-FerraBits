@@ -27,88 +27,100 @@ public class ProjectExecutionController {
         }
     }
 
+    @GetMapping("/projects")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<ProjectDto>> getProjects() {
+        return ResponseEntity.ok(executionService.getProjects());
+    }
+
+    @GetMapping("/projects/{projectId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ProjectDto> getProject(@PathVariable UUID projectId) {
+        return ResponseEntity.ok(executionService.getProject(projectId));
+    }
+
     @PostMapping("/projects/{projectId}/milestones")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROJECT_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER', 'SUBMITTER')")
     public ResponseEntity<MilestoneDto> createMilestone(@PathVariable UUID projectId, @RequestBody MilestoneDto dto) {
         return ResponseEntity.ok(executionService.createMilestone(projectId, dto));
     }
 
     @GetMapping("/projects/{projectId}/milestones")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROJECT_MANAGER', 'REVIEWER', 'INTERNAL')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER', 'SUBMITTER', 'EVALUATOR')")
     public ResponseEntity<List<MilestoneDto>> getMilestones(@PathVariable UUID projectId) {
         return ResponseEntity.ok(executionService.getMilestones(projectId));
     }
 
     @PatchMapping("/milestones/{milestoneId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROJECT_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER', 'SUBMITTER')")
     public ResponseEntity<MilestoneDto> updateMilestone(@PathVariable UUID milestoneId, @RequestBody MilestoneDto dto) {
         return ResponseEntity.ok(executionService.updateMilestone(milestoneId, dto));
     }
 
     @DeleteMapping("/milestones/{milestoneId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROJECT_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER')")
     public ResponseEntity<Void> deleteMilestone(@PathVariable UUID milestoneId) {
         executionService.deleteMilestone(milestoneId);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/projects/{projectId}/tasks")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROJECT_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER', 'SUBMITTER')")
     public ResponseEntity<TaskDto> createTask(@PathVariable UUID projectId, @RequestBody TaskDto dto) {
         return ResponseEntity.ok(executionService.createTask(projectId, dto, getCurrentUserId()));
     }
 
     @GetMapping("/projects/{projectId}/tasks")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROJECT_MANAGER', 'REVIEWER', 'INTERNAL')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER', 'SUBMITTER', 'EVALUATOR')")
     public ResponseEntity<List<TaskDto>> getTasks(@PathVariable UUID projectId) {
         return ResponseEntity.ok(executionService.getTasks(projectId));
     }
 
     @PatchMapping("/tasks/{taskId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROJECT_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER', 'SUBMITTER')")
     public ResponseEntity<TaskDto> updateTask(@PathVariable UUID taskId, @RequestBody TaskDto dto) {
         return ResponseEntity.ok(executionService.updateTask(taskId, dto, getCurrentUserId()));
     }
 
     @PatchMapping("/tasks/{taskId}/status")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROJECT_MANAGER', 'INTERNAL')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER', 'SUBMITTER')")
     public ResponseEntity<TaskDto> updateTaskStatus(@PathVariable UUID taskId, @RequestBody TaskStatusUpdateDto dto) {
         return ResponseEntity.ok(executionService.updateTaskStatus(taskId, dto.getStatus(), getCurrentUserId()));
     }
 
     @PatchMapping("/tasks/{taskId}/position")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROJECT_MANAGER', 'INTERNAL')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER', 'SUBMITTER')")
     public ResponseEntity<TaskDto> updateTaskPosition(@PathVariable UUID taskId, @RequestBody TaskPositionUpdateDto dto) {
         return ResponseEntity.ok(executionService.updateTaskPosition(taskId, dto.getPositionIndex(), getCurrentUserId()));
     }
 
     @DeleteMapping("/tasks/{taskId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROJECT_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER')")
     public ResponseEntity<Void> deleteTask(@PathVariable UUID taskId) {
         executionService.deleteTask(taskId);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/projects/{projectId}/field-tests")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROJECT_MANAGER', 'INTERNAL')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER', 'SUBMITTER')")
     public ResponseEntity<FieldTestDto> createFieldTest(@PathVariable UUID projectId, @RequestBody FieldTestDto dto) {
         return ResponseEntity.ok(executionService.createFieldTest(projectId, dto));
     }
 
     @GetMapping("/projects/{projectId}/field-tests")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROJECT_MANAGER', 'REVIEWER', 'INTERNAL')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER', 'SUBMITTER', 'EVALUATOR')")
     public ResponseEntity<List<FieldTestDto>> getFieldTests(@PathVariable UUID projectId) {
         return ResponseEntity.ok(executionService.getFieldTests(projectId));
     }
 
     @PostMapping("/projects/{projectId}/deployments")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROJECT_MANAGER', 'INTERNAL')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER')")
     public ResponseEntity<DeploymentDto> createDeployment(@PathVariable UUID projectId, @RequestBody DeploymentDto dto) {
         return ResponseEntity.ok(executionService.createDeployment(projectId, dto));
     }
 
     @GetMapping("/projects/{projectId}/deployments")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROJECT_MANAGER', 'REVIEWER', 'INTERNAL')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER', 'SUBMITTER', 'EVALUATOR')")
     public ResponseEntity<List<DeploymentDto>> getDeployments(@PathVariable UUID projectId) {
         return ResponseEntity.ok(executionService.getDeployments(projectId));
     }

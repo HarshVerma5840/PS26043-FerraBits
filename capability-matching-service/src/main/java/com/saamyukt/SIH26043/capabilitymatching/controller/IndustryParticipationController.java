@@ -27,13 +27,11 @@ public class IndustryParticipationController {
         if (auth == null) return false;
         Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
         return authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") 
-                                               || a.getAuthority().equals("ROLE_PROJECT_MANAGER")
-                                               || a.getAuthority().equals("ROLE_FACULTY")
-                                               || a.getAuthority().equals("ROLE_INDUSTRY_USER"));
+                                               || a.getAuthority().equals("ROLE_REVIEWER"));
     }
 
     @PostMapping("/industry/organizations")
-    @PreAuthorize("hasAnyRole('ADMIN', 'INDUSTRY_USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER')")
     public ResponseEntity<IndustryOrganizationDto> createOrg(@RequestBody IndustryOrganizationDto dto) {
         return ResponseEntity.ok(service.createOrganization(dto));
     }
@@ -51,13 +49,13 @@ public class IndustryParticipationController {
     }
 
     @PatchMapping("/industry/organizations/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'INDUSTRY_USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER')")
     public ResponseEntity<IndustryOrganizationDto> updateOrg(@PathVariable UUID id, @RequestBody IndustryOrganizationDto dto) {
         return ResponseEntity.ok(service.updateOrganization(id, dto));
     }
 
     @PostMapping("/projects/{projectId}/industry-participants")
-    @PreAuthorize("hasAnyRole('ADMIN', 'INDUSTRY_USER', 'FACULTY')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER', 'SUBMITTER')")
     public ResponseEntity<ProjectIndustryParticipantDto> addParticipant(@PathVariable UUID projectId, @RequestBody ProjectIndustryParticipantDto dto) {
         return ResponseEntity.ok(service.addParticipant(projectId, dto));
     }
@@ -69,14 +67,14 @@ public class IndustryParticipationController {
     }
 
     @DeleteMapping("/projects/{projectId}/industry-participants/{participantId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'INDUSTRY_USER', 'FACULTY')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER')")
     public ResponseEntity<Void> removeParticipant(@PathVariable UUID projectId, @PathVariable UUID participantId) {
         service.removeParticipant(participantId);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/projects/{projectId}/funding")
-    @PreAuthorize("hasAnyRole('ADMIN', 'INDUSTRY_USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER', 'SUBMITTER')")
     public ResponseEntity<ProjectFundingDto> addFunding(@PathVariable UUID projectId, @RequestBody ProjectFundingDto dto) {
         return ResponseEntity.ok(service.addFunding(projectId, dto));
     }
@@ -88,7 +86,7 @@ public class IndustryParticipationController {
     }
 
     @PatchMapping("/funding/{fundingId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'INDUSTRY_USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER')")
     public ResponseEntity<ProjectFundingDto> updateFunding(@PathVariable UUID fundingId, @RequestBody ProjectFundingDto dto) {
         return ResponseEntity.ok(service.updateFunding(fundingId, dto));
     }
@@ -100,13 +98,19 @@ public class IndustryParticipationController {
     }
 
     @PostMapping("/projects/{projectId}/mentorships")
-    @PreAuthorize("hasAnyRole('ADMIN', 'INDUSTRY_USER', 'FACULTY')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER', 'SUBMITTER')")
     public ResponseEntity<ProjectMentorshipDto> assignMentor(@PathVariable UUID projectId, @RequestBody ProjectMentorshipDto dto) {
         return ResponseEntity.ok(service.assignMentor(projectId, dto));
     }
 
+    @GetMapping("/projects/{projectId}/mentorships")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<ProjectMentorshipDto>> getMentorships(@PathVariable UUID projectId) {
+        return ResponseEntity.ok(service.getMentorships(projectId));
+    }
+
     @PostMapping("/mentorships/{mentorshipId}/sessions")
-    @PreAuthorize("hasAnyRole('ADMIN', 'INDUSTRY_USER', 'FACULTY', 'STUDENT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'REVIEWER', 'SUBMITTER')")
     public ResponseEntity<MentorshipSessionDto> addSession(@PathVariable UUID mentorshipId, @RequestBody MentorshipSessionDto dto) {
         return ResponseEntity.ok(service.addSession(mentorshipId, dto));
     }

@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 /** Admin-only user management (doc 11 sec 1). */
@@ -45,6 +46,21 @@ public class UserController {
     }
 
     public record RolePatchRequest(@NotNull UserRole role) {
+    }
+
+    @Operation(
+            summary = "👥 List all users",
+            description = "🔒 **ADMIN only** — list all user accounts.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "List of user profiles"),
+            @ApiResponse(responseCode = "403", description = "Not ADMIN")
+    })
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<UserResponse> list() {
+        return userAdminService.listAll().stream()
+                .map(UserResponse::from)
+                .toList();
     }
 
     @Operation(

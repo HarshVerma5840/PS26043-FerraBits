@@ -125,7 +125,7 @@ public class ProblemController {
     }
 
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasAnyRole('ADMIN','EVALUATOR')")
+    @PreAuthorize("hasAnyRole('ADMIN','REVIEWER','EVALUATOR')")
     public ProblemResponse patchStatus(@PathVariable UUID id,
                                        @Valid @RequestBody StatusPatchRequest req,
                                        @AuthenticationPrincipal AuthUser me,

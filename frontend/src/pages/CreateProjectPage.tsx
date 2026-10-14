@@ -34,10 +34,10 @@ export default function CreateProjectPage() {
         </div>
 
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link to="/admin/reviews" className="btn" style={{ background: 'var(--primary)' }}>
+          <Link to="/admin/governance" className="btn" style={{ background: 'var(--primary)' }}>
             Go to Governance Review Desk <ArrowRight size={16} />
           </Link>
-          <Link to="/projects" className="btn btn-secondary">
+          <Link to="/admin/projects" className="btn btn-secondary">
             View Existing Projects
           </Link>
         </div>

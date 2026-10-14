@@ -65,7 +65,7 @@ export default function RegistrationWizardPage() {
         await sourceApi.submitRegistration(regId)
       }
 
-      navigate(`/register/status/${regId}`)
+      navigate(`/registration/${regId}/status`)
     } catch (err: any) {
       setError(err.message || 'Registration failed')
     } finally {
@@ -116,7 +116,7 @@ export default function RegistrationWizardPage() {
             onChange={e => {
               try {
                 setSourceData(JSON.parse(e.target.value))
-              } catch(_e) {}
+              } catch {}
             }} 
             style={{ width: '100%', fontFamily: 'monospace' }} 
           />

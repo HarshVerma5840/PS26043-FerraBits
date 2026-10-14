@@ -1,5 +1,5 @@
 import { httpClient } from './httpClient'
-import { Problem } from '../types'
+import { Problem, AuditLog } from '../types'
 
 export const problemApi = {
   getProblems: async (lat: number = 23.3441, lng: number = 85.3096, radiusKm: number = 50.0): Promise<Problem[]> => {
@@ -10,6 +10,14 @@ export const problemApi = {
   },
   getProblemById: async (id: string): Promise<Problem> => {
     const response = await httpClient.get(`/problems/${id}`)
+    return response.data
+  },
+  getTimeline: async (id: string): Promise<any[]> => {
+    const response = await httpClient.get(`/citizen/problems/${id}/timeline`)
+    return response.data
+  },
+  getAuditHistory: async (problemId: string): Promise<AuditLog[]> => {
+    const response = await httpClient.get(`/audit/${problemId}`)
     return response.data
   },
   updateStatus: async (id: string, status: string, expectedVersion: number = 0): Promise<Problem> => {

@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/citizen/problems")
-@PreAuthorize("hasRole('SUBMITTER')")
+@PreAuthorize("hasAnyRole('SUBMITTER', 'REVIEWER', 'ADMIN', 'EVALUATOR')")
 public class CitizenController {
 
     private final ProblemRepository problemRepository;

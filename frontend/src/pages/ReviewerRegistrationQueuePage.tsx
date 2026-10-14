@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { sourceApi, Registration } from '../api/sourceApi'
 import { Eye, UserPlus } from 'lucide-react'
 
@@ -9,6 +9,8 @@ export default function ReviewerRegistrationQueuePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<string>('')
+  const location = useLocation()
+  const basePath = location.pathname.startsWith('/nodal') ? '/nodal/registrations' : '/admin/reviewer-queue'
 
   useEffect(() => {
     fetchRegistrations(filter)
@@ -26,6 +28,7 @@ export default function ReviewerRegistrationQueuePage() {
     try {
       await sourceApi.assignReviewer(id)
       fetchRegistrations(filter)
+      toast.success('Registration assigned successfully')
     } catch (err: any) {
       toast.error(err.message)
     }
@@ -86,7 +89,7 @@ export default function ReviewerRegistrationQueuePage() {
                       <UserPlus size={16} /> Assign to me
                     </button>
                   )}
-                  <Link to={`/admin/reviewer-queue/${reg.registrationId}`} className="btn" style={{ padding: '0.4rem 0.8rem' }}>
+                  <Link to={`${basePath}/${reg.registrationId}`} className="btn" style={{ padding: '0.4rem 0.8rem' }}>
                     <Eye size={16} /> Review
                   </Link>
                 </td>

@@ -17,6 +17,8 @@ export default defineConfig({
       '/sources': 'http://localhost:8080',
       '/domains': 'http://localhost:8080',
       '/problems': 'http://localhost:8080',
+	      '/citizen': 'http://localhost:8080',
+	      '/uploads': 'http://localhost:8080',
       '/audit': 'http://localhost:8080',
       '/evaluation': 'http://localhost:8080',
       '/portal': 'http://localhost:8080',

@@ -247,52 +247,141 @@ function SpatialConsole() {
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+interface TransitionConfig {
+  target: string
+  label: string
+  desc: string
+  variant: 'primary' | 'secondary' | 'danger' | 'neutral'
+  icon: string
+}
+
+// Strictly adheres to backend ProblemStatusService.ALLOWED state machine.
+// A reviewer will never receive a control that the backend rejects.
+const ALLOWED_STATUS_TRANSITIONS: Record<string, TransitionConfig[]> = {
+  SUBMITTED: [
+    { target: 'SOURCE_VERIFYING', label: 'Verify Source', desc: 'Initiate formal source verification process.', variant: 'primary', icon: 'verified_user' },
+    { target: 'ARCHIVED', label: 'Merge / Archive', desc: 'Consolidate with existing records.', variant: 'neutral', icon: 'merge' },
+    { target: 'REJECTED', label: 'Reject Problem', desc: 'Invalidate grievance with rationale.', variant: 'danger', icon: 'cancel' }
+  ],
+  SOURCE_VERIFYING: [
+    { target: 'SOURCE_VERIFIED', label: 'Mark Source Verified', desc: 'Confirm source organization validity.', variant: 'primary', icon: 'check_circle' },
+    { target: 'REJECTED', label: 'Reject Problem', desc: 'Invalidate grievance.', variant: 'danger', icon: 'cancel' }
+  ],
+  SOURCE_VERIFIED: [
+    { target: 'REGISTERED', label: 'Convert to Challenge', desc: 'Register as official challenge for innovators.', variant: 'primary', icon: 'school' },
+    { target: 'SUBMITTED', label: 'Return to Submitted', desc: 'Revert to submitted triage queue.', variant: 'neutral', icon: 'undo' },
+    { target: 'REJECTED', label: 'Reject Problem', desc: 'Invalidate grievance.', variant: 'danger', icon: 'cancel' }
+  ],
+  REGISTERED: [
+    { target: 'SUBMITTED', label: 'Return to Submitted', desc: 'Reopen for scoping adjustment.', variant: 'neutral', icon: 'undo' },
+    { target: 'ARCHIVED', label: 'Archive Challenge', desc: 'Consolidate or shelve challenge.', variant: 'neutral', icon: 'merge' },
+    { target: 'REJECTED', label: 'Reject Problem', desc: 'Invalidate challenge.', variant: 'danger', icon: 'cancel' }
+  ],
+  REJECTED: [
+    { target: 'SUBMITTED', label: 'Reopen to Submitted', desc: 'Re-evaluate previously rejected grievance.', variant: 'primary', icon: 'refresh' },
+    { target: 'ARCHIVED', label: 'Archive Record', desc: 'Soft-delete and archive record.', variant: 'neutral', icon: 'merge' }
+  ],
+  ARCHIVED: [
+    { target: 'SUBMITTED', label: 'Restore to Submitted', desc: 'Restore archived problem to active triage.', variant: 'primary', icon: 'unarchive' },
+    { target: 'REJECTED', label: 'Mark as Rejected', desc: 'Classify as permanently rejected.', variant: 'danger', icon: 'cancel' }
+  ]
+}
+
 function RoutingActionCards({ ticket, onRoute, isPending }: { ticket: any, onRoute: (action: string) => void, isPending: boolean }) {
+  const currentStatus = ticket.status || 'SUBMITTED'
+  const actions = ALLOWED_STATUS_TRANSITIONS[currentStatus] || []
+
+  if (actions.length === 0) {
+    return (
+      <div className="p-3 bg-surface-container rounded text-on-surface-variant font-label-sm">
+        No state transitions available from current status: <strong className="text-on-surface">{currentStatus}</strong>
+      </div>
+    )
+  }
+
   return (
     <div>
-      <span className="block font-label-sm text-label-sm text-on-surface-variant font-bold uppercase mb-space-sm">Nodal Determination & Scoping Routing</span>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-space-sm">
-        <button disabled={isPending} onClick={() => onRoute('REGISTERED')} className="p-space-md rounded text-left transition-all bg-secondary hover:bg-on-secondary-fixed-variant text-on-primary flex flex-col justify-between group shadow-sm disabled:opacity-50" type="button">
-          <div>
-            <div className="flex items-center justify-between mb-space-xs">
-              <span className="material-symbols-outlined text-[24px]">school</span>
-              <span className="material-symbols-outlined text-[18px] opacity-75 group-hover:translate-x-1 transition-transform">arrow_forward</span>
-            </div>
-            <div className="font-label-lg text-label-lg font-bold mb-1">Convert to Challenge</div>
-            <p className="font-body-sm text-body-sm opacity-90 leading-tight">Dispatch open prototyping challenge.</p>
-          </div>
-          <div className="mt-space-md pt-space-xs border-t border-white/20 font-label-sm text-label-sm font-semibold">
-            Status: REGISTERED
-          </div>
-        </button>
-        <button disabled={isPending} onClick={() => onRoute('ARCHIVED')} className="p-space-md rounded text-left transition-all bg-surface-container-high hover:bg-surface-dim text-on-surface flex flex-col justify-between group shadow-sm disabled:opacity-50" type="button">
-          <div>
-            <div className="flex items-center justify-between mb-space-xs">
-              <span className="material-symbols-outlined text-[24px] text-primary">merge</span>
-              <span className="material-symbols-outlined text-[18px] opacity-75 group-hover:translate-x-1 transition-transform">arrow_forward</span>
-            </div>
-            <div className="font-label-lg text-label-lg font-bold mb-1">Merge / Archive</div>
-            <p className="font-body-sm text-body-sm text-on-surface-variant leading-tight">Consolidate with previous grievances.</p>
-          </div>
-          <div className="mt-space-md pt-space-xs border-t border-outline-variant/30 font-label-sm text-label-sm text-on-surface-variant font-semibold">
-            Status: ARCHIVED
-          </div>
-        </button>
-        <button disabled={isPending} onClick={() => onRoute('REJECTED')} className="p-space-md rounded text-left transition-all bg-error text-on-error flex flex-col justify-between group shadow-sm disabled:opacity-50" type="button">
-          <div>
-            <div className="flex items-center justify-between mb-space-xs">
-              <span className="material-symbols-outlined text-[24px]">cancel</span>
-              <span className="material-symbols-outlined text-[18px] opacity-75 group-hover:translate-x-1 transition-transform">arrow_forward</span>
-            </div>
-            <div className="font-label-lg text-label-lg font-bold mb-1">Reject Problem</div>
-            <p className="font-body-sm text-body-sm opacity-90 leading-tight">Invalidate grievance.</p>
-          </div>
-          <div className="mt-space-md pt-space-xs border-t border-white/20 font-label-sm text-label-sm font-semibold">
-            Status: REJECTED
-          </div>
-        </button>
+      <div className="flex items-center justify-between mb-space-sm">
+        <span className="block font-label-sm text-label-sm text-on-surface-variant font-bold uppercase">
+          Allowed Status Transitions ({currentStatus})
+        </span>
+        <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant">
+          @PreAuthorize: REVIEWER / ADMIN
+        </span>
       </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-space-sm">
+        {actions.map(act => {
+          const bgClass =
+            act.variant === 'primary' ? 'bg-secondary hover:bg-on-secondary-fixed-variant text-on-primary' :
+            act.variant === 'danger' ? 'bg-error text-on-error hover:opacity-90' :
+            'bg-surface-container-high hover:bg-surface-dim text-on-surface'
+
+          return (
+            <button
+              key={act.target}
+              disabled={isPending}
+              onClick={() => onRoute(act.target)}
+              className={`p-space-md rounded text-left transition-all flex flex-col justify-between group shadow-sm disabled:opacity-50 ${bgClass}`}
+              type="button"
+            >
+              <div>
+                <div className="flex items-center justify-between mb-space-xs">
+                  <span className="material-symbols-outlined text-[24px]">{act.icon}</span>
+                  <span className="material-symbols-outlined text-[18px] opacity-75 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                </div>
+                <div className="font-label-lg text-label-lg font-bold mb-1">{act.label}</div>
+                <p className="font-body-sm text-body-sm opacity-90 leading-tight">{act.desc}</p>
+              </div>
+              <div className="mt-space-md pt-space-xs border-t border-white/20 font-label-sm text-label-sm font-semibold">
+                Status: {act.target}
+              </div>
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function AuditTrailSection({ problemId }: { problemId: string }) {
+  const { data: auditLogs, isLoading, error } = useQuery({
+    queryKey: ['nodal-audit', problemId],
+    queryFn: () => problemApi.getAuditHistory(problemId),
+    enabled: !!problemId,
+  })
+
+  return (
+    <div className="mt-space-md pt-space-md border-t border-surface-container">
+      <div className="flex items-center justify-between mb-space-sm">
+        <h4 className="font-title-sm text-title-sm font-bold text-primary flex items-center gap-1.5">
+          <span className="material-symbols-outlined text-[18px]">history</span>
+          Audit History &amp; Provenance ({auditLogs?.length ?? 0})
+        </h4>
+        <span className="text-[11px] font-mono text-outline">GET /audit/{'{problemId}'}</span>
+      </div>
+
+      {isLoading ? (
+        <div className="text-body-sm text-on-surface-variant py-2">Loading audit trail...</div>
+      ) : error ? (
+        <div className="text-body-sm text-error py-2">Unable to load audit history.</div>
+      ) : !auditLogs || auditLogs.length === 0 ? (
+        <div className="text-body-sm text-on-surface-variant py-2">No audit log records for this problem yet.</div>
+      ) : (
+        <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+          {auditLogs.map((log) => (
+            <div key={log.logId} className="p-2.5 bg-surface-container-low rounded border border-surface-container text-body-xs">
+              <div className="flex items-center justify-between font-label-sm mb-1">
+                <span className="font-bold text-primary px-1.5 py-0.5 rounded bg-surface-container-high">{log.actionType}</span>
+                <span className="text-on-surface-variant">{new Date(log.performedAt).toLocaleString()}</span>
+              </div>
+              <div className="text-on-surface-variant flex items-center gap-2">
+                <span>By: {log.performedByUserId ? log.performedByUserId.substring(0, 8) : 'System'}</span>
+                {log.ipAddress && <span>• IP: {log.ipAddress}</span>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -324,6 +413,8 @@ function ScopingDossier({ ticket, onRoute, isPending }: { ticket: any, onRoute: 
       </div>
       
       <RoutingActionCards ticket={ticket} onRoute={onRoute} isPending={isPending} />
+
+      <AuditTrailSection problemId={ticket.problemId} />
       
       <div className="pt-space-sm flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm flex-wrap gap-2 border-t border-[#E2E8F0] mt-4">
         <span className="flex items-center gap-1">
@@ -354,7 +445,7 @@ export default function NodalOfficerDashboardPage() {
     setSelectedId(problems[0].problemId)
   }
 
-  const selectedTicket = problems.find((t: any) => t.problemId === selectedId)
+  const selectedTicket = problems.find((t: any) => t.problemId === selectedId) || (problems.length > 0 ? problems[0] : null)
 
   const mutation = useMutation({
     mutationFn: ({ id, status, version }: { id: string, status: string, version: number }) => {

@@ -42,11 +42,11 @@ export function GovHeader() {
 
 import { useAuth } from '../../auth/AuthContext'
 
-export function BrandingHeader({ role = 'Nodal Evaluator', name = 'Rajeev Sharma' }) {
+export function BrandingHeader({ role = 'Authorized User', name = 'Official Account' }) {
   const { user, logout } = useAuth()
   
   const displayRole = user?.role || role
-  const displayName = user?.phone || name
+  const displayName = user?.phone ? `+91 ${user.phone}` : name
 
   return (
     <div className="w-full bg-surface-container-lowest bg-opacity-95 backdrop-blur-md">

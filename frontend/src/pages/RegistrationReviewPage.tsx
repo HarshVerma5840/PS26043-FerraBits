@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { sourceApi, Registration, RegistrationHistoryResponse } from '../api/sourceApi'
 import { ArrowLeft, Check, X, AlertCircle } from 'lucide-react'
 
 export default function RegistrationReviewPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
+  const basePath = location.pathname.startsWith('/nodal') ? '/nodal/registrations' : '/admin/reviewer-queue'
   const [reg, setReg] = useState<Registration | null>(null)
   const [history, setHistory] = useState<RegistrationHistoryResponse[]>([])
   const [loading, setLoading] = useState(true)
@@ -35,7 +37,8 @@ export default function RegistrationReviewPage() {
       else if (action === 'reject') await sourceApi.rejectRegistration(id!, comment)
       else if (action === 'request-action') await sourceApi.requestAction(id!, comment)
       
-      navigate('/admin/reviewer-queue')
+      toast.success(`Registration ${action} completed successfully`)
+      navigate(basePath)
     } catch (err: any) {
       toast.error(err.message)
     } finally {
@@ -48,7 +51,7 @@ export default function RegistrationReviewPage() {
 
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-      <button onClick={() => navigate('/admin/reviewer-queue')} className="btn btn-secondary" style={{ marginBottom: '1.5rem' }}>
+      <button onClick={() => navigate(basePath)} className="btn btn-secondary" style={{ marginBottom: '1.5rem' }}>
         <ArrowLeft size={16} /> Back to Queue
       </button>
 

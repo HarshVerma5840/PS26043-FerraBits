@@ -117,16 +117,72 @@ httpClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config
 })
 
-// ── Response interceptor ─────────────────────────────────────────────────────
+// ── Response interceptor & Refresh token rotation ─────────────────────────────
+
+let refreshPromise: Promise<string> | null = null
+
+async function requestTokenRefresh(): Promise<string> {
+  if (refreshPromise) {
+    return refreshPromise
+  }
+  const storedRefreshToken = localStorage.getItem('refreshToken')
+  if (!storedRefreshToken) {
+    throw new Error('No refresh token available')
+  }
+
+  refreshPromise = axios
+    .post<{ accessToken: string; refreshToken: string }>(
+      `${BASE_URL}/auth/refresh`,
+      { refreshToken: storedRefreshToken },
+      { headers: { Accept: 'application/json', 'Content-Type': 'application/json' } }
+    )
+    .then((res) => {
+      const { accessToken, refreshToken: newRefreshToken } = res.data
+      if (!accessToken) throw new Error('No accessToken in refresh response')
+      localStorage.setItem('token', accessToken)
+      if (newRefreshToken) {
+        localStorage.setItem('refreshToken', newRefreshToken)
+      }
+      return accessToken
+    })
+    .finally(() => {
+      refreshPromise = null
+    })
+
+  return refreshPromise
+}
 
 httpClient.interceptors.response.use(
   (response: AxiosResponse) => response,
-  (rawError: AxiosError) => {
+  async (rawError: AxiosError) => {
     const error = normalizeError(rawError)
 
     // Cancelled requests pass through immediately without any global side-effect
     if (error.isCancelled) {
       return Promise.reject(error)
+    }
+
+    const originalRequest = rawError.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined
+
+    if (error.status === 401 && originalRequest && !originalRequest._retry) {
+      const url = originalRequest.url || ''
+      const isAuthEndpoint = url.includes('/auth/refresh') || url.includes('/auth/login') || url.includes('/auth/verify-otp')
+
+      if (!isAuthEndpoint && localStorage.getItem('refreshToken')) {
+        originalRequest._retry = true
+        try {
+          const newToken = await requestTokenRefresh()
+          originalRequest.headers.Authorization = `Bearer ${newToken}`
+          return httpClient(originalRequest)
+        } catch {
+          // Token refresh failed or revoked — trigger logout
+          localStorage.removeItem('token')
+          localStorage.removeItem('refreshToken')
+          localStorage.removeItem('user')
+          window.dispatchEvent(new Event('auth-unauthorized'))
+          return Promise.reject(error)
+        }
+      }
     }
 
     if (error.status === 0) {
@@ -136,6 +192,8 @@ httpClient.interceptors.response.use(
         case 401:
           // Expired or invalid token — clear it and trigger logout
           localStorage.removeItem('token')
+          localStorage.removeItem('refreshToken')
+          localStorage.removeItem('user')
           window.dispatchEvent(new Event('auth-unauthorized'))
           break
         case 403:

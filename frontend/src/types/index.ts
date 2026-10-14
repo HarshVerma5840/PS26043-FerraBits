@@ -9,13 +9,16 @@ export interface Problem {
   id?: string
   problemId: string
   title: string
-  description: string
+  description?: string
   domainId?: string
+  domains?: string[]
   sourceBucket?: string
   subEntityType?: string
   status?: string
   urgency?: string
   severity?: string
+  location?: string
+  evidenceCount?: number
   sourceId?: string
   sourceAccountId?: string
   locationId?: string
@@ -24,10 +27,22 @@ export interface Problem {
   existingIntervention?: string
   submittedAt?: string
   updatedAt?: string
+  publishedAt?: string
   submittedByUserId?: string
   accessRule?: string
   accessUniversities?: string[]
   version?: number
+}
+
+export interface AuditLog {
+  logId: string
+  problemId: string
+  actionType: string
+  performedByUserId?: string
+  performedAt: string
+  beforeState?: Record<string, any>
+  afterState?: Record<string, any>
+  ipAddress?: string
 }
 
 export interface RegistryVersion {
@@ -327,28 +342,49 @@ export interface ProjectAnalytics {
 }
 
 export interface Participant {
-  id: string
-  userId: string
-  teamName: string
-  skills: string[]
-  registeredAt: string
+  participantId: string
+  participantType: string
+  fullName: string
+  email?: string
+  phone?: string
+  institutionName?: string
+  sourceAccountId?: string
 }
 
 export interface PortalFile {
-  id: string
-  fileName: string
-  fileSize: number
+  fileId: string
+  id?: string
+  originalName: string
+  fileName?: string
+  sizeBytes: number
+  fileSize?: number
   contentType: string
+  sha256?: string
   uploadedAt: string
 }
 
 export interface Submission {
-  id: string
+  submissionId: string
+  id?: string
   problemId: string
-  participantId: string
-  status: 'DRAFT' | 'SUBMITTED' | 'RETURNED' | 'ACCEPTED' | 'REJECTED'
-  content: string
-  createdAt: string
-  updatedAt: string
+  teamId?: string
+  participantId?: string
+  status: 'DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW' | 'RETURNED' | 'ACCEPTED' | 'REJECTED' | string
+  title?: string
+  summary?: string
+  content?: string
+  githubUrl?: string
+  commitSha?: string
+  branch?: string
+  links?: Array<Record<string, string>>
+  reviewRound?: number
+  reviewerUserId?: string
+  decisionComment?: string
   feedback?: string
+  submittedAt?: string
+  decidedAt?: string
+  createdAt?: string
+  updatedAt?: string
+  files?: PortalFile[]
+  team?: any
 }

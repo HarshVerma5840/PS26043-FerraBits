@@ -4,7 +4,7 @@
 The SAAMYUKT web frontend provides administrative, governance, and evaluation workflows for the platform. It is built with React, TypeScript, Vite, and Tailwind CSS.
 
 > **Note on Mobile App Workflows**
-> Citizen and student/innovator workflows (e.g., submitting civic grievances, tracking project work) belong exclusively to the Android application. The web frontend does not contain pages for these roles.
+> Mobile clients remain supported, but authenticated `SUBMITTER` accounts can also use the web portal for published problems, participant registration, submissions, files, and status history.
 
 ## Environments & Startup
 
@@ -58,18 +58,18 @@ The frontend does not communicate directly with the individual microservices. Al
 ### Supported Roles
 The web frontend exclusively supports the following JWT roles:
 - `ADMIN`: Platform administrators and governance officials.
-- `REVIEWER` / `NODAL_OFFICER`: Triage and scoping officials for civic grievances.
+- `REVIEWER`: Triage and scoping officials for civic grievances.
 - `EVALUATOR`: Technical reviewers for innovator projects.
-- `FACULTY`: Faculty members (Preview mode only).
+- `SUBMITTER`: Citizen/student/organisation submitters using the portal.
 
 ### Role-to-Route Mapping
 - `ADMIN` → `/admin/governance`, `/admin/analytics`
 - `REVIEWER` → `/nodal/triage`
 - `EVALUATOR` → `/evaluator/dashboard`
-- `FACULTY` → `/faculty/projects`
+- `SUBMITTER` → `/portal/problems`
 
 ### Faculty Preview Policy
-Access to the Faculty Workspace (`/faculty/projects`) is strictly limited to users with the explicit `FACULTY` or `ADMIN` role. Regular `SUBMITTER` users are restricted and will receive an "Access Denied" (403) page. No arbitrary roles were created for this workflow.
+The backend currently issues only `SUBMITTER`, `REVIEWER`, `EVALUATOR`, and `ADMIN` JWT roles. The `/faculty/projects` screen is an admin-only preview because the backend has no `FACULTY` role.
 
 ## Testing
 

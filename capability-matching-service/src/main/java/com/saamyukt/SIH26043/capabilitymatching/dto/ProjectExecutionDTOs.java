@@ -8,6 +8,18 @@ import java.util.List;
 public class ProjectExecutionDTOs {
 
     @Data
+    public static class ProjectDto {
+        private UUID projectId;
+        private UUID problemId;
+        private UUID institutionId;
+        private String name;
+        private String description;
+        private String status;
+        private OffsetDateTime createdAt;
+        private OffsetDateTime updatedAt;
+    }
+
+    @Data
     public static class MilestoneDto {
         private UUID milestoneId;
         private UUID projectId;

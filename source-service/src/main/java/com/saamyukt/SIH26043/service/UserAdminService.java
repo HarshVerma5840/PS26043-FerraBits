@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -20,6 +21,11 @@ public class UserAdminService {
 
     public UserAdminService(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public List<User> listAll() {
+        return userRepository.findAll();
     }
 
     @Transactional(readOnly = true)

@@ -29,7 +29,12 @@ export function FacultyWorkspace() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 lg:px-12 py-space-lg flex-1 flex flex-col md:flex-row gap-space-lg">
+    <div className="w-full max-w-7xl mx-auto px-6 lg:px-12 py-space-lg flex-1 flex flex-col gap-space-lg">
+      <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-700 text-xs font-semibold flex items-center justify-between">
+        <span>PREVIEW PROTOTYPE: FACULTY is not an issuable JWT role. Academic faculty authenticate as SUBMITTER in the production portal.</span>
+        <Link to="/portal/problems" className="underline hover:text-amber-900">Go to Submitter Portal &rarr;</Link>
+      </div>
+      <div className="flex flex-col md:flex-row gap-space-lg">
       
       {/* Left Sidebar: Projects List */}
       <div className="w-full md:w-1/3 flex flex-col gap-space-md">
@@ -79,6 +84,7 @@ export function FacultyWorkspace() {
         )}
       </div>
 
+      </div>
     </div>
   )
 }

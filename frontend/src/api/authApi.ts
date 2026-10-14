@@ -52,8 +52,4 @@ export const authApi = {
     return response.data
   },
 
-  validateToken: async (): Promise<{ valid: boolean }> => {
-    const response = await httpClient.get<{ valid: boolean }>('/auth/api/v1/validate')
-    return response.data
-  },
 }

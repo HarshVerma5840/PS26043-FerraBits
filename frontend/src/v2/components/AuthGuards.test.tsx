@@ -115,7 +115,8 @@ describe('AuthGuards and Redirects', () => {
           <Route path="/" element={<RoleLandingRedirect />} />
           <Route path="/admin/governance" element={<div>Admin Dashboard</div>} />
           <Route path="/nodal/triage" element={<div>Nodal Dashboard</div>} />
-          <Route path="/evaluator/dossier" element={<div>Evaluator Dashboard</div>} />
+          <Route path="/evaluator/dashboard" element={<div>Evaluator Dashboard</div>} />
+          <Route path="/portal/problems" element={<div>Submitter Portal</div>} />
           <Route path="/unauthorized" element={<div>Unauthorized</div>} />
         </Routes>
       </MemoryRouter>
@@ -133,16 +134,38 @@ describe('AuthGuards and Redirects', () => {
       expect(screen.getByText('Nodal Dashboard')).toBeInTheDocument()
     })
 
-    it('redirects EVALUATOR to /evaluator/dossier', () => {
+    it('redirects EVALUATOR to /evaluator/dashboard', () => {
       mockAuth(true, BackendRole.EVALUATOR)
       renderRedirect()
       expect(screen.getByText('Evaluator Dashboard')).toBeInTheDocument()
     })
 
-    it('redirects unknown roles to /unauthorized', () => {
-      mockAuth(true, 'UNKNOWN_ROLE' as BackendRole)
+    it('redirects SUBMITTER to /portal/problems', () => {
+      mockAuth(true, BackendRole.SUBMITTER)
       renderRedirect()
-      expect(screen.getByText('Unauthorized')).toBeInTheDocument()
+      expect(screen.getByText('Submitter Portal')).toBeInTheDocument()
+    })
+
+    it('redirects unknown or unissuable roles to /unauthorized', () => {
+      const unsupportedRoles = [
+        'FACULTY',
+        'PROJECT_MANAGER',
+        'INDUSTRY_USER',
+        'STUDENT',
+        'REGISTRY_MANAGER',
+        'INTERNAL',
+        'CITIZEN',
+        'SOURCE_ADMIN',
+        'NODAL_OFFICER',
+        'UNKNOWN'
+      ]
+
+      for (const role of unsupportedRoles) {
+        cleanup()
+        mockAuth(true, role as BackendRole)
+        renderRedirect()
+        expect(screen.getByText('Unauthorized')).toBeInTheDocument()
+      }
     })
   })
 })

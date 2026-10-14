@@ -115,7 +115,7 @@ export default function NotificationDropdown({ onClose, onUnreadCountChange }: N
 
       <div style={{ padding: '0.75rem', borderTop: '1px solid var(--glass-border)', textAlign: 'center', background: 'rgba(255,255,255,0.02)' }}>
         <button 
-          onClick={() => { onClose(); navigate('/portal/notifications') }}
+          onClick={() => { onClose(); navigate('/notifications') }}
           style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem', width: '100%', cursor: 'pointer' }}
         >
           View all notifications <ExternalLink size={14} />

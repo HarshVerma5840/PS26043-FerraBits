@@ -179,6 +179,13 @@ public class IndustryParticipationService {
         mentorshipRepository.save(mentorship);
         return mapMentorship(mentorship);
     }
+
+    @Transactional(readOnly = true)
+    public List<ProjectMentorshipDto> getMentorships(UUID projectId) {
+        return mentorshipRepository.findByProject_ProjectId(projectId).stream()
+                .map(this::mapMentorship)
+                .collect(Collectors.toList());
+    }
     
     @Transactional
     public MentorshipSessionDto addSession(UUID mentorshipId, MentorshipSessionDto dto) {

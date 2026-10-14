@@ -23,9 +23,10 @@ export default function SourceAccountPage() {
   const handleVerify = async (id: string) => {
     try {
       await sourceApi.verifySourceAccount(id)
+      toast.success('Source account verified successfully')
       fetchAccounts()
     } catch (err: any) {
-      toast.error(err.message)
+      toast.error(err.message || 'Failed to verify source account')
     }
   }
 

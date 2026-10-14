@@ -14,7 +14,7 @@ export const portalApi = {
     const response = await httpClient.get('/portal/me')
     return response.data
   },
-  registerParticipant: async (data: Partial<Participant>): Promise<Participant> => {
+  registerParticipant: async (data: { fullName: string; email?: string; phone?: string }): Promise<Participant> => {
     const response = await httpClient.post('/portal/participants', data)
     return response.data
   },
@@ -22,7 +22,17 @@ export const portalApi = {
     const response = await httpClient.get('/portal/submissions')
     return response.data
   },
-  createSubmission: async (data: Partial<Submission>): Promise<Submission> => {
+  createSubmission: async (data: {
+    problemId: string
+    title?: string
+    summary?: string
+    githubUrl?: string
+    commitSha?: string
+    branch?: string
+    links?: Array<Record<string, string>>
+    teamName?: string
+    memberUserIds?: string[]
+  }): Promise<Submission> => {
     const response = await httpClient.post('/portal/submissions', data)
     return response.data
   },
@@ -30,7 +40,14 @@ export const portalApi = {
     const response = await httpClient.get(`/portal/submissions/${id}`)
     return response.data
   },
-  updateSubmission: async (id: string, data: Partial<Submission>): Promise<Submission> => {
+  updateSubmission: async (id: string, data: {
+    title?: string
+    summary?: string
+    githubUrl?: string
+    commitSha?: string
+    branch?: string
+    links?: Array<Record<string, string>>
+  }): Promise<Submission> => {
     const response = await httpClient.patch(`/portal/submissions/${id}`, data)
     return response.data
   },
@@ -41,6 +58,9 @@ export const portalApi = {
   getFiles: async (submissionId: string): Promise<PortalFile[]> => {
     const response = await httpClient.get(`/portal/submissions/${submissionId}/files`)
     return response.data
+  },
+  deleteFile: async (submissionId: string, fileId: string): Promise<void> => {
+    await httpClient.delete(`/portal/submissions/${submissionId}/files/${fileId}`)
   },
   /**
    * Upload a file for a submission. Supports progress tracking and
@@ -62,6 +82,27 @@ export const portalApi = {
       multipartConfig(signal, onUploadProgress)
     )
     return response.data
+  },
+  /**
+   * Securely download a submission file with JWT authorization header.
+   */
+  downloadFile: async (fileId: string, originalName?: string): Promise<void> => {
+    const response = await httpClient.get(`/portal/files/${fileId}/download`, {
+      responseType: 'blob'
+    })
+    const contentType = response.headers['content-type']
+    const mimeType = typeof contentType === 'string' ? contentType : 'application/octet-stream'
+    const blob = new Blob([response.data], {
+      type: mimeType
+    })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = originalName || `file-${fileId}`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    window.URL.revokeObjectURL(url)
   },
   /**
    * Returns the full download URL for a portal file.

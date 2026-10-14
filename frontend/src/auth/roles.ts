@@ -3,7 +3,7 @@
  *
  * The backend (source-service) defines UserRole enum as:
  *   SUBMITTER  — citizen / student / organisation submitting a problem.
- *                Authenticates via Android app; has NO web portal.
+ *                Uses the authenticated web portal as well as mobile clients.
  *   REVIEWER   — Nodal Officer. Reviews source registrations.
  *                Web portal: /nodal/triage
  *   EVALUATOR  — Domain expert. Scores problems in evaluation pipeline.
@@ -11,9 +11,8 @@
  *   ADMIN      — Super-user. Full access to all portals.
  *                Web portal: /admin/governance
  *
- * FACULTY / PROJECT_MANAGER do NOT exist as JWT roles in the backend.
- * The /faculty route is protected by ADMIN only until a backend faculty
- * identity mechanism is implemented.
+ * FACULTY / PROJECT_MANAGER / INDUSTRY_USER do NOT exist as JWT roles in the
+ * backend and must not be treated as authenticated web roles.
  *
  * JWT payload claim: ole (string, one of the values above).
  */
@@ -35,9 +34,9 @@ export function roleDefaultRoute(role: string | null | undefined): string {
     case BackendRole.REVIEWER:
       return '/nodal/triage'
     case BackendRole.EVALUATOR:
-      return '/evaluator/dossier'
+      return '/evaluator/dashboard'
     case BackendRole.SUBMITTER:
-      return '/citizen/dashboard'
+      return '/portal/problems'
     default:
       return '/unauthorized'
   }

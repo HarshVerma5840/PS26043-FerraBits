@@ -62,12 +62,13 @@ export default function AnalyticsDashboardPage() {
     return true
   })
 
-  // Dummy fallback for charts if real data is empty/undefined
-  const chartData: any[] = filteredProjects.length > 0 ? filteredProjects : [
-    { name: 'Jan', active: 12, completed: 5 },
-    { name: 'Feb', active: 18, completed: 8 },
-    { name: 'Mar', active: 25, completed: 15 }
-  ]
+  // Real project metrics for charts (no hardcoded dummy fallback)
+  const chartData = filteredProjects.map(p => ({
+    name: p.projectName ? (p.projectName.length > 15 ? p.projectName.substring(0, 15) + '...' : p.projectName) : p.projectId.substring(0, 8),
+    active: p.status === 'ACTIVE' ? 1 : 0,
+    completed: p.status === 'COMPLETED' ? 1 : 0,
+    score: p.satisfactionScore || 0
+  }))
 
   return (
     <div className="animate-fade-in" style={{ padding: '2rem' }}>
@@ -105,16 +106,22 @@ export default function AnalyticsDashboardPage() {
         <div className="glass-panel" style={{ padding: '1.5rem' }}>
           <h3 style={{ marginTop: 0, marginBottom: '1.5rem' }}>Project Velocity</h3>
           <div style={{ height: '400px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" />
-                <YAxis stroke="rgba(255,255,255,0.5)" />
-                <Tooltip contentStyle={{ background: 'var(--bg-color)', border: '1px solid var(--glass-border)', borderRadius: '8px' }} />
-                <Bar dataKey="active" fill="var(--primary)" name="Active Projects" radius={[4,4,0,0]} />
-                <Bar dataKey="completed" fill="var(--ok)" name="Completed" radius={[4,4,0,0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            {chartData.length === 0 ? (
+              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+                No project velocity data available for the selected filters.
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" />
+                  <YAxis stroke="rgba(255,255,255,0.5)" />
+                  <Tooltip contentStyle={{ background: 'var(--bg-color)', border: '1px solid var(--glass-border)', borderRadius: '8px' }} />
+                  <Bar dataKey="active" fill="var(--primary)" name="Active Projects" radius={[4,4,0,0]} />
+                  <Bar dataKey="completed" fill="var(--ok)" name="Completed" radius={[4,4,0,0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 

@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 import { useParams, useNavigate } from 'react-router-dom'
 import { evaluationApi, AssignmentDetail, ScoreSubmission } from '../api/evaluationApi'
+import { useAuth } from '../auth/AuthContext'
 import { ArrowLeft, Send } from 'lucide-react'
 
 export default function EvaluationSubmissionPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const isEvaluator = user?.role === 'EVALUATOR'
   const [detail, setDetail] = useState<AssignmentDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -20,12 +24,16 @@ export default function EvaluationSubmissionPage() {
       evaluationApi.getAssignmentDetail(id)
         .then(res => {
           setDetail(res)
+          if (res.feedback) setFeedback(res.feedback)
+          if (res.recommendation) setRecommendation(res.recommendation)
           // Pre-populate if already scored
           const initialScores: Record<string, any> = {}
           res.criteria.forEach((c: any) => {
+            const existingScore = c.myScore !== undefined && c.myScore !== null ? c.myScore : (c.score !== undefined && c.score !== null ? c.score : '')
+            const existingComment = c.myComment || c.comment || ''
             initialScores[c.criterionId] = {
-              score: c.score !== undefined && c.score !== null ? c.score : '',
-              comment: c.comment || ''
+              score: existingScore,
+              comment: existingComment
             }
           })
           setScores(initialScores)
@@ -37,11 +45,11 @@ export default function EvaluationSubmissionPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!id || !detail) return
+    if (!id || !detail || !isEvaluator) return
 
     setSubmitting(true)
     setError(null)
-    
+
     try {
       const submission: ScoreSubmission = {
         scores: Object.entries(scores).map(([criterionId, data]) => ({
@@ -54,6 +62,7 @@ export default function EvaluationSubmissionPage() {
       }
 
       await evaluationApi.submitEvaluation(id, submission)
+      toast.success('Evaluation submitted successfully')
       navigate(`/evaluator/assignments/${id}`)
     } catch (err: any) {
       setError(err.message || 'Failed to submit evaluation')
@@ -65,7 +74,7 @@ export default function EvaluationSubmissionPage() {
   if (error && !detail) return <div style={{ color: 'red', padding: '2rem' }}>{error}</div>
   if (!detail) return null
 
-  const isReadonly = detail.assignment.status === 'SUBMITTED' || detail.assignment.status === 'EXPIRED'
+  const isReadonly = !isEvaluator || detail.assignment.status === 'SUBMITTED' || detail.assignment.status === 'EXPIRED'
 
   return (
     <div className="main-content" style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -75,39 +84,45 @@ export default function EvaluationSubmissionPage() {
 
       <div className="page-header">
         <h1 className="page-title">Evaluate Problem</h1>
-        <p style={{ color: 'var(--text-muted)' }}>ID: {detail.assignment.problemId}</p>
+        <p style={{ color: 'var(--text-muted)' }}>Problem ID: {detail.assignment.problemId}</p>
       </div>
+
+      {!isEvaluator && (
+        <div style={{ padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
+          🔒 <strong>Observer Mode:</strong> Scorecard submission is strictly restricted to assigned users with the EVALUATOR role.
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="glass-panel" style={{ padding: '2rem' }}>
         {error && <div style={{ color: 'var(--accent)', background: 'rgba(244,63,94,0.1)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem' }}>{error}</div>}
 
         <h3 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '0.5rem' }}>Scoring Criteria</h3>
-        
+
         <div style={{ display: 'grid', gap: '2rem', marginBottom: '2rem' }}>
           {detail.criteria.map((c: any) => (
             <div key={c.criterionId} style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
                 <div>
-                  <h4 style={{ fontSize: '1.1rem' }}>{c.name}</h4>
+                  <h4 style={{ fontSize: '1.1rem' }}>{c.criterionLabel || c.name || c.criterionKey}</h4>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{c.description}</p>
                 </div>
                 <div style={{ textAlign: 'right', minWidth: '100px' }}>
                   <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)' }}>Score (Max {c.maxScore})</label>
-                  <input 
-                    type="number" 
-                    min="1" 
-                    max={c.maxScore} 
-                    required 
+                  <input
+                    type="number"
+                    min="1"
+                    max={c.maxScore || 10}
+                    required
                     disabled={isReadonly}
                     value={scores[c.criterionId]?.score}
                     onChange={e => setScores(prev => ({ ...prev, [c.criterionId]: { ...prev[c.criterionId], score: e.target.value } }))}
-                    style={{ width: '80px', fontSize: '1.2rem', padding: '0.5rem' }} 
+                    style={{ width: '80px', fontSize: '1.2rem', padding: '0.5rem' }}
                   />
                 </div>
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.25rem', color: 'var(--text-muted)' }}>Comment (Optional)</label>
-                <textarea 
+                <textarea
                   rows={2}
                   disabled={isReadonly}
                   value={scores[c.criterionId]?.comment}
@@ -121,7 +136,7 @@ export default function EvaluationSubmissionPage() {
 
         <div style={{ marginBottom: '1.5rem' }}>
           <label style={{ display: 'block', marginBottom: '0.5rem' }}>Overall Feedback (Optional)</label>
-          <textarea 
+          <textarea
             rows={4}
             disabled={isReadonly}
             value={feedback}
@@ -132,7 +147,7 @@ export default function EvaluationSubmissionPage() {
 
         <div style={{ marginBottom: '2rem' }}>
           <label style={{ display: 'block', marginBottom: '0.5rem' }}>Recommendation (Optional)</label>
-          <input 
+          <input
             type="text"
             disabled={isReadonly}
             value={recommendation}

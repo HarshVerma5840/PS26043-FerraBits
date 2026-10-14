@@ -74,8 +74,8 @@ class RegistryApiControllerSecurityTest {
     }
 
     @Test
-    @WithMockUser(roles = "REGISTRY_MANAGER")
-    void testArchiveVersion_AllowedForManager() throws Exception {
+    @WithMockUser(roles = "ADMIN")
+    void testArchiveVersion_AllowedForAdmin() throws Exception {
         mockMvc.perform(post("/capability/registry/versions/1/archive"))
                 .andExpect(status().isOk());
     }

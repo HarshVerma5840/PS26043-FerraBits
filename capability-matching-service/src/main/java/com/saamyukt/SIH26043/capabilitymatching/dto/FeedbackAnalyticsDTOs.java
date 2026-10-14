@@ -54,4 +54,34 @@ public class FeedbackAnalyticsDTOs {
         private double averageCompletionTimeDays;
         private double deploymentSuccessRate;
     }
+
+    @Data
+    public static class DistrictAnalyticsDto {
+        private String district;
+        private String state;
+        private long projectCount;
+        private long deployedCount;
+        private long activeStudents;
+        private String geohash;
+    }
+
+    @Data
+    public static class InstitutionAnalyticsDto {
+        private String institutionId;
+        private String institutionName;
+        private long projectCount;
+        private double successRate;
+        private long totalStudents;
+    }
+
+    @Data
+    public static class ProjectAnalyticsDto {
+        private String projectId;
+        private String projectName;
+        private String status;
+        private String deploymentStatus;
+        private String district;
+        private String institutionName;
+        private double satisfactionScore;
+    }
 }
