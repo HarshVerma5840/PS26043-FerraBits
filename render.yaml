@@ -1,217 +1,3 @@
-# ==============================================================================
-# SAAMYUKT (SIH PS26043) — Production Render Infrastructure Blueprint
-#
-# Production microservices architecture on Render:
-#   - gateway: Public L7 Caddy Web Service (:8080 or $PORT)
-#   - frontend: High-performance Global CDN Static Site
-#   - eureka-server: Service Discovery Private Service (:8761)
-#   - 6 Microservices: Private Services communicating over Render Private Networking
-#   - saamyukt-postgres: Managed PostgreSQL 16 cluster
-#   - Persistent Disks for problem evidence, portal uploads, & codejudge scratch
-# ==============================================================================
-
-version: "1"
-
-# ------------------------------------------------------------------------------
-# 1. Shared Environment Variable Groups (Deterministic / Non-Secret Only)
-# ------------------------------------------------------------------------------
-envVarGroups:
-  # Security and Profile Config
-  - name: saamyukt-security-config
-    envVars:
-      - key: SPRING_PROFILES_ACTIVE
-        value: prod # Enforces production security: strict secrets, real OTP, disables mock OTP and permissive CORS
-
-  # Database Host & Connection Coordinates (Credentials injected via fromDatabase)
-  - name: saamyukt-database-config
-    envVars:
-      - key: DB_HOST
-        value: saamyukt-postgres
-      - key: DB_PORT
-        value: "5432"
-      - key: DB_NAME
-        value: saamyukt
-
-  # AI Engine & LLM Configuration (Replaces local host.docker.internal)
-  - name: saamyukt-ai-config
-    envVars:
-      - key: OPENAI_BASE_URL
-        value: https://api.openai.com/v1
-      - key: OPENAI_MODEL
-        value: gpt-4o-mini
-      - key: GEMINI_MODEL
-        value: gemini-1.5-flash
-      - key: AI_PROVIDER
-        value: openai
-      - key: AI_SCORING_PROVIDER
-        value: openai
-      - key: EVALUATION_AUTO_ENABLED
-        value: "true"
-
-  # Persistent Storage Paths
-  - name: saamyukt-storage-config
-    envVars:
-      - key: EVIDENCE_STORAGE_DIR
-        value: /data/evidence
-      - key: PORTAL_FILE_STORAGE_DIR
-        value: /data/portal-files
-      - key: CODEJUDGE_ANALYZER_DIR
-        value: /opt/codejudge-analyzer
-      - key: CODEJUDGE_WORKSPACES_DIR
-        value: /data/codejudge-workspaces
-      - key: CODEJUDGE_SANDBOX_ENABLED
-        value: "false"
-
-  # Render Private Networking Service URLs
-  # Resolves directly through Render Private DNS (same region, isolated VPC)
-  - name: saamyukt-service-urls
-    envVars:
-      - key: EUREKA_SERVER_URL
-        value: http://eureka-server:8761/eureka/
-      - key: SOURCE_SERVICE_URL
-        value: http://source-service:8081
-      - key: PROBLEM_SERVICE_URL
-        value: http://problem-service:8082
-      - key: EVALUATION_SERVICE_URL
-        value: http://evaluation-service:8083
-      - key: PORTAL_SERVICE_URL
-        value: http://portal-service:8084
-      - key: CODEJUDGE_SERVICE_URL
-        value: http://codejudge-service:8085
-      - key: CAPABILITY_SERVICE_URL
-        value: http://capability-matching-service:8086
-
-# ------------------------------------------------------------------------------
-# 2. Managed PostgreSQL Database Cluster
-# ------------------------------------------------------------------------------
-databases:
-  - name: saamyukt-postgres
-    databaseName: saamyukt
-    user: sih
-    plan: starter
-    region: oregon
-    postgresMajorVersion: "16"
-
-# ------------------------------------------------------------------------------
-# 3. Application Services
-# ------------------------------------------------------------------------------
-services:
-  # ----------------------------------------------------------------------------
-  # PUBLIC GATEWAY: Caddy L7 Reverse Proxy & Ingress
-  # Single public entrypoint exposing all microservices under unified domain.
-  # ----------------------------------------------------------------------------
-  - type: web
-    name: gateway
-    runtime: docker
-    region: oregon
-    plan: starter
-    dockerfilePath: gateway/Dockerfile
-    dockerContext: .
-    healthCheckPath: /healthz
-    envVars:
-      - key: PORT
-        value: "8080"
-      - key: CORS_ALLOWED_ORIGIN
-        value: https://saamyukt-frontend.onrender.com # Exact frontend origin (no wildcard in production)
-
-  # ----------------------------------------------------------------------------
-  # FRONTEND: Global CDN Static Site
-  # Vite/React SPA built with production optimizations and client-side rewrites.
-  # ----------------------------------------------------------------------------
-  - type: web
-    name: frontend
-    runtime: static
-    buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    envVars:
-      - key: VITE_API_BASE_URL
-        value: https://saamyukt-gateway.onrender.com # Public HTTPS URL of the Gateway (browser-facing)
-
-  # ----------------------------------------------------------------------------
-  # EUREKA SERVER: Spring Cloud Netflix Service Registry
-  # Facilitates dynamic peer registration and resilient inter-service lookup.
-  # ----------------------------------------------------------------------------
-  - type: pserv
-    name: eureka-server
-    runtime: docker
-    region: oregon
-    plan: starter
-    dockerfilePath: eureka-server/Dockerfile
-    dockerContext: .
-    healthCheckPath: /
-    envVars:
-      - key: SERVER_PORT
-        value: "8761"
-
-  # ----------------------------------------------------------------------------
-  # SOURCE SERVICE: Authentication, Source Accounts, User Role Management
-  # ----------------------------------------------------------------------------
-  - type: pserv
-    name: source-service
-    runtime: docker
-    region: oregon
-    plan: starter
-    dockerfilePath: source-service/Dockerfile
-    dockerContext: .
-    healthCheckPath: /v3/api-docs
-    envVars:
-      - key: SERVER_PORT
-        value: "8081"
-      - key: DB_URL
-        value: jdbc:postgresql://saamyukt-postgres:5432/saamyukt?currentSchema=sih_source
-      - key: DB_SCHEMA
-        value: sih_source
-      - key: DB_USERNAME
-        fromDatabase:
-          name: saamyukt-postgres
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: saamyukt-postgres
-          property: password
-      - key: JWT_SECRET
-        sync: false # Set via Render Dashboard (min 32 bytes cryptographically secure)
-      - key: IDENTITY_PEPPER
-        sync: false # Set via Render Dashboard (salt pepper for identity hashing, min 16 chars)
-      - fromGroup: saamyukt-security-config
-      - fromGroup: saamyukt-database-config
-      - fromGroup: saamyukt-service-urls
-
-  # ----------------------------------------------------------------------------
-  # PROBLEM SERVICE: Domains, Problem Intake, Geocoding, Problem-Scoped Audit
-  # Mounts a 10 GB persistent disk for submitted evidence files.
-  # ----------------------------------------------------------------------------
-  - type: pserv
-    name: problem-service
-    runtime: docker
-    region: oregon
-    plan: starter
-    dockerfilePath: problem-service/Dockerfile
-    dockerContext: .
-    healthCheckPath: /v3/api-docs
-    disk:
-      name: problem-evidence-disk
-      mountPath: /data/evidence
-      sizeGB: 10
-    envVars:
-      - key: SERVER_PORT
-        value: "8082"
-      - key: DB_URL
-        value: jdbc:postgresql://saamyukt-postgres:5432/saamyukt?currentSchema=sih_problem
-      - key: DB_SCHEMA
-        value: sih_problem
-      - key: DB_USERNAME
-        fromDatabase:
-          name: saamyukt-postgres
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: saamyukt-postgres
-          property: password
       - key: JWT_SECRET
         sync: false # Set via Render Dashboard (min 32 bytes cryptographically secure)
       - key: OPENAI_API_KEY
@@ -222,45 +8,6 @@ services:
       - fromGroup: saamyukt-database-config
       - fromGroup: saamyukt-service-urls
       - fromGroup: saamyukt-ai-config
-      - fromGroup: saamyukt-storage-config
-
-  # ----------------------------------------------------------------------------
-  # EVALUATION SERVICE: Automated & Human Review Pipeline, Scoring Engines
-  # ----------------------------------------------------------------------------
-  - type: pserv
-    name: evaluation-service
-    runtime: docker
-    region: oregon
-    plan: starter
-    dockerfilePath: evaluation-service/Dockerfile
-    dockerContext: .
-    healthCheckPath: /v3/api-docs
-    envVars:
-      - key: SERVER_PORT
-        value: "8083"
-      - key: DB_URL
-        value: jdbc:postgresql://saamyukt-postgres:5432/saamyukt?currentSchema=sih_eval
-      - key: DB_SCHEMA
-        value: sih_eval
-      - key: DB_USERNAME
-        fromDatabase:
-          name: saamyukt-postgres
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: saamyukt-postgres
-          property: password
-      - key: JWT_SECRET
-        sync: false # Set via Render Dashboard (min 32 bytes cryptographically secure)
-      - key: OPENAI_API_KEY
-        sync: false # Production OpenAI API Key
-      - key: GEMINI_API_KEY
-        sync: false # Production Gemini API Key
-      - fromGroup: saamyukt-security-config
-      - fromGroup: saamyukt-database-config
-      - fromGroup: saamyukt-service-urls
-      - fromGroup: saamyukt-ai-config
-
   # ----------------------------------------------------------------------------
   # PORTAL SERVICE: Public Problem Portal, Submissions, File Storage
   # Mounts a 10 GB persistent disk for participant project attachments.
@@ -272,7 +19,6 @@ services:
     plan: starter
     dockerfilePath: portal-service/Dockerfile
     dockerContext: .
-    healthCheckPath: /v3/api-docs
     disk:
       name: portal-files-disk
       mountPath: /data/portal-files
@@ -298,7 +44,6 @@ services:
       - fromGroup: saamyukt-database-config
       - fromGroup: saamyukt-service-urls
       - fromGroup: saamyukt-storage-config
-
   # ----------------------------------------------------------------------------
   # CODEJUDGE SERVICE: Automated Git Repository Evaluation & Python Analyzer
   # Mounts a 10 GB scratch disk for isolated git clone workspaces.
@@ -310,7 +55,6 @@ services:
     plan: starter
     dockerfilePath: Dockerfile.codejudge
     dockerContext: .
-    healthCheckPath: /v3/api-docs
     disk:
       name: codejudge-workspaces-disk
       mountPath: /data/codejudge-workspaces
@@ -339,7 +83,6 @@ services:
       - fromGroup: saamyukt-service-urls
       - fromGroup: saamyukt-ai-config
       - fromGroup: saamyukt-storage-config
-
   # ----------------------------------------------------------------------------
   # CAPABILITY MATCHING SERVICE: Batch 3 Capability Registry & Evidence Matching
   # ----------------------------------------------------------------------------
@@ -350,7 +93,6 @@ services:
     plan: starter
     dockerfilePath: capability-matching-service/Dockerfile
     dockerContext: .
-    healthCheckPath: /v3/api-docs
     envVars:
       - key: SERVER_PORT
         value: "8086"
@@ -371,3 +113,4 @@ services:
       - fromGroup: saamyukt-security-config
       - fromGroup: saamyukt-database-config
       - fromGroup: saamyukt-service-urls
+Retry
