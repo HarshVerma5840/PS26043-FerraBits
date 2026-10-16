@@ -1,0 +1,38 @@
+{
+  "name": "SAAMYUKT backend demo",
+  "image": "mcr.microsoft.com/devcontainers/java:1-21-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "dockerDashComposeVersion": "v2"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    }
+  },
+  "forwardPorts": [8080, 8761, 8081, 8082, 8083, 8084, 8085, 8086, 5432],
+  "portsAttributes": {
+    "8080": {
+      "label": "SAAMYUKT API gateway",
+      "protocol": "https",
+      "onAutoForward": "notify"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "onAutoForward": "ignore"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vmware.vscode-boot-dev-pack",
+        "ms-azuretools.vscode-docker",
+        "redhat.vscode-yaml"
+      ]
+    }
+  },
+  "remoteEnv": {
+    "COMPOSE_PROJECT_NAME": "saamyukt-codespaces"
+  }
+}

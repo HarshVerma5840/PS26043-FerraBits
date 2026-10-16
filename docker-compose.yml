@@ -302,7 +302,6 @@ services:
       - codejudge-service
       - capability-matching-service
       - eureka-server
-      - frontend
     ports:
       - "8080:8080"
     volumes:

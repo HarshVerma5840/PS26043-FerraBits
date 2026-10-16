@@ -1,0 +1,13 @@
+services:
+  # The production frontend is hosted on Vercel. Keep the local frontend
+  # available only when explicitly requested with --profile local-frontend.
+  frontend:
+    profiles:
+      - local-frontend
+
+  # The gateway serves the backend API in Codespaces. The Vercel frontend
+  # calls the forwarded public gateway URL, so no frontend container is needed.
+  gateway:
+    depends_on: []
+    environment:
+      CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN:-*}
